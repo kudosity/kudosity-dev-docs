@@ -1,0 +1,2669 @@
+openapi: 3.0.3
+info:
+  title: Transmit Message API
+  description: Transmit APIs
+  version: 1.0.0
+  x-go-package: github.com/oapi-codegen/runtime
+servers:
+  - url: https://api.transmitmessage.com
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: MMS
+    description: The primary method of sending MMS
+  - name: SMS
+    description: >-
+      The primary method of sending SMS.
+
+
+      You can elect to pass us the recipient numbers from your database each
+      time you make an API call.
+
+
+      In order to send to a local number for a recipient the Sender virtual
+      number needs to be in the same country.
+
+
+      You can pass us the recipient number in international format and we will
+      deliver your message with the Sender virtual number on your account for
+      the same country.
+
+
+      If you do not have a Sender virtual number for the same country we will
+      use a local number for the country you are sending to in order to deliver
+      your message.
+
+
+      List of countries we currently deliver to: [Global Delivery
+      List](https://help.kudosity.com/support/solutions/articles/44001077065-global-sms-delivery-list)
+  - name: Webhook
+    description: >-
+      Our webhooks API allows you to subscribe to events for SMS, MMS, and RCS
+      messages. Using them requires you to have URLs (https) configured on your
+      account that can receive POST requests over the internet.
+
+
+      The `event_type` field is an enum that specifies which event to subscribe
+      to:
+
+
+      - LINK_HIT
+
+      - OPT_OUT
+
+      - MMS_STATUS
+
+      - MMS_INBOUND
+
+      - SMS_INBOUND
+
+      - SMS_STATUS
+
+      - RCS_STATUS
+          
+
+      For status events, the nested `status` field is an enum with these values:
+
+
+      - FAILED: Failed because of an error from the carrier or handset.
+          
+      - SENT: Submitted to the carrier.
+
+      - ACCEPTED: Accepted by the carrier and delivery may have been attempted
+      (but is not confirmed).
+
+      - DELIVERED: Delivered to handset.
+
+      - SOFT_BOUNCE: Undeliverable due to handset being switched off, out of
+      range or other temporary deliverability issue.
+
+      - HARD_BOUNCE: Handset was disconnected.
+
+      - OTHER: Any other status from the carrier.
+          
+
+      ## Link Hit
+
+
+      The `LINK_HIT` event is triggered any time a recipient visits a link that
+      is tracked. Track Links is an optional flag on the send message API calls.
+      Along with the URL that was being tracked is a hits field indicating how
+      many visits this tracked link has in total and a source_message which
+      contains the track link sent to the recipient.
+
+
+      ###### Example Payloads
+
+
+      ```json Hit link in MMS {
+        "event_type": "LINK_HIT",
+        "timestamp": "2021-05-06T05:19:42Z",
+        "link_hit": {
+          "hits": 1,
+          "url": "https://www.example.com/abc",
+          "source_message": {
+            "type": "MMS",
+            "id": "b50e4dc1-e57f-459c-a15c-526bee00a4c4",
+            "message": "Hey, Check this out! http://clckme.info/KYhSsuIH Opt-out reply STOP",
+            "message_ref": "D701",
+            "recipient": "61435790000",
+            "sender": "61481074191",
+            "subject": "Hello",
+            "content_urls": [
+              "https://res.cloudinary.com/burstsms/image/upload/v1618798563/284KB_qgqtbe.jpg"
+            ]
+          }
+        }
+      } ``` ```json Hit link in SMS {
+        "event_type": "LINK_HIT",
+        "timestamp": "2021-07-20T23:14:04Z",
+        "link_hit": {
+          "hits": 1,
+          "url": "https://www.example.com/abc",
+          "source_message": {
+            "type": "SMS",
+            "id": "faf68308-16cd-4cf9-aef7-47342bd405be",
+            "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh ",
+            "message_ref": "D301",
+            "recipient": "61435795809",
+            "sender": "61481074185"
+          }
+        }
+      } ```
+
+      ## Opt Out
+
+
+      The `OPT_OUT` event is triggered when a recipient has visited an opt-out
+      link in a message they have received or by sending a message with the text
+      "STOP".
+
+
+      Using parameter \[opt-out-link\] in message body, inserts the opt-out
+      link.
+
+
+      The source field will be set according to the method a recipient has used
+      to opt-out and contain a value of either link or SMS.
+        
+
+      ###### Example Payloads
+
+
+      ```json Opt out via link {
+        "event_type": "OPT_OUT",
+        "timestamp": "2021-05-06T05:16:20Z",
+        "opt_out": {
+          "source": "LINK_HIT",
+          "source_message": {
+            "type": "SMS",
+            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
+            "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh",
+            "message_ref": "ncc5009d",
+            "recipient": "61435790000",
+            "sender": "61481074190"  
+          }
+        }
+      } ``` ```json Opt out via message {
+        "event_type": "OPT_OUT",
+        "timestamp": "2021-05-06T05:16:20Z",
+        "opt_out": {
+          "source": "SMS_INBOUND",
+          "source_message": {
+            "type": "SMS",
+            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
+            "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh",
+            "message_ref": "ncc5009d",
+            "recipient": "61435790000",
+            "sender": "61481074190"
+          }
+        }
+      } ```
+
+      ## MMS Status
+
+
+      The `MMS_STATUS` event data is posted to you for changes to an MMS message
+      status. These are currently only comprised of internal statuses (SENT,
+      FAILED).
+
+
+      ###### Example Payload
+
+
+      ```json {
+        "event_type": "MMS_STATUS",
+        "timestamp": "2021-05-06T05:19:33Z",
+        "status": {
+          "type": "MMS",
+          "id": "b50e4dc1-e57f-459c-a15c-526bee00a4c4",
+          "message_ref": "D7001",
+          "recipient": "61435790000",
+          "sender": "61481074191",
+          "status": "SENT"
+        }
+      } ```
+
+      ## SMS Inbound
+
+
+      The `SMS_INBOUND` event is posted to you on receipt of an SMS sent from a
+      recipient to one of the senders listed on your account. For convenience we
+      will try and find a message that you have sent to this recipient from that
+      sender and supply it as the `last_message` field. This is useful for
+      determining if an inbound message is potentially a reply. The `routed_via`
+      field will display when a shared local number has been used to deliver
+      your message.
+
+
+      ###### Example Payload
+
+
+      ```json {
+        "event_type": "SMS_INBOUND",
+        "timestamp": "2021-05-06T05:16:33Z",
+        "mo": {
+          "type":"SMS",
+          "id": "alss-2way-605b31c7-d2c49104",
+          "message": "Stop",
+          "recipient": "61481074190",
+          "routed_via": "447507333300",
+          "sender": "447507222200",
+          "last_message": {
+            "type":"SMS",
+            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",     
+            "message": "Hey, check this out!",
+            "message_ref": "ncc5009d",
+            "recipient": "447507222200",
+            "routed_via": "447507333300",
+            "sender": "61481074190"
+          }
+        }
+      } ```
+
+      ## SMS Status
+
+
+      The `SMS_STATUS` event data is posted to you for changes to a SMS message
+      status. Multiple status events can be triggered for a single message.
+
+
+      The `routed_via` field will display when a shared local number has been
+      used to deliver your message.
+
+
+      ###### Example Payload
+
+
+      ```json {
+        "event_type": "SMS_STATUS",
+        "timestamp": "2021-05-06T05:16:07Z",
+        "status": {
+          "type": "SMS",
+          "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
+          "message_ref": "ncc5009d",
+          "recipient": "447507222200",
+          "routed_via": "447507333300",
+          "sender": "61481074190",
+          "status": "SENT"
+        }
+      } ```
+
+      ## RCS Status
+
+
+      The `RCS_STATUS` event data is posted to you for changes to an RCS message
+      status. RCS supports enhanced status tracking including read receipts.
+
+
+      RCS-specific statuses include:
+
+
+      - SENT: Submitted to the carrier.
+
+      - DELIVERED: Delivered to handset.
+
+      - FAILED: Failed because of an error from the carrier or handset.
+
+      - READ: Message was read by the recipient (RCS-specific feature).
+
+
+      ###### Example Payload
+
+
+      ```json {
+        "event_type": "RCS_STATUS",
+        "timestamp": "2025-01-07T05:16:07Z",
+        "webhook_id": "fd0e6485-b905-44c1-bd55-fee1d0d6d864",
+        "webhook_name": "RCS Status Webhook",
+        "status": {
+          "type": "RCS",
+          "id": "6fdae71c-dad7-4c36-9734-a69693ecf3b4",
+          "message_ref": "order-12345",
+          "recipient": "+447903749662",
+          "sender": "DemoSender",
+          "status": "READ"
+        }
+      } ```
+  - name: Conversr
+    description: >-
+      Conversr is an extension of Transmit that enables automated conversational
+      SMS. Equipped with AI, Conversr understands and responds to contacts in
+      real time, with options for automated follow up for unresponsive contacts.
+
+
+      Conversr touchpoints are similar to SMS / MMS campaigns, and are created
+      with reference to a touchpoint type which defines template message copy
+      and automation rules for inbound replies and other events that occur
+      during a conversation.
+
+
+      **Note:** Conversr is currently in closed beta and available only to a
+      limited number of Transmit API users.
+paths:
+  /v2/whatsapp:
+    post:
+      summary: Send WhatsApp message.
+      description: >-
+        Sends a single templated message to a single recipient. Templates need
+        to be registered and pre-approved by WhatsApp.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WhatsappRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/InputValidationResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/rcs:
+    post:
+      tags:
+        - Beta
+      summary: Send an RCS message
+      description: |
+        This endpoint is in beta and may change in future versions.
+        Sends an RCS message to a single recipient.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RcsRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/RCSSuccessResponse'
+        '400':
+          $ref: '#/components/responses/InputValidationResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/sms/{id}:
+    get:
+      tags:
+        - SMS
+      summary: Get SMS
+      description: >-
+        Retrieves information about an existing SMS message. You only need to
+        supply the unique message id that was returned upon message creation.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Unique ID of the sent SMS
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single SMS message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SMSResponse'
+        '404':
+          description: SMS not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: SMS not found
+  /v2/sms:
+    get:
+      tags:
+        - SMS
+      summary: List SMS
+      description: >-
+        Retrieves a list of SMS messages. You can limit the number of messages
+        returned and filter by properties listed in the parameters section.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: query
+          in: query
+          description: |
+            Filter query parameters are added to the URL. Use as:
+            ?limit=1&page=2&start_date=2024-01-01T00:00:00Z
+          schema:
+            $ref: '#/components/schemas/ListSMSRequest'
+      responses:
+        '200':
+          description: A list of SMS messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSMSResponse'
+    post:
+      tags:
+        - SMS
+      summary: Send an SMS
+      description: >-
+        Send a message from sender to recipient using the values shown in the
+        parameters section.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendSMSRequest'
+      responses:
+        '200':
+          description: The SMS that was sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SMSResponse'
+  /v2/mms:
+    post:
+      tags:
+        - MMS
+      summary: Send MMS
+      description: >-
+        The Send MMS endpoint allows you to send multimedia messages (MMS) to
+        recipients. 
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MMSSendRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: 6fdae71c-dad7-4c36-9734-a69693ec2318
+                recipient: '61435795809'
+                sender: '61481074185'
+                country: AU
+                subject: USS Enterprise
+                message: Check out this amazing specimen.
+                message_ref: ncc1701d
+                content_urls:
+                  - >-
+                    http://res.cloudinary.com/burstsms/image/upload/v1590111670/enterprise-d_ghf9t8.jpg
+                status: pending
+                track_links: true
+                created_at: '2022-03-29T04:42:01.631708761Z'
+                updated_at: '2022-03-29T04:42:01.631708761Z'
+  /v2/mms/{id}:
+    get:
+      tags:
+        - MMS
+      summary: Get MMS
+      description: >-
+        This request retrieves the information of an existing sent MMS message.
+        You only need to supply the unique message id that was returned upon
+        creation.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Unique ID of the sent MMS
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single MMS message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MMSResponse'
+              example:
+                id: 6fdae71c-dad7-4c36-9734-a69693ec2318
+                recipient: '61435795809'
+                sender: '61481074185'
+                country: AU
+                subject: USS Enterprise
+                message: Check out this amazing specimen.
+                message_ref: ncc1701d
+                content_urls:
+                  - >-
+                    http://res.cloudinary.com/burstsms/image/upload/v1590111670/enterprise-d_ghf9t8.jpg
+                status: sent
+                track_links: true
+                created_at: '2022-03-29T04:42:01.631708Z'
+                updated_at: '2022-03-29T04:42:01.776094Z'
+        '400':
+          description: Invalid MMS ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: invalid MMS ID
+        '404':
+          description: MMS not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: MMS not found
+  /v2/webhook:
+    post:
+      tags:
+        - Webhook
+      summary: Create Webhook
+      security:
+        - ApiKeyAuth: []
+      description: >-
+        We use webhooks to let your application know when events happen, such as
+        receiving an SMS message. When the event occurs, the system makes an
+        HTTP request (usually a POST) to the URL you configured for the webhook.
+        The request will include details of the event such as the incoming phone
+        number or the body of an incoming message.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookRequest'
+      responses:
+        '201':
+          description: Webhook created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: >-
+                      Validation Error: rate_limit: greater than the maximum
+                      value of 10000
+    get:
+      tags:
+        - Webhook
+      summary: Retrieve all webhooks
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: A list of webhooks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookListResponse'
+  /v2/webhook/{id}:
+    get:
+      tags:
+        - Webhook
+      summary: Get a webhook by ID
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Unique ID of the webhook
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single webhook
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '404':
+          description: Webhook not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Webhook not found
+    put:
+      tags:
+        - Webhook
+      summary: Update Webhook (Full Update)
+      description: >-
+        This endpoint performs a full update of the webhook. Any fields not
+        provided in the request body will be reset to their default values.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the webhook
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookRequest'
+      responses:
+        '200':
+          description: Webhook updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Validation Error: event_type: required'
+    delete:
+      tags:
+        - Webhook
+      summary: Delete Webhook
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Unique ID of the webhook
+      responses:
+        '200':
+          description: Webhook deletion confirmation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookDeleteResponse'
+        '400':
+          description: Invalid webhook ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: invalid webhook ID
+        '404':
+          description: Webhook not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Webhook not found
+  /v1/touchpoint/{id}:
+    get:
+      tags:
+        - Conversr
+      summary: Get Touchpoint
+      description: Returns a single touchpoint.
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Unique ID of the touchpoint
+      responses:
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "{\r\n    \"id\": \"e40bdade-68c2-45ce-a5f1-8f022b9f97c5\",\r\n    \"account_id\": \"173733\",\r\n    \"name\": \"Lead Call Scheduling Campaign\",\r\n    \"type\": \"lead_call_scheduling\",\r\n    \"status\": \"active\",\r\n    \"operator_name\": \"Emily\",\r\n    \"company_name\": \"Transmit\",\r\n    \"sender_address\": \"61426309000\",\r\n    \"created_at\": \"2023-08-14T03:29:43.907593Z\",\r\n    \"updated_at\": \"2023-08-14T03:29:54.953406Z\",\r\n    \"start\": \"2023-08-14T03:29:54.953403Z\",\r\n    \"contact_import_id\": \"7630005\",\r\n    \"contact_import_source\": \"transmit\",\r\n    \"mode\": \"live\",\r\n    \"operator_email\": \"emily@transmit.com\",\r\n    \"compelling_event\": \"\",\r\n    \"secure\": false\r\n}"
+    put:
+      tags:
+        - Conversr
+      summary: Update Touchpoint
+      description: >-
+        Updates the properties of an existing touchpoint.
+
+
+        Supported properties for update depend on staus of touchpoint, and
+        cannot be used to update system generated properties such as `id`,
+        `created_at`, `updated_at` and `start`.
+
+
+        | Touchpoint Status | Properites |
+
+        | --- | --- |
+
+        | draft | All properties can be updated |
+
+        | active | All properties can be updated except `type`,
+        `contact_import_id` |
+
+        | cancelled | No properties can be updated |
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                mode: <string>
+                type: <string>
+                name: <string>
+                operator_name: <string>
+                operator_email: <string>
+                company_name: <string>
+                sender_address: <string>
+                contact_import_id: <string>
+                contact_import_source: <string>
+                secure: false
+                compelling_event: <string>
+                webhook_urls:
+                  webhook_url_1: <string>
+                  webhook_url_2: <string>
+                op_hours:
+                  - day_of_week: mon
+                    hours:
+                      - start: '9:00'
+                        end: '12:00'
+                      - start: '13:00'
+                        end: '17:00'
+                  - day_of_week: tue
+                    hours:
+                      - start: '8:00'
+                        end: '11:00'
+                      - start: '13:00'
+                        end: '15:00'
+                  - day_of_week: wed
+                    hours:
+                      - start: '11:00'
+                        end: '12:00'
+                  - day_of_week: thur
+                    hours:
+                      - start: '11:00'
+                        end: '12:00'
+                  - day_of_week: fri
+                    hours:
+                      - start: '11:00'
+                        end: '12:00'
+                  - day_of_week: sat
+                    hours:
+                      - start: '11:00'
+                        end: '12:00'
+                  - day_of_week: sun
+                    hours:
+                      - start: '11:00'
+                        end: '12:00'
+                time_zone: <string>
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Unique ID of the touchpoint
+      responses:
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "{\r\n    \"id\": \"5e6171c4-a20a-499d-96f3-bc80cdedefre\",\r\n    \"account_id\": \"173733\",\r\n    \"name\": \"Lead Call Scheduling Campaign - Updated\",\r\n    \"type\": \"lead_call_scheduling\",\r\n    \"company_name\": \"Transmit\",\r\n    \"operator_name\": \"Emily\",\r\n    \"operator_email\": \"emily@transmit.com\",\r\n    \"contact_import_source\": \"transmit\",\r\n    \"contact_import_id\": \"7785421\",\r\n    \"sender_address\": \"61426309000\",\r\n    \"mode\": \"live\",\r\n    \"compelling_event\": \"\",\r\n    \"webhook_urls\": {},\r\n    \"op_hours\": [],\r\n    \"time_zone\": \"\",\r\n    \"secure\": false,\r\n    \"status\": \"draft\",\r\n    \"created_at\": \"2023-09-27 04:50:03.046293 +0000 UTC\",\r\n    \"updated_at\": \"2023-09-27 04:52:24.318717 +0000 UTC\",\r\n    \"start\": \"0001-01-01 00:00:00 +0000 UTC\"\r\n}"
+    delete:
+      tags:
+        - Conversr
+      summary: Delete Touchpoint
+      description: >-
+        Deletes an existing touchpoint.
+
+
+        Only touchpoints in status of either `draft` or `cancelled` can be
+        deleted.
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Unique ID of the touchpoint
+      responses:
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "{\r\n    \"message\": \"touchpoint deleted\"\r\n}"
+  /v1/touchpoint:
+    get:
+      tags:
+        - Conversr
+      summary: List Touchpoints
+      description: Returns a list of touchpoints sorted by updated_at date descending.
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: number
+          required: true
+          description: Limits the number of touchpoints returned. Default is 50.
+        - name: offset
+          in: query
+          schema:
+            type: number
+          required: true
+          description: Offsets the starting position of touchpoints returned.
+      responses:
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "{\r\n    \"limit\": 50,\r\n    \"offset\": 0,\r\n    \"total\": 2,\r\n    \"touchpoints\": [\r\n        {\r\n            \"id\": \"e40bdade-68c2-45ce-a5f1-8f022b9f97c5\",\r\n            \"account_id\": \"173733\",\r\n            \"name\": \"Lead Call Scheduling Campaign\",\r\n            \"type\": \"lead_call_scheduling\",\r\n            \"status\": \"active\",\r\n            \"operator_name\": \"Emily\",\r\n            \"company_name\": \"Transmit\",\r\n            \"sender_address\": \"61426309000\",\r\n            \"created_at\": \"2023-08-14T03:29:43.907593Z\",\r\n            \"updated_at\": \"2023-08-14T03:29:54.953406Z\",\r\n            \"start\": \"2023-08-14T03:29:54.953403Z\",\r\n            \"contact_import_id\": \"7630005\",\r\n            \"contact_import_source\": \"transmit\",\r\n            \"mode\": \"live\",\r\n            \"operator_email\": \"emily@transmit.com\",\r\n            \"compelling_event\": \"\",\r\n            \"secure\": false\r\n        },\r\n        {\r\n            \"id\": \"e40bdade-68c2-45ce-a5f1-8f022b9f97c6\",\r\n            \"account_id\": \"173733\",\r\n            \"name\": \"NPS Survey 23\",\r\n            \"type\": \"nps_survey\",\r\n            \"status\": \"active\",\r\n            \"operator_name\": \"Emily\",\r\n            \"company_name\": \"Transmit\",\r\n            \"sender_address\": \"61426309422\",\r\n            \"created_at\": \"2023-08-16T03:29:43.907593Z\",\r\n            \"updated_at\": \"2023-08-16T03:29:54.953406Z\",\r\n            \"start\": \"2023-08-16T03:29:54.953403Z\",\r\n            \"contact_import_id\": \"7630006\",\r\n            \"contact_import_source\": \"transmit\",\r\n            \"mode\": \"live\",\r\n            \"operator_email\": \"emily@transmit.com\",\r\n            \"compelling_event\": \"\",\r\n            \"secure\": false\r\n        }\r\n    ]\r\n}"
+    post:
+      tags:
+        - Conversr
+      summary: Create Touchpoint
+      description: >-
+        Creates a new touchpoint in `draft` status.
+
+
+        | **Key** | **Type** | **Description** | **Required** | **Example
+        Values** |
+
+        | --- | --- | --- | --- | --- |
+
+        | mode | String | Controls whether the touchpoint should be run in
+        Sandbox or Live mode.  <br>  <br>Touchpoints in sandbox mode do not send
+        out SMS. | Yes | live  <br>sandbox |
+
+        | type | String | The name of the Touchpoint Type that will define
+        template message copy and automation rules for inbound replies and other
+        events that occur during a conversation. | Yes | nps_survey 
+        <br>email_cleanse  <br>lead_call_scheduling |
+
+        | name | String | The name of the touchpoint. Used to differentiate
+        instances of the same Touchpoint Type from each other. | Yes | NPS
+        Survey - Jan 23 |
+
+        | operator_name | String | The name of the operator that will receive
+        the operator transition emails.  <br>  <br>If the `template_text` within
+        the Touchpoint Type includes the _“\[operator_name\]“_ variable, then
+        the value provided for operator_name will be substituted here in the
+        outbound SMS message. | Yes | Sally |
+
+        | operator_email | String | The email address of the operator that will
+        receive the operator transition emails. | Yes |
+        [emily@transmitsms.com](https://mailto:emily@transmitsms.com) |
+
+        | company_name | String | The name of the Company / Brand that is
+        sending the touchpoint.  <br>  <br>If the `template_text` within the
+        Touchpoint Type includes the _“\[company_name\]“_ variable, then the
+        value provided for `company_name` will be substituted here in the
+        outbound SMS message. | Yes | ACME Co |
+
+        | sender_address | String | The mobile phone number that will be used to
+        send the touchpoint to contacts on the contact list. | Yes | 61430000102
+        |
+
+        | contact_import_id | String | The Contact List ID of the Transmit SMS
+        contact list that contains contacts for the touchpoint.  <br>  <br>If no
+        value for contact_import_id is provided, a new contact list will be
+        created and returned as part of the successful Create Touchpoint
+        response. | No | 1234567 |
+
+        | contact_import_source | String | The source system that is providing
+        the contact list.  <br>  <br>For now this is always "transmit". | Yes |
+        transmit |
+
+        | secure | Boolean | Controls whether single-click Quick Responses are
+        enabled within operator transition emails.  <br>  <br>If secure is
+        `true`, then buttons in the email will behave the same way as the ‘edit’
+        links and take the operator to the Operator Transition web app to
+        continue.  <br>  <br>Defaults to `false` if no value provided. | No |
+        true  <br>false |
+
+        | compelling_event | String | Additional text that modifies the outbound
+        SMS message.  <br>  <br>If the `template_text` within the Touchpoint
+        Type includes _“\[compelling_event\]“_ variable, then this value will be
+        substituted here in the outbound SMS message. | No | The 2023 Tax season
+        is fast approaching. |
+
+        | webhook_urls | Object containing key value pairs | A list of webhook
+        variables and endpoints that will recieve a webhook when certain
+        conditions are reached (as defined in the Touchpoint Type of this
+        touchpoint). | No | `"hard_bounces" : "webhook.site/xxxx",
+        "soft_bounces" : "webhook.site/yyyy"` |
+
+        | op_hours | Array of objects | A list of operating days and hours that
+        control node transitions with conditions `in_hours` and `out_of_hours`
+        for this touchpoint.  <br>  <br>Each object in the array must contain 
+        <br>`day_of_week` and `hours`.  <br>  <br>day_of_week is an enum and one
+        of "mon", "tue", "wed", "thu", "fri", "sat", "sun".  <br>  <br>Hours is
+        an array of objects, and each object must contain `start` and `end`
+        properties which define periods of the day considered `in_hours`. | No |
+        `{ "day_of_week": "mon", "hours": [{"start": "9:00", "end": "12:00"},
+        {"start": "13:00", "end": "17:00"}] }` |
+
+        | time_zone | String | Sets the time zone for `op_hours`.  <br>Time zone
+        string values taken from [IANA Time Zone
+        database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). 
+        <br>  <br>If no time zone is provided then the touchpoint will default
+        to UTC. | No | Australia/Sydney  <br>Europe/London |
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                mode: <string>
+                type: <string>
+                name: <string>
+                operator_name: <string>
+                operator_email: <string>
+                company_name: <string>
+                sender_address: <string>
+                contact_import_id: <string>
+                contact_import_source: <string>
+                secure: false
+                compelling_event: <string>
+                webhook_urls:
+                  webhook_url_1: <string>
+                  webhook_url_2: <string>
+                op_hours:
+                  - day_of_week: mon
+                    hours:
+                      - start: '9:00'
+                        end: '12:00'
+                      - start: '13:00'
+                        end: '17:00'
+                  - day_of_week: tue
+                    hours:
+                      - start: '8:00'
+                        end: '11:00'
+                      - start: '13:00'
+                        end: '15:00'
+                  - day_of_week: wed
+                    hours:
+                      - start: '11:00'
+                        end: '12:00'
+                  - day_of_week: thur
+                    hours:
+                      - start: '11:00'
+                        end: '12:00'
+                  - day_of_week: fri
+                    hours:
+                      - start: '11:00'
+                        end: '12:00'
+                  - day_of_week: sat
+                    hours:
+                      - start: '11:00'
+                        end: '12:00'
+                  - day_of_week: sun
+                    hours:
+                      - start: '11:00'
+                        end: '12:00'
+                time_zone: <string>
+      responses:
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                example-0:
+                  summary: Example - Simple Touchpoint
+                  value: "{\r\n    \"id\": \"5e6171c4-a20a-499d-96f3-bc80cdedefre\",\r\n    \"account_id\": \"173733\",\r\n    \"name\": \"Lead Call Scheduling Campaign\",\r\n    \"type\": \"lead_call_scheduling\",\r\n    \"status\": \"draft\",\r\n    \"operator_name\": \"Emily\",\r\n    \"company_name\": \"Transmit\",\r\n    \"sender_address\": \"61426309000\",\r\n    \"created_at\": \"2023-09-27T04:50:03.046293934Z\",\r\n    \"updated_at\": \"2023-09-27T04:50:03.046294045Z\",\r\n    \"start\": \"0001-01-01T00:00:00Z\",\r\n    \"contact_import_id\": \"7785421\",\r\n    \"contact_import_source\": \"transmit\",\r\n    \"mode\": \"live\",\r\n    \"operator_email\": \"emily@transmit.com\",\r\n    \"compelling_event\": \"\",\r\n    \"secure\": false\r\n}"
+                example-1:
+                  summary: Example - Advanced Touchpoint
+                  value: "{\r\n    \"id\": \"ef363111-53b8-47e4-b4d0-2515202200ff\",\r\n    \"account_id\": \"173733\",\r\n    \"name\": \"Lead Call Scheduling Campaign\",\r\n    \"type\": \"lead_call_scheduling\",\r\n    \"status\": \"draft\",\r\n    \"operator_name\": \"Emily\",\r\n    \"company_name\": \"Transmit\",\r\n    \"sender_address\": \"61426309000\",\r\n    \"created_at\": \"2023-09-29T02:05:59.119741391Z\",\r\n    \"updated_at\": \"2023-09-29T02:05:59.119741588Z\",\r\n    \"start\": \"0001-01-01T00:00:00Z\",\r\n    \"contact_import_id\": \"1234567\",\r\n    \"contact_import_source\": \"transmit\",\r\n    \"mode\": \"live\",\r\n    \"operator_email\": \"emily@transmit.com\",\r\n    \"compelling_event\": \"\",\r\n    \"webhook_urls\": {\r\n        \"opt_out_webhook\": \"https://webhook.site/xxxx\",\r\n        \"scheduled_call_webhook\": \"https://webhook.site/zzzz\",\r\n        \"wrong_number_webhook\": \"https://webhook.site/yyyy\"\r\n    },\r\n    \"op_hours\": [\r\n        {\r\n            \"day_of_week\": \"mon\",\r\n            \"hours\": [\r\n                {\r\n                    \"start\": \"9:00\",\r\n                    \"end\": \"12:00\"\r\n                },\r\n                {\r\n                    \"start\": \"13:00\",\r\n                    \"end\": \"17:00\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"day_of_week\": \"tue\",\r\n            \"hours\": [\r\n                {\r\n                    \"start\": \"9:00\",\r\n                    \"end\": \"17:00\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"day_of_week\": \"wed\",\r\n            \"hours\": [\r\n                {\r\n                    \"start\": \"9:00\",\r\n                    \"end\": \"17:00\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"day_of_week\": \"thu\",\r\n            \"hours\": [\r\n                {\r\n                    \"start\": \"9:00\",\r\n                    \"end\": \"17:00\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"day_of_week\": \"fri\",\r\n            \"hours\": [\r\n                {\r\n                    \"start\": \"9:00\",\r\n                    \"end\": \"17:00\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"time_zone\": \"Australia/Sydney\",\r\n    \"secure\": true\r\n}"
+  /v1/touchpoint_type_names:
+    get:
+      tags:
+        - Conversr
+      summary: List Touchpoint Type Names
+      description: >-
+        Returns a list of touchpoint type names.
+
+
+        Touchpoint types define template message copy and automation rules for
+        inbound replies, and are a required field for touchpoints.
+      responses:
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "{\r\n    \"touchpoint_type_names\": [\r\n        \"email_address_data_cleanse\",\r\n        \"lead_call_scheduling\",\r\n        \"black_friday_23_promotion\",\r\n        \"nps_survey\"\r\n    ]\r\n}"
+  /v1/touchpoint/{id}/start:
+    put:
+      tags:
+        - Conversr
+      summary: Start Touchpoint
+      description: >-
+        Activates an existing touchpoint which changes its status from `draft`
+        to `active` and starts sending initial messages defined in the
+        Touchpoint Type to contacts in the associated contact list.
+      requestBody:
+        content: {}
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Unique ID of the touchpoint
+      responses:
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "{\r\n    \"id\": \"5e6171c4-a20a-499d-96f3-bc80cdedefre\",\r\n    \"account_id\": \"173733\",\r\n    \"name\": \"Lead Call Scheduling Campaign - Updated\",\r\n    \"type\": \"lead_call_scheduling\",\r\n    \"status\": \"active\",\r\n    \"operator_name\": \"Emily\",\r\n    \"company_name\": \"Transmit\",\r\n    \"sender_address\": \"61426309000\",\r\n    \"created_at\": \"2023-09-27T04:50:03.046293Z\",\r\n    \"updated_at\": \"2023-09-27T04:53:29.40834624Z\",\r\n    \"start\": \"2023-09-27T04:53:29.408346165Z\",\r\n    \"contact_import_id\": \"7785421\",\r\n    \"contact_import_source\": \"transmit\",\r\n    \"mode\": \"live\",\r\n    \"operator_email\": \"emily@transmit.com\",\r\n    \"compelling_event\": \"\",\r\n    \"secure\": false\r\n}"
+  /v1/touchpoint/{id}/cancel:
+    put:
+      tags:
+        - Conversr
+      summary: Cancel Touchpoint
+      description: >-
+        Deactivates an existing touchpoint which changes its status from
+        `active` to `cancelled`.
+
+
+        Prevents additional messages being sent to existing contacts, and
+        prevents new contacts from being added to the touchpoint.
+
+
+        Once a touchpoint is cancelled it cannot be reactivated.
+      requestBody:
+        content: {}
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Unique ID of the touchpoint
+      responses:
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "{\r\n    \"id\": \"5e6171c4-a20a-499d-96f3-bc80cdedefre\",\r\n    \"account_id\": \"173733\",\r\n    \"name\": \"Lead Call Scheduling Campaign - Updated\",\r\n    \"type\": \"lead_call_scheduling\",\r\n    \"status\": \"cancelled\",\r\n    \"operator_name\": \"Emily\",\r\n    \"company_name\": \"Transmit\",\r\n    \"sender_address\": \"61426309000\",\r\n    \"created_at\": \"2023-09-27T04:50:03.046293Z\",\r\n    \"updated_at\": \"2023-09-27T04:54:37.602997032Z\",\r\n    \"start\": \"2023-09-27T04:53:29.408346Z\",\r\n    \"contact_import_id\": \"7785421\",\r\n    \"contact_import_source\": \"transmit\",\r\n    \"mode\": \"live\",\r\n    \"operator_email\": \"emily@transmit.com\",\r\n    \"compelling_event\": \"\",\r\n    \"secure\": false\r\n}"
+  /v1/touchpoint/{id}/report-contacts:
+    get:
+      tags:
+        - Conversr
+      summary: Touchpoint CSV Report
+      description: >-
+        Returns a report of contacts included in the touchpoint contact list,
+        including contact details, results, data, tracked link hits and
+        conversation message history.
+
+
+        **Filtering by date the contact was added:**
+
+
+        - If neither `contact-start` or `contact-end` query parameters are
+        provided, the response will include all contacts.
+            
+        - If only one of `contact-start` or `contact-end` query parameters is
+        provided, the response will include contacts that were added to the
+        touchpoint after the `contact-start` date or before the `contact-end`
+        date.
+            
+        - If both `contact-start` and `contact-end` query parameters are
+        provided, the response will only include contacts that were added to the
+        touchpoint between those dates.
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Unique ID of the touchpoint
+        - name: contact-start
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: >-
+            Earliest datetime of contact added to this touchpoint in RFC3339
+            format (e.g. "2020-05-01T00:00:00Z")
+        - name: contact-end
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: >-
+            Latest datetime of contact added to this touchpoint in RFC3339
+            format (e.g. "2020-05-01T00:00:00Z")
+        - name: contact-update-start
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: >-
+            Earliest datetime of contact last updated in this touchpoint in
+            RFC3339 format (e.g. "2020-05-01T00:00:00Z")
+        - name: contact-update-end
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: >-
+            Latest datetime of contact last updated in this touchpoint in
+            RFC3339 format (e.g. "2020-05-01T00:00:00Z")
+      responses:
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "contact_id,created_at,first_name,last_name,mobile,results,initial_success,operator_transitions,with_operator,has_responded,message_type_1,message_date_1,message_1,dlr_status_1,dlr_time_1,message_type_2,message_date_2,message_2,dlr_status_2,dlr_time_2\r\n0b6f6584-d941-44a6-b5df-788f5074e324,2023-08-14 03:36:46.004503 +0000 UTC,FakeFirstName1,FakeLastname1,61400000001,Scheduled Call,1,0,0,0,message,2023-08-14 03:36:46 +0000 UTC,\"Hi FakeFirstName1, it's Emily from Transmit here. Just checking in to see how you are going with your product trial. Should we schedule a call to understand your needs better and answer any questions you may have? 😊\",delivered,2023-08-14 03:36:54 +0000 UTC,,,,,\r\n10c8adb9-c4df-4649-858f-5d3218e216d6,2023-08-14 03:38:12.791731 +0000 UTC,FakeFirstName2,FakeLastname2,61400000002,Call Back Later,0,0,0,0,message,2023-08-14 03:38:12 +0000 UTC,\"Hi FakeFirstName2, it's Emily from Transmit here. Just checking in to see how you are going with your product trial. Should we schedule a call to understand your needs better and answer any questions you may have? 😊\",sent,2023-08-14 03:38:12 +0000 UTC,,,,,\r\n16160c2a-9e30-4d03-a967-151e6b397e68,2023-08-14 03:35:32.573359 +0000 UTC,FakeFirstName3,FakeLastname3,61400000003,Wrong Number,0,0,0,0,message,2023-08-14 03:35:32 +0000 UTC,\"Hi FakeFirstName3, it's Emily from Transmit SMS. Just checking in to see how you are going with your product trial. Should we schedule a call to understand your needs better and answer any questions you may have? 😊\",sent,2023-08-14 03:35:32 +0000 UTC,,,,,\r\n"
+  /v1/touchpoint/{id}/aggregates:
+    get:
+      tags:
+        - Conversr
+      summary: Touchpoint Aggregates Report
+      description: >-
+        Returns an an aggregate summary of contacts in the touchpoint including
+        the status of message delivery, results, operator transitions and
+        engagement.
+
+
+        **Filtering by date the contact was added:**
+
+
+        - If neither `contact-start` or `contact-end` query parameters are
+        provided, the response will include all contacts.
+
+        - If only one of `contact-start` or `contact-end` query parameters is
+        provided, the response will include contacts that were added to the
+        touchpoint after the `contact-start` date or before the `contact-end`
+        date.
+
+        - If both `contact-start` and `contact-end` query parameters are
+        provided, the response will only include contacts that were added to the
+        touchpoint between those dates.
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Unique ID of the touchpoint
+        - name: contact-start
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: >-
+            Earliest datetime of contact added to this touchpoint in RFC 3339
+            format (e.g. "2020-05-01T00:00:00Z")
+        - name: contact-end
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: >-
+            Latest datetime of contact added to this touchpoint in RFC 3339
+            format (e.g. "2020-05-01T00:00:00Z")
+      responses:
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "{\r\n    \"touchpoint_id\": \"5e6171c4-a20a-499d-96f3-bc80cdedefre\",\r\n    \"status\": {\r\n        \"total\": 50,\r\n        \"total_sent\": 50,\r\n        \"total_not_sent\": 0,\r\n        \"delivered\": 24,\r\n        \"hard_bounce\": 0,\r\n        \"soft_bounce\": 0,\r\n        \"other\": 26\r\n    },\r\n    \"results\": [\r\n        {\r\n            \"name\": \"Call Back Later\",\r\n            \"qty\": 12\r\n        },\r\n        {\r\n            \"name\": \"No Longer Interested\",\r\n            \"qty\": 6\r\n        },\r\n        {\r\n            \"name\": \"Opt Out\",\r\n            \"qty\": 7\r\n        },\r\n        {\r\n            \"name\": \"Scheduled Call\",\r\n            \"qty\": 21\r\n        },\r\n        {\r\n            \"name\": \"Wrong Number\",\r\n            \"qty\": 4\r\n        }\r\n    ],\r\n    \"with_operator\": {\r\n        \"open\": 6,\r\n        \"closed\": 0\r\n    },\r\n    \"engagement\": {\r\n        \"engagement\": 6,\r\n        \"responses\": 6,\r\n        \"link_hits\": 0\r\n    }\r\n}"
+  /v1/touchpoint/{id}/contacts:
+    get:
+      tags:
+        - Conversr
+      summary: Touchpoint Contact Summary Report
+      description: >-
+        Returns a summary of contacts in the touchpoint including the contact
+        details, start date, operator status, responded status and link click
+        status.
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Unique ID of the touchpoint
+        - name: limit
+          in: query
+          schema:
+            type: number
+            default: 1000
+          required: false
+          description: Limits the number of contacts returned. Default is 1000.
+        - name: offset
+          in: query
+          schema:
+            type: number
+            default: 0
+          required: false
+          description: Offsets the starting position of contacts returned.
+      responses:
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "{\r\n    \"touchpoint_id\": \"5e6171c4-a20a-499d-96f3-bc80cdedefre\",\r\n    \"total\": 50,\r\n    \"offset\": 0,\r\n    \"limit\": 3,\r\n    \"contacts\": [\r\n        {\r\n            \"id\": \"6a608de1-a017-4e1e-9cf0-28441a4575d0\",\r\n            \"mobile\": \"61400000001\",\r\n            \"first_name\": \"FakeFirstName1\",\r\n            \"last_name\": \"FakeLastname1\",\r\n            \"start_date\": \"2023-08-14T03:32:18.79431Z\",\r\n            \"with_operator\": false,\r\n            \"has_responded\": false,\r\n            \"has_clicked_link\": false\r\n        },\r\n        {\r\n            \"id\": \"77090ee0-6240-4c93-839d-1d0c26ecb439\",\r\n            \"mobile\": \"61400000002\",\r\n            \"first_name\": \"FakeFirstName2\",\r\n            \"last_name\": \"FakeLastname2\",\r\n            \"start_date\": \"2023-08-14T03:32:19.310121Z\",\r\n            \"with_operator\": false,\r\n            \"has_responded\": false,\r\n            \"has_clicked_link\": false\r\n        },\r\n        {\r\n            \"id\": \"61284e60-cafb-4fe5-846b-59a2f9482838\",\r\n            \"mobile\": \"61400000003\",\r\n            \"first_name\": \"FakeFirstName3\",\r\n            \"last_name\": \"FakeLastname3\",\r\n            \"start_date\": \"2023-08-14T03:32:18.552616Z\",\r\n            \"with_operator\": false,\r\n            \"has_responded\": false,\r\n            \"has_clicked_link\": false\r\n        }\r\n    ]\r\n}"
+components:
+  schemas:
+    Text:
+      type: object
+      description: Text content for the message.
+      properties:
+        message:
+          type: string
+          description: The text message body.
+      required:
+        - message
+    Template:
+      type: object
+      description: Template details for the message content.
+      properties:
+        name:
+          type: string
+          description: |
+            The **exact name** of the WhatsApp template.
+
+            - **Format:** Lowercase, alphanumeric, underscores only.
+            - **Example:** `order_confirmation`
+            - **Must be pre-approved** in your WhatsApp Business account.
+        parameters:
+          type: array
+          description: >
+            The **dynamic values** to populate placeholdes in the template
+            message.
+
+
+            - The number of parameters **must match** the template placeholders.
+
+            - Supports **text only** (strings). Other types (e.g., images,
+            documents) are not allowed.
+
+            - **Example Usage:**
+              - Template: `"Hello, {1}! Your order {2} has been shipped."`
+              - Parameters: `["Tony", "#12345"]`
+              - Final message: `"Hello, Tony! Your order #12345 has been shipped."`
+          items:
+            type: string
+        locale:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Optional locale for the template (e.g., en_US), if not provided, the
+            default locale is `en`.
+      required:
+        - name
+    TextContent:
+      type: object
+      properties:
+        text:
+          $ref: '#/components/schemas/Text'
+      required:
+        - text
+    TemplateContent:
+      type: object
+      properties:
+        template:
+          $ref: '#/components/schemas/Template'
+      required:
+        - template
+    Custom:
+      type: object
+      description: Custom content following the Meta Cloud API guidelines.
+      additionalProperties: true
+    CustomContent:
+      type: object
+      properties:
+        custom:
+          $ref: '#/components/schemas/Custom'
+      required:
+        - custom
+    SMSFallback:
+      type: object
+      nullable: true
+      description: SMS fallback message details.
+      properties:
+        message:
+          type: string
+          description: The message to send via SMS.
+      required:
+        - message
+    WhatsappRequest:
+      type: object
+      properties:
+        sender:
+          type: string
+          description: |
+            Registered WhastApp sender number.
+
+             - Must be in **international format** <a href="http://en.wikipedia.org/wiki/E.164">E.164 format</a> (e.g., +14155238886).
+             - Number must be registered with the WhatsApp Business API.
+        recipient:
+          type: string
+          format: phone
+          description: >
+            Recipient phone number in international format.
+
+
+            - Must follow **E.164 format** (e.g., `+14155238886` for a US
+            number).
+
+            - No spaces, dashes, or special characters.
+
+            - The recipient must **have an active WhatsApp account**.
+
+            - Ensure the recipient **has opted in** to receive WhatsApp
+            messages.
+        content_type:
+          type: string
+          description: Type of the message content (e.g., text, template, custom).
+          enum:
+            - text
+            - template
+            - custom
+        content:
+          type: object
+          description: >
+            The message content to be sent.
+
+
+            - Must follow the WhastApp-approved **template format** or be a
+            **custom object** following the Meta Cloud API guidelines.
+
+            - **Example JSON (Text Content):**
+              ```json
+              {
+                "text": {
+                  "message": "hello, world!",
+                }
+              }
+              ```
+            - **Example JSON (Template Content):**
+              ```json
+              {
+                "template": {
+                  "name": "order_update",
+                  "parameters": ["123456"]
+                }
+              }
+              ```
+            - **Example JSON (Custom Content):**
+              ```json
+              {
+                "custom": {
+                  "type": "template",
+                  "template": {
+                    "name": "template_img_simple_1",
+                    "language": {
+                      "code": "en",
+                      "policy": "deterministic"
+                    },
+                    "components": [
+                      {
+                        "type": "HEADER",
+                        "parameters": [
+                          {
+                            "type": "image",
+                            "image": {
+                              "link": "https://image-test.jpg"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+              ```
+          oneOf:
+            - $ref: '#/components/schemas/TextContent'
+            - $ref: '#/components/schemas/TemplateContent'
+            - $ref: '#/components/schemas/CustomContent'
+        sms_fallback:
+          $ref: '#/components/schemas/SMSFallback'
+        message_ref:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >
+            A unique reference ID supplied by your system to track messages.
+
+
+            - **Maximum Length:** 500 characters.
+
+            - This `message_ref` will be included in webhook events, allowing
+            you to correlate sent messages with received events.
+
+
+            **Example Usage:**
+             - Sending a message with `message_ref: "order-12345"`
+             - Receiving a delivery webhook containing `message_ref: "order-12345"`, confirming it was delivered.
+      required:
+        - sender
+        - recipient
+        - content_type
+        - content
+      example:
+        sender: '14155238886'
+        recipient: '61411122211'
+        content_type: template
+        content:
+          template:
+            name: welcome_new_customer
+            parameters:
+              - Joe
+        message_ref: optional-ref-123
+    WhatsappResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the message.
+        message_ref:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Optional reference ID set by the user for the message.
+        sender:
+          type: string
+          format: phone
+          description: Registered WhatsApp sender number in international format.
+        recipient:
+          type: string
+          format: phone
+          description: WhatsApp recipient phone number in international format.
+        content_type:
+          type: string
+          description: Type of the message content (e.g., template).
+        content:
+          type: object
+          description: Content details for the message.
+          oneOf:
+            - $ref: '#/components/schemas/TextContent'
+            - $ref: '#/components/schemas/TemplateContent'
+            - $ref: '#/components/schemas/CustomContent'
+        sms_fallback:
+          $ref: '#/components/schemas/SMSFallback'
+        created_at:
+          type: string
+          format: date-time
+          description: >-
+            Timestamp in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) when the message was
+            created on the server.
+      required:
+        - id
+        - sender
+        - recipient
+        - content_type
+        - content
+        - created_at
+      example:
+        id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+        message_ref: nda1982d
+        content:
+          text:
+            message: test
+        sender: '14155238886'
+        recipient: '61411122211'
+        content_type: template
+        template:
+          name: welcome_new_customer
+          parameters:
+            - Joe
+        created_at: '2021-01-01T00:00:00Z'
+    CommonResponseMeta:
+      type: object
+      properties:
+        request:
+          type: object
+          description: Optional metadata (e.g. requestId, traceId)
+        meta:
+          type: object
+          description: Optional pagination, feature flags, etc.
+    CommonSuccessResponse:
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: object
+              description: Success response payload
+          required:
+            - data
+        - $ref: '#/components/schemas/CommonResponseMeta'
+    CommonErrorResponse:
+      allOf:
+        - type: object
+          properties:
+            error:
+              type: object
+              description: Problem details on error
+          required:
+            - error
+        - $ref: '#/components/schemas/CommonResponseMeta'
+    Uri:
+      type: string
+      description: string providing an URI formatted according to IETFÂ RFCÂ 3986.
+      format: uri
+    ProblemDetails:
+      description: |
+        A Problem Details object (RFC 9457).
+
+        Additional properties specific to the problem type may be present.
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/Uri'
+        title:
+          type: string
+          description: >-
+            A short summary of the problem type. Written in English and readable
+            for engineers (usually not suited for non technical stakeholders and
+            not localized).
+        detail:
+          type: string
+          description: >-
+            A human-readable explanation specific to this occurrence of the
+            problem
+        status:
+          type: integer
+          description: The HTTP status code corresponding to this error.
+      required:
+        - type
+        - title
+        - detail
+        - status
+      example:
+        type: https://developers.kudosity.com/errors
+        title: Description of the type of problem that occurred
+        detail: Description of specific occurrence of the problem
+        status: 400
+    InputValidationIssue:
+      type: object
+      description: |
+        An issue detected during input validation.
+      properties:
+        name:
+          type: string
+          description: The name of the param or field that failed validation.
+          x-go-type-skip-optional-pointer: true
+        code:
+          type: integer
+          description: The internal api specific error code.
+          x-go-type-skip-optional-pointer: true
+        message:
+          description: The error message
+          type: string
+          x-go-type-skip-optional-pointer: true
+    InputValidationProblem:
+      description: >
+        This problem occurs when the request is deemed unprocessable.
+
+
+        Your client issued a request that failed validation. Certain validation
+        libraries return multi-errors and cannot be easily parsed into discreet
+        types. This problem type, afforded the provider with the ability to
+        surface all validation errors and negate the need for a trial and error
+        workflow on your side.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+        - properties:
+            issues:
+              description: An array of issues detected during input validation.
+              type: array
+              x-go-type-skip-optional-pointer: true
+              items:
+                $ref: '#/components/schemas/InputValidationIssue'
+      example:
+        type: https://developers.kudosity.com/errors#input-validation
+        title: Invalid Input Parameters
+        detail: The request contained invalid, or malformed parameters.
+        status: 422
+        issues:
+          - field: account_id
+            code: 2200
+            message: The account_id supplied was invalid.
+    NotFoundProblem:
+      description: >
+        This problem occurs when the requested resource could not be found.
+
+
+        Your client application tried to access a resource that does not exist
+        (or could not be found). Please review how your users initiated such a
+        request.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/errors#not-found
+        title: Not Found
+        detail: The requested resource was not found
+        status: 404
+    InternalServerErrorProblem:
+      description: >
+        This problem occurs when the server encounters an unexpected condition
+        that prevents it from fulfilling the request.
+
+
+        Your client application did everything correct. Unfortunately our API
+        encountered a condition that resulted in this problem.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/errors#server-error
+        title: Server Error
+        detail: The server encountered an unexpected error
+        status: 500
+    RCSText:
+      type: object
+      description: Text content for the message.
+      properties:
+        message:
+          type: string
+          maxLength: 3072
+          description: >
+            The text message body.
+
+
+            **Message Types:**
+
+            - **Basic RCS Messages**: Up to 160 characters (SMS format in RCS)
+
+            - **Simple RCS Messages**: Up to 3072 characters with emoji and
+            UTF-8 support
+      required:
+        - message
+    RCSTextContent:
+      type: object
+      properties:
+        text:
+          $ref: '#/components/schemas/RCSText'
+      required:
+        - text
+    RCSSMSFallback:
+      type: object
+      nullable: true
+      description: >
+        Provides intelligent fallback for non-RCS capable devices and carrier
+        delivery issues. If the RCS message fails, the SMS will send the
+        configured message to the recipeint instead.
+      properties:
+        message:
+          type: string
+          description: >-
+            The message to send via SMS. SMS messages are subject to certain
+            character limitations, please read our SMS documentation for
+            details.
+      required:
+        - message
+    RcsRequest:
+      type: object
+      properties:
+        sender:
+          type: string
+          description: >
+            RCS Agent ID provided to you that refers to your registered RCS
+            Agent. Unlike WhatsApp, SMS, and MMS, RCS doesn't send through a
+            sender phone number. Messages are sent through agents.
+
+
+            - Must be a registered RCS Agent identifier
+
+            - Example: "DemoSender"
+
+            - Can be alphanumeric or numeric.
+        recipient:
+          type: string
+          format: phone
+          description: |
+            The destination number for delivery.
+                    <br>Can be either in local format or in international format.
+                    <br>For international format, it should follow E.164 standard.
+                    [http://en.wikipedia.org/wiki/E.164](http://en.wikipedia.org/wiki/E.164)
+                    <br>Can only send to Australia currently.
+                    <br>Examples of conversions to E.164 format:
+                    <br>Australia 0438 333 061 => 61438333061
+        content_type:
+          type: string
+          description: Type of the message content (currently only text supported).
+          enum:
+            - text
+        content:
+          type: object
+          description: >
+            The message content to be sent.
+
+
+            - Supports both Basic RCS messages (160 characters) and Simple RCS
+            messages (3072 characters)
+
+            - UTF-8 and emoji support included
+          oneOf:
+            - $ref: '#/components/schemas/RCSTextContent'
+        sms_fallback:
+          $ref: '#/components/schemas/RCSSMSFallback'
+        message_ref:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >
+            A reference supplied by your system. Maximum length of 500
+            characters.
+
+            <br><br>This reference will be passed back in webhooks so that you
+            can relate events to messages you sent.
+
+            <br><br>For example, being able to relate a Link Hit event to a
+            specific sent message.
+      required:
+        - sender
+        - recipient
+        - content_type
+        - content
+      example:
+        sender: DemoSender
+        recipient: '+447903749662'
+        content_type: text
+        content:
+          text:
+            message: |-
+              Hi Michael,
+              Just a quick reminder. You are amazing!!
+              Reply STOP to opt out.
+        message_ref: order-12345
+    RcsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the message.
+        message_ref:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Optional reference ID set by the user for the message.
+        sender:
+          type: string
+          description: Registered RCS Agent ID.
+        recipient:
+          type: string
+          description: Recipient phone number in international format.
+        content_type:
+          type: string
+          description: Type of the message content.
+          enum:
+            - text
+        content:
+          type: object
+          description: Content of the message.
+          oneOf:
+            - $ref: '#/components/schemas/RCSTextContent'
+        sms_fallback:
+          $ref: '#/components/schemas/RCSSMSFallback'
+        created_at:
+          type: string
+          format: date-time
+          description: >-
+            Timestamp in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) when the message was
+            created on the server.
+      required:
+        - id
+        - sender
+        - recipient
+        - content_type
+        - content
+        - created_at
+      example:
+        id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+        message_ref: order-12345
+        sender: DemoSender
+        recipient: '+447903749662'
+        content_type: text
+        content:
+          text:
+            message: |-
+              Hi Michael,
+              Just a quick reminder. You are amazing!!
+              Reply STOP to opt out.
+        created_at: '2021-01-01T00:00:00Z'
+    ListSMSRequest:
+      type: object
+      properties:
+        limit:
+          type: string
+          description: Limit the number of SMS. Defaults to 100 for JSON.
+          x-go-type-skip-optional-pointer: true
+        page:
+          type: string
+          description: Page number in combination with limit. Defaults to 1 for JSON.
+          x-go-type-skip-optional-pointer: true
+        start_date:
+          type: string
+          format: string
+          description: Start date for SMS created, in RFC3339 format.
+          x-go-type-skip-optional-pointer: true
+        end_date:
+          type: string
+          format: string
+          description: End date for SMS created date, in RFC3339 format.
+          x-go-type-skip-optional-pointer: true
+        recipient:
+          type: string
+          description: Recipient filter.
+          x-go-type-skip-optional-pointer: true
+        sender:
+          type: string
+          description: Sender filter.
+          x-go-type-skip-optional-pointer: true
+        message_ref:
+          type: string
+          description: Message reference filter.
+          x-go-type-skip-optional-pointer: true
+        status:
+          $ref: '#/components/schemas/Status'
+        format:
+          $ref: '#/components/schemas/Format'
+        recipient_countries:
+          type: array
+          items:
+            type: string
+          description: >-
+            ISO 3166 country codes.
+            https://www.iso.org/iso-3166-country-codes.html
+        direction:
+          $ref: '#/components/schemas/Direction'
+        order_by:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderByField'
+          description: Sort order. Default is CREATED_AT_ASC.
+    Status:
+      type: string
+      description: >
+        Message status.
+
+        - PENDING: Queued for processing.
+
+        - SENT: Submitted to the provider.
+
+        - FAILED: Failed because of an error from the provider, a carrier, or
+        the handset.
+
+        - DELIVERED: Delivered to handset.
+
+        - ACCEPTED: Accepted by the provider and delivery might have been
+        attempted (but is not confirmed).
+
+        - SOFT_BOUNCE: Undeliverable due to handset being switched off, out of
+        range or other temporary deliverability issue.
+
+        - HARD_BOUNCE: Handset was disconnected.
+
+        - OTHER: Any other DLR status from the provider.
+
+        - REJECTED: Message pending approval was rejected by the Kudosity
+        support team.
+
+        - PENDING_APPROVAL: Message is pending approval by the Kudosity support
+        team.
+
+        - SUBMITTED: Message is submitted to the provider.
+
+        - UNDELIVERABLE: Message is undeliverable.
+
+        - READ: Message is read by the recipient.
+      nullable: true
+      enum:
+        - PENDING
+        - SENT
+        - FAILED
+        - DELIVERED
+        - ACCEPTED
+        - SOFT_BOUNCE
+        - HARD_BOUNCE
+        - OTHER
+        - REJECTED
+        - PENDING_APPROVAL
+        - SUBMITTED
+        - UNDELIVERABLE
+        - READ
+    OrderByField:
+      type: string
+      description: |
+        Sort order. Default is CREATED_AT_ASC.
+        - CREATED_AT_ASC: Created at ascending.
+        - CREATED_AT_DESC: Created at descending.
+      enum:
+        - CREATED_AT_ASC
+        - CREATED_AT_DESC
+    Format:
+      type: string
+      description: Response format
+      nullable: true
+      enum:
+        - JSON
+        - CSV
+    Direction:
+      type: string
+      description: |
+        Message direction.
+        - OUT: Sent to the provider.
+        - IN: Sent from the provider.
+      nullable: true
+      enum:
+        - OUT
+        - IN
+    SendSMSRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          description: >
+            Body text of the message.
+
+            The message will be split into multiple parts if required. A part is
+            160 characters for a single SMS or 153 characters per part for
+            multi-part SMS. If the message contains Unicode UTF8 encoded
+            characters such as emoji’s or non latin character sets, then a
+            single part is 70 characters or 67 characters for multiple parts.
+
+
+            More information on message length and encoding:
+            https://support.transmitsms.com/support/solutions/articles/44001940835-sms-message-length-and-character-count
+
+
+            If opt-out is required, insert parameter [opt-out-link] into the
+            message and a link will be generated.
+          x-oapi-codegen-extra-tags:
+            valid: required
+        message_ref:
+          type: string
+          maxLength: 500
+          description: >
+            A reference supplied by your system. This reference will be passed
+            back in webhooks so that you can relate events to messages you sent.
+            For example, being able to relate a Link Hit event to a specific
+            sent message.
+          x-go-type-skip-optional-pointer: true
+          x-oapi-codegen-extra-tags:
+            valid: length(0|500)
+        sender:
+          type: string
+          description: >
+            Sender is the number (or alphanumeric) that the message appears from
+            on the handset.
+
+            Sender number must be assigned to your account for the country you
+            are sending to. Contact us to get sender number(s) registered to
+            your account.
+
+            Sender number functionality varies by country. You can send from an
+            alphanumeric sender if it is available for the destination country.
+
+            Global SMS delivery list:
+            https://support.transmitsms.com/support/solutions/articles/44001940675-global-sms-delivery-list
+
+
+            Alphanumeric senders (which cannot be replied to) have a maximum of
+            11 characters. Only letters, numbers, underscore, hyphen or space
+            are allowed and they are included in the total character count.
+            (Consecutive underscore, hyphen, space is not allowed.)
+          x-oapi-codegen-extra-tags:
+            valid: required
+        recipient:
+          type: string
+          description: >
+            The destination number for delivery.
+
+            Can be either in local format or in international format. Must be in
+            the same country as the sender.
+
+            For international format, it should follow E.164 standard.
+            http://en.wikipedia.org/wiki/E.164
+
+
+            Examples of conversions to E.164 format:
+              Australia 0438 333 061 => 61438333061
+              New Zealand 0212172782 => 64212172782
+              USA (281) 869-1226 => 12818691226
+          x-oapi-codegen-extra-tags:
+            valid: required
+        track_links:
+          type: boolean
+          description: >
+            Enable the link tracking feature which replaces links in outbound
+            messages with shortened links. This allows us to track when
+            recipients view links.
+          x-go-type-skip-optional-pointer: true
+      required:
+        - message
+        - sender
+        - recipient
+    SMSResponse:
+      type: object
+      description: SMS message details.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the SMS message.
+          example: 2d2c8fb6-e514-4f5f-9706-0672b0259218
+        recipient:
+          type: string
+          description: The destination number for delivery.
+          example: '61478038915'
+        recipient_country:
+          type: string
+          description: Recipient country code.
+          example: AU
+        sender:
+          type: string
+          description: The sender number.
+          example: '61481074185'
+        sender_country:
+          type: string
+          description: Sender country code.
+          example: AU
+        message_ref:
+          type: string
+          description: Reference supplied by your system.
+          example: ncc1701d
+          x-go-type-skip-optional-pointer: true
+        message:
+          type: string
+          description: Body text of the SMS message.
+          example: Report to the ready room! Opt-out reply STOP
+        status:
+          type: string
+          description: Status of the message.
+          example: delivered
+        sms_count:
+          type: string
+          description: Number of SMS parts the message was split into.
+          example: '1'
+        is_gsm:
+          type: boolean
+          description: Whether the message uses GSM encoding.
+          example: true
+        is_sandbox:
+          type: boolean
+          description: Whether the message was sent in sandbox mode.
+          example: false
+        routed_via:
+          type: string
+          description: The route used to send the message.
+          example: ''
+        track_links:
+          type: boolean
+          description: Whether link tracking is enabled.
+          example: true
+        direction:
+          type: string
+          description: Direction of the message (IN/OUT).
+          example: OUT
+        created_at:
+          type: string
+          description: Timestamp when the SMS was created.
+          example: '2022-03-28T06:12:52.450674000Z'
+        updated_at:
+          type: string
+          description: Timestamp when the SMS was last updated.
+          example: '2022-03-28T06:12:52.450674000Z'
+      required:
+        - id
+        - recipient
+        - recipient_country
+        - sender
+        - sender_country
+        - message_ref
+        - message
+        - status
+        - sms_count
+        - is_gsm
+        - is_sandbox
+        - routed_via
+        - track_links
+        - direction
+        - created_at
+        - updated_at
+      example:
+        id: 2d2c8fb6-e514-4f5f-9706-0672b0259218
+        recipient: '61478038915'
+        recipient_country: AU
+        sender: '61481074185'
+        sender_country: AU
+        message_ref: ncc1701d
+        message: Report to the ready room! Opt-out reply STOP
+        status: delivered
+        sms_count: '1'
+        is_gsm: true
+        is_sandbox: false
+        routed_via: ''
+        track_links: true
+        direction: OUT
+        created_at: '2022-03-28T06:12:52.450674000Z'
+        updated_at: '2022-03-28T06:12:52.450674000Z'
+    ListSMSResponse:
+      type: object
+      description: List of SMS messages.
+      properties:
+        smses:
+          type: array
+          items:
+            $ref: '#/components/schemas/SMSResponse'
+        total_records:
+          type: string
+        total_segments:
+          type: string
+      required:
+        - smses
+        - total_records
+        - total_segments
+    MMSResponse:
+      type: object
+      description: MMS message details.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the MMS message.
+          example: 6fdae71c-dad7-4c36-9734-a69693ec2318
+        recipient:
+          type: string
+          description: The destination number for delivery.
+          example: '61435795809'
+        sender:
+          type: string
+          description: The sender number.
+          example: '61481074185'
+        country:
+          type: string
+          description: Country code.
+          example: AU
+          x-go-type-skip-optional-pointer: true
+        subject:
+          type: string
+          description: Subject of the message.
+          example: USS Enterprise
+          x-go-type-skip-optional-pointer: true
+        message:
+          type: string
+          description: Body text of the message.
+          example: Check out this amazing specimen.
+          x-go-type-skip-optional-pointer: true
+        message_ref:
+          type: string
+          description: Reference supplied by your system.
+          example: ncc1701d
+          x-go-type-skip-optional-pointer: true
+        content_urls:
+          type: array
+          description: List of media file URLs.
+          items:
+            type: string
+          example:
+            - >-
+              http://res.cloudinary.com/burstsms/image/upload/v1590111670/enterprise-d_ghf9t8.jpg
+        status:
+          type: string
+          description: Status of the message.
+          example: sent
+        track_links:
+          type: boolean
+          description: Whether link tracking is enabled.
+          example: true
+        is_sandbox:
+          type: boolean
+          deprecated: true
+          description: >-
+            Deprecated. Use a sandbox account instead, or contact support to
+            request one.
+          x-go-type-skip-optional-pointer: true
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the MMS was created.
+          example: '2022-03-29T04:42:01.631708Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the MMS was last updated.
+          example: '2022-03-29T04:42:01.776094Z'
+      required:
+        - id
+        - recipient
+        - sender
+        - country
+        - subject
+        - message
+        - message_ref
+        - content_urls
+        - status
+        - track_links
+        - created_at
+        - updated_at
+        - is_sandbox
+    MMSSendRequest:
+      type: object
+      properties:
+        subject:
+          type: string
+          description: Subject of the message. Maximum length of 20 characters.
+          pattern: ^[\x00-\x7F]*$
+          example: USS Enterprise
+          maxLength: 20
+          x-oapi-codegen-extra-tags:
+            valid: ascii
+          x-go-type-skip-optional-pointer: true
+        message:
+          type: string
+          description: |
+            Body text of the message. Maximum length of 1,000 characters.
+            <br>If opt-out is required, insert parameter [opt-out-link]
+            into the message and a link will be generated.
+          x-go-type-skip-optional-pointer: true
+        message_ref:
+          type: string
+          description: >
+            A reference supplied by your system. Maximum length of 500
+            characters.
+
+            <br>This reference will be passed back in webhooks so that you can
+
+            relate events to messages you sent.
+
+            <br>For example, being able to relate a Link Hit event to a specific
+
+            sent message.
+          maxLength: 500
+          x-oapi-codegen-extra-tags:
+            valid: length(0|500)
+          x-go-type-skip-optional-pointer: true
+        sender:
+          type: string
+          description: The sender is the number that shows recipients who sent the message.
+          x-oapi-codegen-extra-tags:
+            valid: required
+        recipient:
+          type: string
+          description: >
+            The destination number for delivery.
+
+            <br>Can be either in local format or in international format.
+
+            <br>For international format, it should follow E.164 standard.
+
+            [http://en.wikipedia.org/wiki/E.164](http://en.wikipedia.org/wiki/E.164)
+
+            <br>Can only send to Australia currently.
+
+            <br>Examples of conversions to E.164 format:
+
+            <br>Australia 0438 333 061 => 61438333061
+          x-oapi-codegen-extra-tags:
+            valid: required
+        content_urls:
+          type: array
+          items:
+            type: string
+          description: >
+            Specify a list of URLs of the media file(s) that you are trying to
+            send. 
+
+            Supported file formats include jpg, gif, png, MP3, and video MP4.
+            Only one image up to 400 KB can be attached at a time.
+
+            <br>URLs must be absolute paths to the media file, they cannot be
+            relative paths. For example,
+            https://outbound-mms.smsbump.com/2024/fashion.gif.
+          x-oapi-codegen-extra-tags:
+            valid: required
+        track_links:
+          type: boolean
+          description: >
+            Enable the link tracking feature which replaces links in outbound
+            messages
+
+            with shortened links.
+
+            <br>This allows us to track when recipients view links.
+          x-go-type-skip-optional-pointer: true
+        is_sandbox:
+          type: boolean
+          deprecated: true
+          description: >-
+            Deprecated. Use a sandbox account instead, or contact support to
+            request one.
+          x-go-type-skip-optional-pointer: true
+      required:
+        - sender
+        - recipient
+        - content_urls
+    Filter:
+      type: object
+      nullable: true
+      description: Filter applied to webhook events
+      properties:
+        event_type:
+          type: array
+          description: Types of events to subscribe to
+          items:
+            $ref: '#/components/schemas/EventTypeEnum'
+          example:
+            - SMS_STATUS
+            - SMS_INBOUND
+        sender:
+          type: array
+          description: Filter by sender
+          items:
+            type: string
+          example:
+            - '+61412345678'
+            - '+61487654321'
+        status:
+          type: array
+          description: Filter by message status (only applicable for status events)
+          items:
+            type: string
+          example:
+            - DELIVERED
+            - FAILED
+        message_ref:
+          type: array
+          description: Filter by message ref
+          items:
+            type: string
+          example:
+            - ref123
+            - ref456
+        campaign_id:
+          type: array
+          description: Filter by campaign ID
+          items:
+            type: string
+          example:
+            - campaign_123
+            - campaign_456
+    EventTypeEnum:
+      type: string
+      enum:
+        - LINK_HIT
+        - OPT_OUT
+        - SMS_STATUS
+        - SMS_INBOUND
+        - MMS_STATUS
+        - MMS_INBOUND
+        - WHATSAPP_STATUS
+        - WHATSAPP_INBOUND
+        - RCS_STATUS
+        - RCS_INBOUND
+      description: Types of events that can trigger a webhook.
+    WebhookResponse:
+      type: object
+      description: Webhook details.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the webhook.
+          example: 67e3e4af-62e8-4515-8b67-6f20d0c51ffb
+        filter:
+          $ref: '#/components/schemas/Filter'
+        name:
+          type: string
+          description: Name of the webhook.
+          example: Hook
+        url:
+          type: string
+          description: URL (https) that accepts JSON encoded POST requests.
+          format: uri
+          example: https://webhook.site/uuid
+        rate_limit:
+          type: integer
+          description: Rate limit for the webhook in requests per second.
+          example: 10
+        is_sandbox:
+          type: boolean
+          description: Indicates if the webhook is in sandbox mode (deprecated).
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the webhook was created.
+          example: '2025-04-14T00:59:32.75819Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the webhook was last updated.
+          example: '2025-04-14T00:59:32.75819Z'
+      required:
+        - id
+        - name
+        - url
+        - rate_limit
+        - is_sandbox
+        - created_at
+        - updated_at
+    WebhookDeleteResponse:
+      type: object
+      description: Webhook deletion confirmation response.
+      properties:
+        message:
+          type: string
+          description: Confirmation message
+          example: deleted
+      required:
+        - message
+    WebhookListResponse:
+      type: object
+      description: List of webhooks response.
+      properties:
+        webhooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookResponse'
+    WebhookRequest:
+      type: object
+      properties:
+        event_type:
+          allOf:
+            - $ref: '#/components/schemas/EventTypeEnum'
+          description: >-
+            Type of event to subscribe to. Deprecated - use filter.event_type
+            instead.
+          example: SMS_STATUS
+          deprecated: true
+        filter:
+          type: object
+          description: >-
+            Filter to apply to webhook events. The filters are applied
+            differently based on the event type: - For status events
+            (SMS_STATUS, MMS_STATUS, etc.): sender, status, message_ref, and
+            campaign_id filters are applied to the status payload. - For
+            LINK_HIT events: sender and message_ref filters are applied to the
+            source_message in the link hit payload. - For OPT_OUT events: sender
+            and message_ref filters are applied to the source_message in the opt
+            out payload. - For inbound events (SMS_INBOUND, MMS_INBOUND, etc.):
+            sender and message_ref filters are applied to the last_message in
+            the inbound payload.
+
+            Within each filter array (e.g., sender, status, message_ref), the
+            conditions are combined using an OR logic. For example, if multiple
+            senders are specified, the webhook will trigger if the event matches
+            any of the specified senders. Between different filters (e.g.,
+            sender and status), the conditions are combined using an AND logic.
+            For example, the webhook will trigger only if the event matches both
+            the specified sender and the specified status.
+          properties:
+            event_type:
+              type: array
+              description: Types of events to subscribe to
+              items:
+                $ref: '#/components/schemas/EventTypeEnum'
+              example:
+                - SMS_STATUS
+                - SMS_INBOUND
+            sender:
+              type: array
+              description: Filter by sender
+              items:
+                type: string
+              example:
+                - '+61412345678'
+                - '+61487654321'
+            status:
+              type: array
+              description: Filter by message status (only applicable for status events)
+              items:
+                type: string
+              example:
+                - DELIVERED
+                - FAILED
+            message_ref:
+              type: array
+              description: Filter by message ref
+              items:
+                type: string
+              example:
+                - ref123
+                - ref456
+            campaign_id:
+              type: array
+              description: Filter by campaign ID
+              items:
+                type: string
+              example:
+                - campaign_123
+                - campaign_456
+        name:
+          type: string
+          description: Name of the webhook
+          minLength: 2
+          maxLength: 100
+          example: My Webhook
+          x-oapi-codegen-extra-tags:
+            valid: length(2|100)
+        url:
+          type: string
+          description: URL (https) that accepts JSON encoded POST requests
+          format: uri
+          example: https://example.com/webhook
+          x-oapi-codegen-extra-tags:
+            valid: required,webhook_url
+        rate_limit:
+          type: integer
+          description: >-
+            Rate limit for your URL in requests per second. Max 10,000/sec. If
+            set to 0 or not specified, the default system limit will be applied.
+          x-go-type-skip-optional-pointer: true
+          x-oapi-codegen-extra-tags:
+            valid: range(0|10000)
+        is_sandbox:
+          type: boolean
+          deprecated: true
+          description: >-
+            Deprecated. Use a sandbox account instead, or contact support to
+            request one.
+          x-go-type-skip-optional-pointer: true
+      required:
+        - name
+        - url
+  responses:
+    SuccessResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WhatsappResponse'
+    InputValidationResponse:
+      description: Input Validation Error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/InputValidationProblem'
+    NotFoundErrorResponse:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/NotFoundProblem'
+    InternalServerErrorResponse:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/InternalServerErrorProblem'
+    RCSSuccessResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RcsResponse'
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: >
+        All API requests require your API credentials, you will find them once
+        logged into your account on the SETTINGS page. Scroll down to API
+        Settings to find your API key.
