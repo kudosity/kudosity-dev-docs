@@ -1,0 +1,2098 @@
+openapi: 3.0.3
+info:
+  title: Transmit Message API
+  description: Transmit APIs
+  version: 1.0.0
+  x-go-package: github.com/oapi-codegen/runtime
+servers:
+  - url: https://api.transmitmessage.com
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: MMS
+    description: The primary method of sending MMS
+  - name: SMS
+    description: >-
+      The primary method of sending SMS.
+
+
+      You can elect to pass us the recipient numbers from your database each
+      time you make an API call.
+
+
+      In order to send to a local number for a recipient the Sender virtual
+      number needs to be in the same country.
+
+
+      You can pass us the recipient number in international format and we will
+      deliver your message with the Sender virtual number on your account for
+      the same country.
+
+
+      If you do not have a Sender virtual number for the same country we will
+      use a local number for the country you are sending to in order to deliver
+      your message.
+
+
+      List of countries we currently deliver to: [Global Delivery
+      List](https://help.kudosity.com/support/solutions/articles/44001077065-global-sms-delivery-list)
+  - name: Webhook
+    description: >-
+      Our webhooks API allows you to subscribe to events for SMS, MMS, and RCS
+      messages. Using them requires you to have URLs (https) configured on your
+      account that can receive POST requests over the internet.
+
+
+      The `event_type` field is an enum that specifies which event to subscribe
+      to:
+
+
+      - LINK_HIT
+
+      - OPT_OUT
+
+      - MMS_STATUS
+
+      - MMS_INBOUND
+
+      - SMS_INBOUND
+
+      - SMS_STATUS
+
+      - RCS_STATUS
+          
+
+      For status events, the nested `status` field is an enum with these values:
+
+
+      - FAILED: Failed because of an error from the carrier or handset.
+          
+      - SENT: Submitted to the carrier.
+
+      - ACCEPTED: Accepted by the carrier and delivery may have been attempted
+      (but is not confirmed).
+
+      - DELIVERED: Delivered to handset.
+
+      - SOFT_BOUNCE: Undeliverable due to handset being switched off, out of
+      range or other temporary deliverability issue.
+
+      - HARD_BOUNCE: Handset was disconnected.
+
+      - OTHER: Any other status from the carrier.
+          
+
+      ## Link Hit
+
+
+      The `LINK_HIT` event is triggered any time a recipient visits a link that
+      is tracked. Track Links is an optional flag on the send message API calls.
+      Along with the URL that was being tracked is a hits field indicating how
+      many visits this tracked link has in total and a source_message which
+      contains the track link sent to the recipient.
+
+
+      ###### Example Payloads
+
+
+      ```json Hit link in MMS {
+        "event_type": "LINK_HIT",
+        "timestamp": "2021-05-06T05:19:42Z",
+        "link_hit": {
+          "hits": 1,
+          "url": "https://www.example.com/abc",
+          "source_message": {
+            "type": "MMS",
+            "id": "b50e4dc1-e57f-459c-a15c-526bee00a4c4",
+            "message": "Hey, Check this out! http://clckme.info/KYhSsuIH Opt-out reply STOP",
+            "message_ref": "D701",
+            "recipient": "61435790000",
+            "sender": "61481074191",
+            "subject": "Hello",
+            "content_urls": [
+              "https://res.cloudinary.com/burstsms/image/upload/v1618798563/284KB_qgqtbe.jpg"
+            ]
+          }
+        }
+      } ``` ```json Hit link in SMS {
+        "event_type": "LINK_HIT",
+        "timestamp": "2021-07-20T23:14:04Z",
+        "link_hit": {
+          "hits": 1,
+          "url": "https://www.example.com/abc",
+          "source_message": {
+            "type": "SMS",
+            "id": "faf68308-16cd-4cf9-aef7-47342bd405be",
+            "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh ",
+            "message_ref": "D301",
+            "recipient": "61435795809",
+            "sender": "61481074185"
+          }
+        }
+      } ```
+
+      ## Opt Out
+
+
+      The `OPT_OUT` event is triggered when a recipient has visited an opt-out
+      link in a message they have received or by sending a message with the text
+      "STOP".
+
+
+      Using parameter \[opt-out-link\] in message body, inserts the opt-out
+      link.
+
+
+      The source field will be set according to the method a recipient has used
+      to opt-out and contain a value of either link or SMS.
+        
+
+      ###### Example Payloads
+
+
+      ```json Opt out via link {
+        "event_type": "OPT_OUT",
+        "timestamp": "2021-05-06T05:16:20Z",
+        "opt_out": {
+          "source": "LINK_HIT",
+          "source_message": {
+            "type": "SMS",
+            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
+            "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh",
+            "message_ref": "ncc5009d",
+            "recipient": "61435790000",
+            "sender": "61481074190"  
+          }
+        }
+      } ``` ```json Opt out via message {
+        "event_type": "OPT_OUT",
+        "timestamp": "2021-05-06T05:16:20Z",
+        "opt_out": {
+          "source": "SMS_INBOUND",
+          "source_message": {
+            "type": "SMS",
+            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
+            "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh",
+            "message_ref": "ncc5009d",
+            "recipient": "61435790000",
+            "sender": "61481074190"
+          }
+        }
+      } ```
+
+      ## MMS Status
+
+
+      The `MMS_STATUS` event data is posted to you for changes to an MMS message
+      status. These are currently only comprised of internal statuses (SENT,
+      FAILED).
+
+
+      ###### Example Payload
+
+
+      ```json {
+        "event_type": "MMS_STATUS",
+        "timestamp": "2021-05-06T05:19:33Z",
+        "status": {
+          "type": "MMS",
+          "id": "b50e4dc1-e57f-459c-a15c-526bee00a4c4",
+          "message_ref": "D7001",
+          "recipient": "61435790000",
+          "sender": "61481074191",
+          "status": "SENT"
+        }
+      } ```
+
+      ## SMS Inbound
+
+
+      The `SMS_INBOUND` event is posted to you on receipt of an SMS sent from a
+      recipient to one of the senders listed on your account. For convenience we
+      will try and find a message that you have sent to this recipient from that
+      sender and supply it as the `last_message` field. This is useful for
+      determining if an inbound message is potentially a reply. The `routed_via`
+      field will display when a shared local number has been used to deliver
+      your message.
+
+
+      ###### Example Payload
+
+
+      ```json {
+        "event_type": "SMS_INBOUND",
+        "timestamp": "2021-05-06T05:16:33Z",
+        "mo": {
+          "type":"SMS",
+          "id": "alss-2way-605b31c7-d2c49104",
+          "message": "Stop",
+          "recipient": "61481074190",
+          "routed_via": "447507333300",
+          "sender": "447507222200",
+          "last_message": {
+            "type":"SMS",
+            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",     
+            "message": "Hey, check this out!",
+            "message_ref": "ncc5009d",
+            "recipient": "447507222200",
+            "routed_via": "447507333300",
+            "sender": "61481074190"
+          }
+        }
+      } ```
+
+      ## SMS Status
+
+
+      The `SMS_STATUS` event data is posted to you for changes to a SMS message
+      status. Multiple status events can be triggered for a single message.
+
+
+      The `routed_via` field will display when a shared local number has been
+      used to deliver your message.
+
+
+      ###### Example Payload
+
+
+      ```json {
+        "event_type": "SMS_STATUS",
+        "timestamp": "2021-05-06T05:16:07Z",
+        "status": {
+          "type": "SMS",
+          "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
+          "message_ref": "ncc5009d",
+          "recipient": "447507222200",
+          "routed_via": "447507333300",
+          "sender": "61481074190",
+          "status": "SENT"
+        }
+      } ```
+
+      ## RCS Status
+
+
+      The `RCS_STATUS` event data is posted to you for changes to an RCS message
+      status. RCS supports enhanced status tracking including read receipts.
+
+
+      RCS-specific statuses include:
+
+
+      - SENT: Submitted to the carrier.
+
+      - DELIVERED: Delivered to handset.
+
+      - FAILED: Failed because of an error from the carrier or handset.
+
+      - READ: Message was read by the recipient (RCS-specific feature).
+
+
+      ###### Example Payload
+
+
+      ```json {
+        "event_type": "RCS_STATUS",
+        "timestamp": "2025-01-07T05:16:07Z",
+        "webhook_id": "fd0e6485-b905-44c1-bd55-fee1d0d6d864",
+        "webhook_name": "RCS Status Webhook",
+        "status": {
+          "type": "RCS",
+          "id": "6fdae71c-dad7-4c36-9734-a69693ecf3b4",
+          "message_ref": "order-12345",
+          "recipient": "+447903749662",
+          "sender": "DemoSender",
+          "status": "READ"
+        }
+      } ```
+paths:
+  /v2/whatsapp:
+    post:
+      tags:
+        - WhatsApp
+      summary: Send WhatsApp message.
+      description: >-
+        Sends a single templated message to a single recipient. Templates need
+        to be registered and pre-approved by WhatsApp.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WhatsappRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/InputValidationResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/rcs:
+    post:
+      tags:
+        - RCS
+      summary: Send an RCS message
+      description: |
+        This endpoint is in beta and may change in future versions.
+        Sends an RCS message to a single recipient.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RcsRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/RCSSuccessResponse'
+        '400':
+          $ref: '#/components/responses/InputValidationResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/sms/{id}:
+    get:
+      tags:
+        - SMS
+      summary: Get SMS
+      description: >-
+        Retrieves information about an existing SMS message. You only need to
+        supply the unique message id that was returned upon message creation.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Unique ID of the sent SMS
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single SMS message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SMSResponse'
+        '404':
+          description: SMS not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: SMS not found
+  /v2/sms:
+    get:
+      tags:
+        - SMS
+      summary: List SMS
+      description: >-
+        Retrieves a list of SMS messages. You can limit the number of messages
+        returned and filter by properties listed in the parameters section.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: query
+          in: query
+          description: |
+            Filter query parameters are added to the URL. Use as:
+            ?limit=1&page=2&start_date=2024-01-01T00:00:00Z
+          schema:
+            $ref: '#/components/schemas/ListSMSRequest'
+      responses:
+        '200':
+          description: A list of SMS messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSMSResponse'
+    post:
+      tags:
+        - SMS
+      summary: Send SMS
+      description: >-
+        Send a message from sender to recipient using the values shown in the
+        parameters section.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendSMSRequest'
+      responses:
+        '200':
+          description: The SMS that was sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SMSResponse'
+  /v2/mms:
+    post:
+      tags:
+        - MMS
+      summary: Send MMS
+      description: >-
+        The Send MMS endpoint allows you to send multimedia messages (MMS) to
+        recipients. 
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MMSSendRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: 6fdae71c-dad7-4c36-9734-a69693ec2318
+                recipient: '61435795809'
+                sender: '61481074185'
+                country: AU
+                subject: USS Enterprise
+                message: Check out this amazing specimen.
+                message_ref: ncc1701d
+                content_urls:
+                  - >-
+                    http://res.cloudinary.com/burstsms/image/upload/v1590111670/enterprise-d_ghf9t8.jpg
+                status: pending
+                track_links: true
+                created_at: '2022-03-29T04:42:01.631708761Z'
+                updated_at: '2022-03-29T04:42:01.631708761Z'
+  /v2/mms/{id}:
+    get:
+      tags:
+        - MMS
+      summary: Get MMS
+      description: >-
+        This request retrieves the information of an existing sent MMS message.
+        You only need to supply the unique message id that was returned upon
+        creation.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Unique ID of the sent MMS
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single MMS message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MMSResponse'
+              example:
+                id: 6fdae71c-dad7-4c36-9734-a69693ec2318
+                recipient: '61435795809'
+                sender: '61481074185'
+                country: AU
+                subject: USS Enterprise
+                message: Check out this amazing specimen.
+                message_ref: ncc1701d
+                content_urls:
+                  - >-
+                    http://res.cloudinary.com/burstsms/image/upload/v1590111670/enterprise-d_ghf9t8.jpg
+                status: sent
+                track_links: true
+                created_at: '2022-03-29T04:42:01.631708Z'
+                updated_at: '2022-03-29T04:42:01.776094Z'
+        '400':
+          description: Invalid MMS ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: invalid MMS ID
+        '404':
+          description: MMS not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: MMS not found
+  /v2/webhook:
+    post:
+      tags:
+        - Webhook
+      summary: Create Webhook
+      security:
+        - ApiKeyAuth: []
+      description: >-
+        We use webhooks to let your application know when events happen, such as
+        receiving an SMS message. When the event occurs, the system makes an
+        HTTP request (usually a POST) to the URL you configured for the webhook.
+        The request will include details of the event such as the incoming phone
+        number or the body of an incoming message.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookRequest'
+      responses:
+        '201':
+          description: Webhook created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: >-
+                      Validation Error: rate_limit: greater than the maximum
+                      value of 10000
+    get:
+      tags:
+        - Webhook
+      summary: Retrieve all webhooks
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: A list of webhooks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookListResponse'
+  /v2/webhook/{id}:
+    get:
+      tags:
+        - Webhook
+      summary: Get a webhook by ID
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Unique ID of the webhook
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single webhook
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '404':
+          description: Webhook not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Webhook not found
+    put:
+      tags:
+        - Webhook
+      summary: Update Webhook
+      description: >-
+        Updates the webhook. Any fields not provided in the request body will
+        reset to their default values.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the webhook
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookRequest'
+      responses:
+        '200':
+          description: Webhook updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Validation Error: event_type: required'
+    delete:
+      tags:
+        - Webhook
+      summary: Delete Webhook
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Unique ID of the webhook
+      responses:
+        '200':
+          description: Webhook deletion confirmation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookDeleteResponse'
+        '400':
+          description: Invalid webhook ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: invalid webhook ID
+        '404':
+          description: Webhook not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Webhook not found
+components:
+  schemas:
+    Text:
+      type: object
+      description: Text content for the message.
+      properties:
+        message:
+          type: string
+          description: The text message body.
+      required:
+        - message
+    Template:
+      type: object
+      description: Template details for the message content.
+      properties:
+        name:
+          type: string
+          description: |
+            The **exact name** of the WhatsApp template.
+
+            - **Format:** Lowercase, alphanumeric, underscores only.
+            - **Example:** `order_confirmation`
+            - **Must be pre-approved** in your WhatsApp Business account.
+        parameters:
+          type: array
+          description: >
+            The **dynamic values** to populate placeholdes in the template
+            message.
+
+
+            - The number of parameters **must match** the template placeholders.
+
+            - Supports **text only** (strings). Other types (e.g., images,
+            documents) are not allowed.
+
+            - **Example Usage:**
+              - Template: `"Hello, {1}! Your order {2} has been shipped."`
+              - Parameters: `["Tony", "#12345"]`
+              - Final message: `"Hello, Tony! Your order #12345 has been shipped."`
+          items:
+            type: string
+        locale:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Optional locale for the template (e.g., en_US), if not provided, the
+            default locale is `en`.
+      required:
+        - name
+    TextContent:
+      type: object
+      properties:
+        text:
+          $ref: '#/components/schemas/Text'
+      required:
+        - text
+    TemplateContent:
+      type: object
+      properties:
+        template:
+          $ref: '#/components/schemas/Template'
+      required:
+        - template
+    Custom:
+      type: object
+      description: Custom content following the Meta Cloud API guidelines.
+      additionalProperties: true
+    CustomContent:
+      type: object
+      properties:
+        custom:
+          $ref: '#/components/schemas/Custom'
+      required:
+        - custom
+    SMSFallback:
+      type: object
+      nullable: true
+      description: SMS fallback message details.
+      properties:
+        message:
+          type: string
+          description: The message to send via SMS.
+      required:
+        - message
+    WhatsappRequest:
+      type: object
+      properties:
+        sender:
+          type: string
+          description: |
+            Registered WhastApp sender number.
+
+             - Must be in **international format** <a href="http://en.wikipedia.org/wiki/E.164">E.164 format</a> (e.g., +14155238886).
+             - Number must be registered with the WhatsApp Business API.
+        recipient:
+          type: string
+          format: phone
+          description: >
+            Recipient phone number in international format.
+
+
+            - Must follow **E.164 format** (e.g., `+14155238886` for a US
+            number).
+
+            - No spaces, dashes, or special characters.
+
+            - The recipient must **have an active WhatsApp account**.
+
+            - Ensure the recipient **has opted in** to receive WhatsApp
+            messages.
+        content_type:
+          type: string
+          description: Type of the message content (e.g., text, template, custom).
+          enum:
+            - text
+            - template
+            - custom
+        content:
+          type: object
+          description: >
+            The message content to be sent.
+
+
+            - Must follow the WhastApp-approved **template format** or be a
+            **custom object** following the Meta Cloud API guidelines.
+
+            - **Example JSON (Text Content):**
+              ```json
+              {
+                "text": {
+                  "message": "hello, world!",
+                }
+              }
+              ```
+            - **Example JSON (Template Content):**
+              ```json
+              {
+                "template": {
+                  "name": "order_update",
+                  "parameters": ["123456"]
+                }
+              }
+              ```
+            - **Example JSON (Custom Content):**
+              ```json
+              {
+                "custom": {
+                  "type": "template",
+                  "template": {
+                    "name": "template_img_simple_1",
+                    "language": {
+                      "code": "en",
+                      "policy": "deterministic"
+                    },
+                    "components": [
+                      {
+                        "type": "HEADER",
+                        "parameters": [
+                          {
+                            "type": "image",
+                            "image": {
+                              "link": "https://image-test.jpg"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+              ```
+          oneOf:
+            - $ref: '#/components/schemas/TextContent'
+            - $ref: '#/components/schemas/TemplateContent'
+            - $ref: '#/components/schemas/CustomContent'
+        sms_fallback:
+          $ref: '#/components/schemas/SMSFallback'
+        message_ref:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >
+            A unique reference ID supplied by your system to track messages.
+
+
+            - **Maximum Length:** 500 characters.
+
+            - This `message_ref` will be included in webhook events, allowing
+            you to correlate sent messages with received events.
+
+
+            **Example Usage:**
+             - Sending a message with `message_ref: "order-12345"`
+             - Receiving a delivery webhook containing `message_ref: "order-12345"`, confirming it was delivered.
+      required:
+        - sender
+        - recipient
+        - content_type
+        - content
+      example:
+        sender: '14155238886'
+        recipient: '61411122211'
+        content_type: template
+        content:
+          template:
+            name: welcome_new_customer
+            parameters:
+              - Joe
+        message_ref: optional-ref-123
+    WhatsappResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the message.
+        message_ref:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Optional reference ID set by the user for the message.
+        sender:
+          type: string
+          format: phone
+          description: Registered WhatsApp sender number in international format.
+        recipient:
+          type: string
+          format: phone
+          description: WhatsApp recipient phone number in international format.
+        content_type:
+          type: string
+          description: Type of the message content (e.g., template).
+        content:
+          type: object
+          description: Content details for the message.
+          oneOf:
+            - $ref: '#/components/schemas/TextContent'
+            - $ref: '#/components/schemas/TemplateContent'
+            - $ref: '#/components/schemas/CustomContent'
+        sms_fallback:
+          $ref: '#/components/schemas/SMSFallback'
+        created_at:
+          type: string
+          format: date-time
+          description: >-
+            Timestamp in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) when the message was
+            created on the server.
+      required:
+        - id
+        - sender
+        - recipient
+        - content_type
+        - content
+        - created_at
+      example:
+        id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+        message_ref: nda1982d
+        content:
+          text:
+            message: test
+        sender: '14155238886'
+        recipient: '61411122211'
+        content_type: template
+        template:
+          name: welcome_new_customer
+          parameters:
+            - Joe
+        created_at: '2021-01-01T00:00:00Z'
+    CommonResponseMeta:
+      type: object
+      properties:
+        request:
+          type: object
+          description: Optional metadata (e.g. requestId, traceId)
+        meta:
+          type: object
+          description: Optional pagination, feature flags, etc.
+    CommonSuccessResponse:
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: object
+              description: Success response payload
+          required:
+            - data
+        - $ref: '#/components/schemas/CommonResponseMeta'
+    CommonErrorResponse:
+      allOf:
+        - type: object
+          properties:
+            error:
+              type: object
+              description: Problem details on error
+          required:
+            - error
+        - $ref: '#/components/schemas/CommonResponseMeta'
+    Uri:
+      type: string
+      description: string providing an URI formatted according to IETFÂ RFCÂ 3986.
+      format: uri
+    ProblemDetails:
+      description: |
+        A Problem Details object (RFC 9457).
+
+        Additional properties specific to the problem type may be present.
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/Uri'
+        title:
+          type: string
+          description: >-
+            A short summary of the problem type. Written in English and readable
+            for engineers (usually not suited for non technical stakeholders and
+            not localized).
+        detail:
+          type: string
+          description: >-
+            A human-readable explanation specific to this occurrence of the
+            problem
+        status:
+          type: integer
+          description: The HTTP status code corresponding to this error.
+      required:
+        - type
+        - title
+        - detail
+        - status
+      example:
+        type: https://developers.kudosity.com/errors
+        title: Description of the type of problem that occurred
+        detail: Description of specific occurrence of the problem
+        status: 400
+    InputValidationIssue:
+      type: object
+      description: |
+        An issue detected during input validation.
+      properties:
+        name:
+          type: string
+          description: The name of the param or field that failed validation.
+          x-go-type-skip-optional-pointer: true
+        code:
+          type: integer
+          description: The internal api specific error code.
+          x-go-type-skip-optional-pointer: true
+        message:
+          description: The error message
+          type: string
+          x-go-type-skip-optional-pointer: true
+    InputValidationProblem:
+      description: >
+        This problem occurs when the request is deemed unprocessable.
+
+
+        Your client issued a request that failed validation. Certain validation
+        libraries return multi-errors and cannot be easily parsed into discreet
+        types. This problem type, afforded the provider with the ability to
+        surface all validation errors and negate the need for a trial and error
+        workflow on your side.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+        - properties:
+            issues:
+              description: An array of issues detected during input validation.
+              type: array
+              x-go-type-skip-optional-pointer: true
+              items:
+                $ref: '#/components/schemas/InputValidationIssue'
+      example:
+        type: https://developers.kudosity.com/errors#input-validation
+        title: Invalid Input Parameters
+        detail: The request contained invalid, or malformed parameters.
+        status: 422
+        issues:
+          - field: account_id
+            code: 2200
+            message: The account_id supplied was invalid.
+    NotFoundProblem:
+      description: >
+        This problem occurs when the requested resource could not be found.
+
+
+        Your client application tried to access a resource that does not exist
+        (or could not be found). Please review how your users initiated such a
+        request.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/errors#not-found
+        title: Not Found
+        detail: The requested resource was not found
+        status: 404
+    InternalServerErrorProblem:
+      description: >
+        This problem occurs when the server encounters an unexpected condition
+        that prevents it from fulfilling the request.
+
+
+        Your client application did everything correct. Unfortunately our API
+        encountered a condition that resulted in this problem.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/errors#server-error
+        title: Server Error
+        detail: The server encountered an unexpected error
+        status: 500
+    RCSText:
+      type: object
+      description: Text content for the message.
+      properties:
+        message:
+          type: string
+          maxLength: 3072
+          description: >
+            The text message body.
+
+
+            **Message Types:**
+
+            - **Basic RCS Messages**: Up to 160 characters (SMS format in RCS)
+
+            - **Simple RCS Messages**: Up to 3072 characters with emoji and
+            UTF-8 support
+      required:
+        - message
+    RCSTextContent:
+      type: object
+      properties:
+        text:
+          $ref: '#/components/schemas/RCSText'
+      required:
+        - text
+    RCSSMSFallback:
+      type: object
+      nullable: true
+      description: >
+        Provides intelligent fallback for non-RCS capable devices and carrier
+        delivery issues. If the RCS message fails, the SMS will send the
+        configured message to the recipeint instead.
+      properties:
+        message:
+          type: string
+          description: >-
+            The message to send via SMS. SMS messages are subject to certain
+            character limitations, please read our SMS documentation for
+            details.
+      required:
+        - message
+    RcsRequest:
+      type: object
+      properties:
+        sender:
+          type: string
+          description: >
+            RCS Agent ID provided to you that refers to your registered RCS
+            Agent. Unlike WhatsApp, SMS, and MMS, RCS doesn't send through a
+            sender phone number. Messages are sent through agents.
+
+
+            - Must be a registered RCS Agent identifier
+
+            - Example: "DemoSender"
+
+            - Can be alphanumeric or numeric.
+        recipient:
+          type: string
+          format: phone
+          description: >
+            The destination number for delivery.
+
+            Can be either in local format or in international format.
+
+            For international format, it should follow E.164 standard.
+
+            [http://en.wikipedia.org/wiki/E.164](http://en.wikipedia.org/wiki/E.164)
+
+            Examples of conversions to E.164 format:
+
+            Australia 0438 333 061 => 61438333061
+
+            UK 07123 456 789 => 447123456789
+        content_type:
+          type: string
+          description: Type of the message content (currently only text supported).
+          enum:
+            - text
+        content:
+          type: object
+          description: >
+            The message content to be sent.
+
+
+            - Supports both Basic RCS messages (160 characters) and Simple RCS
+            messages (3072 characters)
+
+            - UTF-8 and emoji support included
+          oneOf:
+            - $ref: '#/components/schemas/RCSTextContent'
+        sms_fallback:
+          $ref: '#/components/schemas/RCSSMSFallback'
+        message_ref:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >
+            A reference supplied by your system. Maximum length of 500
+            characters.
+
+
+            This reference will be passed back in webhooks so that you can
+            relate events to messages you sent.
+
+
+            For example, being able to relate a Link Hit event to a specific
+            sent message.
+      required:
+        - sender
+        - recipient
+        - content_type
+        - content
+      example:
+        sender: DemoSender
+        recipient: '+447903749662'
+        content_type: text
+        content:
+          text:
+            message: |-
+              Hi Michael,
+              Just a quick reminder. You are amazing!!
+              Reply STOP to opt out.
+        message_ref: order-12345
+    RcsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the message.
+        message_ref:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Optional reference ID set by the user for the message.
+        sender:
+          type: string
+          description: Registered RCS Agent ID.
+        recipient:
+          type: string
+          description: Recipient phone number in international format.
+        content_type:
+          type: string
+          description: Type of the message content.
+          enum:
+            - text
+        content:
+          type: object
+          description: Content of the message.
+          oneOf:
+            - $ref: '#/components/schemas/RCSTextContent'
+        sms_fallback:
+          $ref: '#/components/schemas/RCSSMSFallback'
+        created_at:
+          type: string
+          format: date-time
+          description: >-
+            Timestamp in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) when the message was
+            created on the server.
+      required:
+        - id
+        - sender
+        - recipient
+        - content_type
+        - content
+        - created_at
+      example:
+        id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+        message_ref: order-12345
+        sender: DemoSender
+        recipient: '+447903749662'
+        content_type: text
+        content:
+          text:
+            message: |-
+              Hi Michael,
+              Just a quick reminder. You are amazing!!
+              Reply STOP to opt out.
+        created_at: '2021-01-01T00:00:00Z'
+    ListSMSRequest:
+      type: object
+      properties:
+        limit:
+          type: string
+          description: Limit the number of SMS. Defaults to 100 for JSON.
+          x-go-type-skip-optional-pointer: true
+        page:
+          type: string
+          description: Page number in combination with limit. Defaults to 1 for JSON.
+          x-go-type-skip-optional-pointer: true
+        start_date:
+          type: string
+          format: string
+          description: Start date for SMS created, in RFC3339 format.
+          x-go-type-skip-optional-pointer: true
+        end_date:
+          type: string
+          format: string
+          description: End date for SMS created date, in RFC3339 format.
+          x-go-type-skip-optional-pointer: true
+        recipient:
+          type: string
+          description: Recipient filter.
+          x-go-type-skip-optional-pointer: true
+        sender:
+          type: string
+          description: Sender filter.
+          x-go-type-skip-optional-pointer: true
+        message_ref:
+          type: string
+          description: Message reference filter.
+          x-go-type-skip-optional-pointer: true
+        status:
+          $ref: '#/components/schemas/Status'
+        format:
+          $ref: '#/components/schemas/Format'
+        recipient_countries:
+          type: array
+          items:
+            type: string
+          description: >-
+            ISO 3166 country codes.
+            https://www.iso.org/iso-3166-country-codes.html
+        direction:
+          $ref: '#/components/schemas/Direction'
+        order_by:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderByField'
+          description: Sort order. Default is CREATED_AT_ASC.
+    Status:
+      type: string
+      description: >
+        Message status.
+
+        - PENDING: Queued for processing.
+
+        - SENT: Submitted to the provider.
+
+        - FAILED: Failed because of an error from the provider, a carrier, or
+        the handset.
+
+        - DELIVERED: Delivered to handset.
+
+        - ACCEPTED: Accepted by the provider and delivery might have been
+        attempted (but is not confirmed).
+
+        - SOFT_BOUNCE: Undeliverable due to handset being switched off, out of
+        range or other temporary deliverability issue.
+
+        - HARD_BOUNCE: Handset was disconnected.
+
+        - OTHER: Any other DLR status from the provider.
+
+        - REJECTED: Message pending approval was rejected by the Kudosity
+        support team.
+
+        - PENDING_APPROVAL: Message is pending approval by the Kudosity support
+        team.
+
+        - SUBMITTED: Message is submitted to the provider.
+
+        - UNDELIVERABLE: Message is undeliverable.
+
+        - READ: Message is read by the recipient.
+      nullable: true
+      enum:
+        - PENDING
+        - SENT
+        - FAILED
+        - DELIVERED
+        - ACCEPTED
+        - SOFT_BOUNCE
+        - HARD_BOUNCE
+        - OTHER
+        - REJECTED
+        - PENDING_APPROVAL
+        - SUBMITTED
+        - UNDELIVERABLE
+        - READ
+    OrderByField:
+      type: string
+      description: |
+        Sort order. Default is CREATED_AT_ASC.
+        - CREATED_AT_ASC: Created at ascending.
+        - CREATED_AT_DESC: Created at descending.
+      enum:
+        - CREATED_AT_ASC
+        - CREATED_AT_DESC
+    Format:
+      type: string
+      description: Response format
+      nullable: true
+      enum:
+        - JSON
+        - CSV
+    Direction:
+      type: string
+      description: |
+        Message direction.
+        - OUT: Sent to the provider.
+        - IN: Sent from the provider.
+      nullable: true
+      enum:
+        - OUT
+        - IN
+    SendSMSRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          description: >
+            Body text of the message.
+
+            The message will be split into multiple parts if required. A part is
+            160 characters for a single SMS or 153 characters per part for
+            multi-part SMS. If the message contains Unicode UTF8 encoded
+            characters such as emoji’s or non latin character sets, then a
+            single part is 70 characters or 67 characters for multiple parts.
+
+
+            More information on message length and encoding:
+            https://support.transmitsms.com/s/article/44001076957-how-many-characters-can-i-have-in-my-text-message
+
+
+            If opt-out is required, insert parameter [opt-out-link] into the
+            message and a link will be generated.
+          x-oapi-codegen-extra-tags:
+            valid: required
+        message_ref:
+          type: string
+          maxLength: 500
+          description: >
+            A reference supplied by your system. This reference will be passed
+            back in webhooks so that you can relate events to messages you sent.
+            For example, being able to relate a Link Hit event to a specific
+            sent message.
+          x-go-type-skip-optional-pointer: true
+          x-oapi-codegen-extra-tags:
+            valid: length(0|500)
+        sender:
+          type: string
+          description: >
+            Sender is the number (or alphanumeric) that the message appears from
+            on the handset.
+
+            Sender number must be assigned to your account for the country you
+            are sending to. Contact us to get sender number(s) registered to
+            your account.
+
+            Sender number functionality varies by country. You can send from an
+            alphanumeric sender if it is available for the destination country.
+
+            Global SMS delivery list:
+            https://support.transmitsms.com/s/article/page-products-connectivity-global-delivery-list
+
+
+            Alphanumeric senders (which cannot be replied to) have a maximum of
+            11 characters. Only letters, numbers, underscore, hyphen or space
+            are allowed and they are included in the total character count.
+            (Consecutive underscore, hyphen, space is not allowed.)
+          x-oapi-codegen-extra-tags:
+            valid: required
+        recipient:
+          type: string
+          description: >
+            The destination number for delivery.
+
+            Can be either in local format or in international format. Must be in
+            the same country as the sender.
+
+            For international format, it should follow E.164 standard.
+            http://en.wikipedia.org/wiki/E.164
+
+
+            Examples of conversions to E.164 format:
+              Australia 0438 333 061 => 61438333061
+              New Zealand 0212172782 => 64212172782
+              USA (281) 869-1226 => 12818691226
+          x-oapi-codegen-extra-tags:
+            valid: required
+        track_links:
+          type: boolean
+          description: >
+            Enable the link tracking feature which replaces links in outbound
+            messages with shortened links. This allows us to track when
+            recipients view links.
+          x-go-type-skip-optional-pointer: true
+      required:
+        - message
+        - sender
+        - recipient
+    SMSResponse:
+      type: object
+      description: SMS message details.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the SMS message.
+          example: 2d2c8fb6-e514-4f5f-9706-0672b0259218
+        recipient:
+          type: string
+          description: The destination number for delivery.
+          example: '61478038915'
+        recipient_country:
+          type: string
+          description: Recipient country code.
+          example: AU
+        sender:
+          type: string
+          description: The sender number.
+          example: '61481074185'
+        sender_country:
+          type: string
+          description: Sender country code.
+          example: AU
+        message_ref:
+          type: string
+          description: Reference supplied by your system.
+          example: ncc1701d
+          x-go-type-skip-optional-pointer: true
+        message:
+          type: string
+          description: Body text of the SMS message.
+          example: Report to the ready room! Opt-out reply STOP
+        status:
+          type: string
+          description: Status of the message.
+          example: delivered
+        sms_count:
+          type: string
+          description: Number of SMS parts the message was split into.
+          example: '1'
+        is_gsm:
+          type: boolean
+          description: Whether the message uses GSM encoding.
+          example: true
+        is_sandbox:
+          type: boolean
+          description: Whether the message was sent in sandbox mode.
+          example: false
+        routed_via:
+          type: string
+          description: The route used to send the message.
+          example: ''
+        track_links:
+          type: boolean
+          description: Whether link tracking is enabled.
+          example: true
+        direction:
+          type: string
+          description: Direction of the message (IN/OUT).
+          example: OUT
+        created_at:
+          type: string
+          description: Timestamp when the SMS was created.
+          example: '2022-03-28T06:12:52.450674000Z'
+        updated_at:
+          type: string
+          description: Timestamp when the SMS was last updated.
+          example: '2022-03-28T06:12:52.450674000Z'
+      required:
+        - id
+        - recipient
+        - recipient_country
+        - sender
+        - sender_country
+        - message_ref
+        - message
+        - status
+        - sms_count
+        - is_gsm
+        - is_sandbox
+        - routed_via
+        - track_links
+        - direction
+        - created_at
+        - updated_at
+      example:
+        id: 2d2c8fb6-e514-4f5f-9706-0672b0259218
+        recipient: '61478038915'
+        recipient_country: AU
+        sender: '61481074185'
+        sender_country: AU
+        message_ref: ncc1701d
+        message: Report to the ready room! Opt-out reply STOP
+        status: delivered
+        sms_count: '1'
+        is_gsm: true
+        is_sandbox: false
+        routed_via: ''
+        track_links: true
+        direction: OUT
+        created_at: '2022-03-28T06:12:52.450674000Z'
+        updated_at: '2022-03-28T06:12:52.450674000Z'
+    ListSMSResponse:
+      type: object
+      description: List of SMS messages.
+      properties:
+        smses:
+          type: array
+          items:
+            $ref: '#/components/schemas/SMSResponse'
+        total_records:
+          type: string
+        total_segments:
+          type: string
+      required:
+        - smses
+        - total_records
+        - total_segments
+    MMSResponse:
+      type: object
+      description: MMS message details.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the MMS message.
+          example: 6fdae71c-dad7-4c36-9734-a69693ec2318
+        recipient:
+          type: string
+          description: The destination number for delivery.
+          example: '61435795809'
+        sender:
+          type: string
+          description: The sender number.
+          example: '61481074185'
+        country:
+          type: string
+          description: Country code.
+          example: AU
+          x-go-type-skip-optional-pointer: true
+        subject:
+          type: string
+          description: Subject of the message.
+          example: USS Enterprise
+          x-go-type-skip-optional-pointer: true
+        message:
+          type: string
+          description: Body text of the message.
+          example: Check out this amazing specimen.
+          x-go-type-skip-optional-pointer: true
+        message_ref:
+          type: string
+          description: Reference supplied by your system.
+          example: ncc1701d
+          x-go-type-skip-optional-pointer: true
+        content_urls:
+          type: array
+          description: List of media file URLs.
+          items:
+            type: string
+          example:
+            - >-
+              http://res.cloudinary.com/burstsms/image/upload/v1590111670/enterprise-d_ghf9t8.jpg
+        status:
+          type: string
+          description: Status of the message.
+          example: sent
+        track_links:
+          type: boolean
+          description: Whether link tracking is enabled.
+          example: true
+        is_sandbox:
+          type: boolean
+          deprecated: true
+          description: >-
+            Deprecated. Use a sandbox account instead, or contact support to
+            request one.
+          x-go-type-skip-optional-pointer: true
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the MMS was created.
+          example: '2022-03-29T04:42:01.631708Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the MMS was last updated.
+          example: '2022-03-29T04:42:01.776094Z'
+      required:
+        - id
+        - recipient
+        - sender
+        - country
+        - subject
+        - message
+        - message_ref
+        - content_urls
+        - status
+        - track_links
+        - created_at
+        - updated_at
+        - is_sandbox
+    MMSSendRequest:
+      type: object
+      properties:
+        subject:
+          type: string
+          description: Subject of the message. Maximum length of 20 characters.
+          pattern: ^[\x00-\x7F]*$
+          example: USS Enterprise
+          maxLength: 20
+          x-oapi-codegen-extra-tags:
+            valid: ascii
+          x-go-type-skip-optional-pointer: true
+        message:
+          type: string
+          description: |
+            Body text of the message. Maximum length of 1,000 characters.
+            If opt-out is required, insert parameter [opt-out-link]
+            into the message and a link will be generated.
+          x-go-type-skip-optional-pointer: true
+        message_ref:
+          type: string
+          description: >
+            A reference supplied by your system. Maximum length of 500
+            characters.
+
+            This reference will be passed back in webhooks so that you can
+
+            relate events to messages you sent.
+
+            For example, being able to relate a Link Hit event to a specific
+
+            sent message.
+          maxLength: 500
+          x-oapi-codegen-extra-tags:
+            valid: length(0|500)
+          x-go-type-skip-optional-pointer: true
+        sender:
+          type: string
+          description: The sender is the number that shows recipients who sent the message.
+          x-oapi-codegen-extra-tags:
+            valid: required
+        recipient:
+          type: string
+          description: >
+            The destination number for delivery.
+
+            Can be either in local format or in international format.
+
+            For international format, it should follow E.164 standard.
+
+            [http://en.wikipedia.org/wiki/E.164](http://en.wikipedia.org/wiki/E.164)
+
+            Can only send to Australia currently.
+
+            Examples of conversions to E.164 format:
+
+            Australia 0438 333 061 => 61438333061
+          x-oapi-codegen-extra-tags:
+            valid: required
+        content_urls:
+          type: array
+          items:
+            type: string
+          description: >
+            Specify a list of URLs of the media file(s) that you are trying to
+            send. 
+
+            Supported file formats include jpg, gif, png, MP3, and video MP4.
+            Only one image up to 400 KB can be attached at a time.
+
+            URLs must be absolute paths to the media file, they cannot be
+            relative paths. For example,
+            https://outbound-mms.smsbump.com/2024/fashion.gif.
+          x-oapi-codegen-extra-tags:
+            valid: required
+        track_links:
+          type: boolean
+          description: >
+            Enable the link tracking feature which replaces links in outbound
+            messages
+
+            with shortened links.
+
+            This allows us to track when recipients view links.
+          x-go-type-skip-optional-pointer: true
+        is_sandbox:
+          type: boolean
+          deprecated: true
+          description: >-
+            Deprecated. Use a sandbox account instead, or contact support to
+            request one.
+          x-go-type-skip-optional-pointer: true
+      required:
+        - sender
+        - recipient
+        - content_urls
+    Filter:
+      type: object
+      nullable: true
+      description: Filter applied to webhook events
+      properties:
+        event_type:
+          type: array
+          description: Types of events to subscribe to
+          items:
+            $ref: '#/components/schemas/EventTypeEnum'
+          example:
+            - SMS_STATUS
+            - SMS_INBOUND
+        sender:
+          type: array
+          description: Filter by sender
+          items:
+            type: string
+          example:
+            - '+61412345678'
+            - '+61487654321'
+        status:
+          type: array
+          description: Filter by message status (only applicable for status events)
+          items:
+            type: string
+          example:
+            - DELIVERED
+            - FAILED
+        message_ref:
+          type: array
+          description: Filter by message ref
+          items:
+            type: string
+          example:
+            - ref123
+            - ref456
+        campaign_id:
+          type: array
+          description: Filter by campaign ID
+          items:
+            type: string
+          example:
+            - campaign_123
+            - campaign_456
+    EventTypeEnum:
+      type: string
+      enum:
+        - LINK_HIT
+        - OPT_OUT
+        - SMS_STATUS
+        - SMS_INBOUND
+        - MMS_STATUS
+        - MMS_INBOUND
+        - WHATSAPP_STATUS
+        - WHATSAPP_INBOUND
+        - RCS_STATUS
+        - RCS_INBOUND
+      description: Types of events that can trigger a webhook.
+    WebhookResponse:
+      type: object
+      description: Webhook details.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the webhook.
+          example: 67e3e4af-62e8-4515-8b67-6f20d0c51ffb
+        filter:
+          $ref: '#/components/schemas/Filter'
+        name:
+          type: string
+          description: Name of the webhook.
+          example: Hook
+        url:
+          type: string
+          description: URL (https) that accepts JSON encoded POST requests.
+          format: uri
+          example: https://webhook.site/uuid
+        rate_limit:
+          type: integer
+          description: Rate limit for the webhook in requests per second.
+          example: 10
+        is_sandbox:
+          type: boolean
+          description: Indicates if the webhook is in sandbox mode (deprecated).
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the webhook was created.
+          example: '2025-04-14T00:59:32.75819Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the webhook was last updated.
+          example: '2025-04-14T00:59:32.75819Z'
+      required:
+        - id
+        - name
+        - url
+        - rate_limit
+        - is_sandbox
+        - created_at
+        - updated_at
+    WebhookDeleteResponse:
+      type: object
+      description: Webhook deletion confirmation response.
+      properties:
+        message:
+          type: string
+          description: Confirmation message
+          example: deleted
+      required:
+        - message
+    WebhookListResponse:
+      type: object
+      description: List of webhooks response.
+      properties:
+        webhooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookResponse'
+    WebhookRequest:
+      type: object
+      properties:
+        event_type:
+          allOf:
+            - $ref: '#/components/schemas/EventTypeEnum'
+          description: >-
+            Type of event to subscribe to. Deprecated - use filter.event_type
+            instead.
+          example: SMS_STATUS
+          deprecated: true
+        filter:
+          type: object
+          description: >-
+            Filter to apply to webhook events. The filters are applied
+            differently based on the event type:
+
+
+            - For status events (`SMS_STATUS`, `MMS_STATUS`, etc.): `sender`,
+            `status`,
+              `message_ref`, and `campaign_id` filters are applied to the **status** payload.
+            - For `LINK_HIT` events: `sender` and `message_ref` filters are
+            applied to
+              the `source_message` in the link-hit payload.
+            - For `OPT_OUT` events: `sender` and `message_ref` filters are
+            applied to
+              the `source_message` in the opt-out payload.
+            - For inbound events (`SMS_INBOUND`, `MMS_INBOUND`, etc.): `sender`
+            and
+              `message_ref` filters are applied to the `last_message` in the inbound payload.
+
+            Within each filter array (e.g., sender, status, message_ref), the
+            conditions are combined using an OR logic. For example, if multiple
+            senders are specified, the webhook will trigger if the event matches
+            any of the specified senders. Between different filters (e.g.,
+            sender and status), the conditions are combined using an AND logic.
+            For example, the webhook will trigger only if the event matches both
+            the specified sender and the specified status.
+          properties:
+            event_type:
+              type: array
+              description: Types of events to subscribe to
+              items:
+                $ref: '#/components/schemas/EventTypeEnum'
+              example:
+                - SMS_STATUS
+                - SMS_INBOUND
+            sender:
+              type: array
+              description: Filter by sender
+              items:
+                type: string
+              example:
+                - '+61412345678'
+                - '+61487654321'
+            status:
+              type: array
+              description: Filter by message status (only applicable for status events)
+              items:
+                type: string
+              example:
+                - DELIVERED
+                - FAILED
+            message_ref:
+              type: array
+              description: Filter by message ref
+              items:
+                type: string
+              example:
+                - ref123
+                - ref456
+            campaign_id:
+              type: array
+              description: Filter by campaign ID
+              items:
+                type: string
+              example:
+                - campaign_123
+                - campaign_456
+        name:
+          type: string
+          description: Name of the webhook
+          minLength: 2
+          maxLength: 100
+          example: My Webhook
+          x-oapi-codegen-extra-tags:
+            valid: length(2|100)
+        url:
+          type: string
+          description: URL (https) that accepts JSON encoded POST requests
+          format: uri
+          example: https://example.com/webhook
+          x-oapi-codegen-extra-tags:
+            valid: required,webhook_url
+        rate_limit:
+          type: integer
+          description: >-
+            Rate limit for your URL in requests per second. Max 10,000/sec. If
+            set to 0 or not specified, the default system limit will be applied.
+          x-go-type-skip-optional-pointer: true
+          x-oapi-codegen-extra-tags:
+            valid: range(0|10000)
+        is_sandbox:
+          type: boolean
+          deprecated: true
+          description: >-
+            Deprecated. Use a sandbox account instead, or contact support to
+            request one.
+          x-go-type-skip-optional-pointer: true
+      required:
+        - name
+        - url
+  responses:
+    SuccessResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WhatsappResponse'
+    InputValidationResponse:
+      description: Input Validation Error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/InputValidationProblem'
+    NotFoundErrorResponse:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/NotFoundProblem'
+    InternalServerErrorResponse:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/InternalServerErrorProblem'
+    RCSSuccessResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RcsResponse'
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: >
+        All API requests require your API credentials, you will find them once
+        logged into your account on the SETTINGS page. Scroll down to API
+        Settings to find your API key.
