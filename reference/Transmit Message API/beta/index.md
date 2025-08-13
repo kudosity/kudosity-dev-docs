@@ -1,4 +1,0 @@
----
-title: Beta
-hidden: false
----
