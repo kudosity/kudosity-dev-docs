@@ -1,11 +1,1 @@
-- get_v1-touchpoint-id
-- put_v1-touchpoint-id
-- delete_v1-touchpoint-id
-- get_v1-touchpoint
-- post_v1-touchpoint
-- get_v1-touchpoint-type-names
-- put_v1-touchpoint-id-start
-- put_v1-touchpoint-id-cancel
-- get_v1-touchpoint-id-report-contacts
-- get_v1-touchpoint-id-aggregates
-- get_v1-touchpoint-id-contacts
+[]
