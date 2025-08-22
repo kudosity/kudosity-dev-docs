@@ -6,17 +6,18 @@ metadata:
   robots: index
 ---
 The Kudosity Model Context Protocol (MCP) server enables AI-powered code editors like Cursor and Windsurf, plus general-purpose tools like Claude Desktop, to interact directly with your Kudosity API and documentation.
+The idea is you have a conversation with your AI to learn how the Kudosity API works and rapidly build integrations with our powerful messaging APIs. 
 
 ## What is MCP?
 
 Model Context Protocol (MCP) is an open standard that allows AI applications to securely access external data sources and tools. The Kudosity MCP server provides AI agents with:
 
-* **Direct API access** to Kudosity functionality
-* **Documentation search** capabilities  
-* **Real-time data** from your Kudosity account
+* **Direct API access** to Kudosity functionality - send messages, update contact lists, etc.
+* **Documentation search** capabilities - have your AI intelligently search through our API specs and tutorials to provide comprehensive, onpoint answers to your AI queries. 
+* **Real-time data** from your Kudosity account - nothing beats having a conversation with an AI about Kudosity APIs and then actually being able to execute them from the chat. Learning maximized!
 * **Code generation** assistance for Kudosity integrations
 * **Live API execution** - not just answers from memory
-* **Always 100% accurate and up to date** - powered by Swagger API source code
+* **Always 100% accurate and up to date** - powered by Swagger API source code - 
 
 ## MCP Server Capabilities
 
@@ -59,7 +60,7 @@ Kudosity hosts a remote MCP server at `https://developers.kudosity.com/mcp`. Con
 
 ### Authentication Configuration
 
-For APIs that require authentication, you'll need to configure your API credentials. The MCP server supports different authentication methods depending on which API endpoints you're using:
+For APIs that require authentication, you'll need to configure your API credentials. Depending on the API endpoints you're using, the authentication methods differ:
 
 - **api.transmitsms.com (v1 endpoints)**: Use **Basic Authentication** with Base64-encoded API Key and API Secret
 - **api.transmitmessage.com (v2 endpoints)**: Use **API Key Authentication** with your API Key in the `x-api-key` header
@@ -100,9 +101,6 @@ Simply use your API Key directly in the `x-api-key` header (no Base64 encoding r
     }
     ```
 
-    **Location:**
-    - **Mac**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-    - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
   </Tab>
 
   <Tab title="Claude Desktop (v2 API Key)">
@@ -126,10 +124,6 @@ Simply use your API Key directly in the `x-api-key` header (no Base64 encoding r
       }
     }
     ```
-
-    **Location:**
-    - **Mac**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-    - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
   </Tab>
 
   <Tab title="Cursor">
