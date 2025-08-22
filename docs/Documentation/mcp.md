@@ -1,5 +1,5 @@
 ---
-title: MCP
+title: Kudosity MCP Server
 deprecated: false
 hidden: false
 metadata:
