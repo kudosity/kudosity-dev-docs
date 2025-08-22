@@ -5,54 +5,52 @@ hidden: true
 metadata:
   robots: index
 ---
-The Kudosity Model Context Protocol (MCP) server enables AI-powered code editors like Cursor and Windsurf, plus general-purpose tools like Claude Desktop, to interact directly with your Kudosity API and documentation.
-The idea is you have a conversation with your AI to learn how the Kudosity API works and rapidly build integrations with our powerful messaging APIs. 
+The Kudosity Model Context Protocol (MCP) server allows AI-powered editors (like Cursor and Windsurf) and assistants (like Claude Desktop) to directly explore and execute Kudosity APIs. With MCP, your AI can search API specs, generate code snippets, and run live requests — all without leaving your development environment.
 
 ## What is MCP?
 
 Model Context Protocol (MCP) is an open standard that allows AI applications to securely access external data sources and tools. The Kudosity MCP server provides AI agents with:
 
-* **Direct API access** to Kudosity functionality - send messages, update contact lists, etc.
-* **Documentation search** capabilities - have your AI intelligently search through our API specs and tutorials to provide comprehensive, onpoint answers to your AI queries. 
-* **Real-time data** from your Kudosity account - nothing beats having a conversation with an AI about Kudosity APIs and then actually being able to execute them from the chat. Learning maximized!
-* **Code generation** assistance for Kudosity integrations
-* **Live API execution** - not just answers from memory
-* **Always 100% accurate and up to date** - powered by Swagger API source code - 
+* **Direct API access** to Kudosity functionality — send messages, update contact lists, etc.
+* **Documentation search** — have your AI intelligently search API specs and tutorials to provide on-point answers.
+* **Real-time data** from your Kudosity account — query and execute live operations directly from chat.
+* **Code generation** for Kudosity integrations
+* **Live API execution** — beyond static examples, run real requests
+* **Always up-to-date** — powered by Swagger API source definitions
 
 ## MCP Server Capabilities
 
 The Kudosity MCP server offers comprehensive tools for API discovery, documentation, code generation, and live execution:
 
 ### 🔍 API Discovery & Exploration
-- **list-specs**: Lists all available OpenAPI specifications (SMS, RCS, WhatsApp, etc.)
-- **list-endpoints**: Shows all API paths and HTTP methods for a specific service
-- **get-endpoint**: Gets detailed information about a specific API endpoint
-- **search-specs**: Searches across all specs for specific patterns or keywords
+- **list-specs** — discover available messaging APIs (SMS, RCS, WhatsApp, etc.)
+- **list-endpoints** — list all API paths and methods for a service
+- **get-endpoint** — inspect supported methods and parameters for any path
+- **search-specs** — search across specs for keywords or patterns
 
 ### 📋 API Schema & Documentation
-- **get-request-body**: Retrieves the request body schema for any endpoint
-- **get-response-schema**: Gets response schema for specific endpoints and status codes
-- **list-security-schemes**: Shows authentication methods and requirements
-- **search-documentation**: Searches through API documentation content
+- **get-request-body** — retrieve request body schema for any endpoint
+- **get-response-schema** — view response schema for specific endpoints and status codes
+- **list-security-schemes** — check authentication methods and requirements
+- **search-documentation** — search API documentation content
 
 ### ⚡ Code Generation
-- **get-code-snippet**: Generates code examples in various programming languages for any endpoint
-- Supports multiple languages (curl, JavaScript, Python, etc.)
-- Creates ready-to-use code samples with proper authentication
+- **get-code-snippet** — generate ready-to-run examples in curl, JavaScript, Python, etc.
+- Provides proper authentication and parameters automatically
 
 ### 🚀 Live API Execution
-- **execute-request**: Actually executes real API calls using HAR format requests
-- Send real SMS messages
-- Test any Kudosity API endpoint with real credentials
-- Returns actual API responses and errors
+- **execute-request** — run real API calls using HAR format
+- Send test SMS messages
+- Validate any Kudosity endpoint with live credentials
+- Returns actual responses and errors
 
 ## Available APIs
 
 The MCP server provides access to these Kudosity APIs:
 
-- **Transmit Message API** - Modern v2 messaging service supporting SMS, RCS, MMS, WhatsApp, and webhooks
-- **Transmit SMS API** - Full-featured SMS with advanced capabilities including contact lists, keywords, and reporting
-- **Transmit SMS Fast API** - Optimized for quick SMS delivery
+- **Transmit Message API** — v2 messaging service supporting SMS, RCS, MMS, WhatsApp, and webhooks
+- **Transmit SMS API** — full-featured SMS with advanced contact lists, keywords, and reporting
+- **Transmit SMS Fast API** — optimized for quick SMS delivery
 
 ## Kudosity MCP Server Setup
 
@@ -60,23 +58,23 @@ Kudosity hosts a remote MCP server at `https://developers.kudosity.com/mcp`. Con
 
 ### Authentication Configuration
 
-For APIs that require authentication, you'll need to configure your API credentials. Depending on the API endpoints you're using, the authentication methods differ:
+For APIs that require authentication, you'll need to configure your API credentials. Depending on the endpoints, the methods differ:
 
-- **api.transmitsms.com (v1 endpoints)**: Use **Basic Authentication** with Base64-encoded API Key and API Secret
-- **api.transmitmessage.com (v2 endpoints)**: Use **API Key Authentication** with your API Key in the `x-api-key` header
+- **api.transmitsms.com (v1 endpoints)** — **Basic Authentication** with Base64-encoded API Key and Secret
+- **api.transmitmessage.com (v2 endpoints)** — **API Key Authentication** with your key in the `x-api-key` header
 
 #### For v1 endpoints (api.transmitsms.com) - Basic Authentication:
 
-1. **Get your credentials** from Kudosity dashboard → Developers → API Settings
-2. **Combine** as: `API_KEY:API_SECRET`
-3. **Base64 encode** using one of these methods:
-   - Terminal: `echo -n "API_KEY:API_SECRET" | base64`
-   - Browser console: `btoa("API_KEY:API_SECRET")`
-   - Online tool: base64encode.org
+1. **Get your credentials** from Kudosity dashboard → Developers → API Settings  
+2. **Combine** as: `API_KEY:API_SECRET`  
+3. **Base64 encode**:  
+   - Terminal: `echo -n "API_KEY:API_SECRET" | base64`  
+   - Browser console: `btoa("API_KEY:API_SECRET")`  
+   - Online tool: base64encode.org  
 
 #### For v2 endpoints (api.transmitmessage.com) - API Key Authentication:
 
-Simply use your API Key directly in the `x-api-key` header (no Base64 encoding required).
+Use your API Key directly in the `x-api-key` header (no Base64 encoding required).
 
 <Tabs>
   <Tab title="Claude Desktop (v1 Basic Auth)">
@@ -100,7 +98,6 @@ Simply use your API Key directly in the `x-api-key` header (no Base64 encoding r
       }
     }
     ```
-
   </Tab>
 
   <Tab title="Claude Desktop (v2 API Key)">
@@ -157,16 +154,16 @@ Simply use your API Key directly in the `x-api-key` header (no Base64 encoding r
 
 **Important**: Restart your AI tool after saving the configuration file.
 
-
 ## Testing Your MCP Setup
 
 Once configured, you can test your MCP server connection:
 
-1. **Restart your AI tool** (Claude Desktop, Cursor, etc.)
-2. **Start a new chat** with the AI assistant
-3. **Ask about Kudosity** - try questions like:
-   * "What APIs does Kudosity offer?"
-   * "Show me an example of sending an SMS"
+1. **Restart your AI tool** (Claude Desktop, Cursor, etc.)  
+2. **Start a new chat** with the AI assistant  
+3. **Ask about Kudosity** — try questions like:  
+   * "What APIs does Kudosity offer?"  
+   * "Show me an example of sending an SMS"  
    * "Create a curl command to send my first SMS through Kudosity"
+   * "How do I get started sending SMS with Kudosity" 
 
-The AI should now have access to your Kudosity account data and documentation through the MCP server.
+If successful, the AI will respond with Kudosity API details and sample code pulled directly from your account and documentation.
