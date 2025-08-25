@@ -1,6 +1,7 @@
 ---
 title: Get Balance
-excerpt: Account information.
+excerpt: |
+  Account information.
 api:
   file: transmit-sms-api.json
   operationId: get_get-balance-json
