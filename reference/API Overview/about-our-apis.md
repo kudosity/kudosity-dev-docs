@@ -22,4 +22,4 @@ This is our transactional API with speedy throughputs and high-reliability. You 
 
 ## **[api.transmitmessage.com](post_v2-sms)**
 
-This is our newest high-transaction API with high-volume throughputs and high-reliability, MMS, Webhooks, and More! The API is only available for select customers. To find out more and get access, please contact support : [https://help.kudosity.com/s/submit-ticket](https://help.kudosity.com/s/submit-ticket)
+This is our newest high-transaction API with high-volume throughputs and high-reliability, MMS, Webhooks, and More! The API is only available for select customers.
