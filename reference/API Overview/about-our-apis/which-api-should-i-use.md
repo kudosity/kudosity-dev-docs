@@ -11,7 +11,8 @@ Meet the two ways to send messages on Kudosity. Both run on the same platform an
 
 # Which API should I use?
 
-Use TransmitMessage (V2) for new builds. Choose TransmitSMS (V1) only when you need a classic-specific feature.
+* Use TransmitMessage (V2) (api.transmitmessage.com) for new builds.
+* Choose TransmitSMS (V1) (api.transmitsms.com) when you need a classic-specific feature.
 
 ## API Picker
 
