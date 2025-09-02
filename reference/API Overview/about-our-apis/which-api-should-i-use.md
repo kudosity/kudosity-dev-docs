@@ -19,6 +19,8 @@ Use TransmitMessage (V2) for new builds. Choose TransmitSMS (V1) only when you n
 | ------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------ |
 | **MMS via API** (send & receive)                        | **TransmitMessage (V2)** | V2 is the only API with MMS support, including an `inbound_mms` webhook.       |
 | **Simple, programmatic sends** with modern webhooks     | **TransmitMessage (V2)** | Webhooks are created/managed by API; JSON responses; streamlined API-key auth. |
+| **WhatsApp** (send & receive)                           | **TransmitMessage (V2)** |                                                                                |
+| **RCS** (send & receive)                                | **TransmitMessage (V2)** |                                                                                |
 | **Track multiple links** in one SMS                     | **TransmitMessage (V2)** | Auto-detect & track multiple links in a message.                               |
 | **Your own message reference** alongside our message ID | **TransmitMessage (V2)** | Add a `message_ref` for reconciliation/workflows.                              |
 | **Classic integration staying put**                     | **TransmitSMS (V1)**     | Fully supported; shares your senders, reporting, and UI.                       |
