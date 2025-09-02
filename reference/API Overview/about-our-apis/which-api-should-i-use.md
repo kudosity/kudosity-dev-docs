@@ -26,4 +26,15 @@ Use TransmitMessage (V2) for new builds. Choose TransmitSMS (V1) only when you n
 
 > Recommendation: Start on V2. Keep V1 if you rely on multi-recipient requests or custom tracked links. You can use both under the same account and senders.
 
-<br />
+## Feature Highlights (at a glance)
+
+* **Unified account & UI**: Same login, senders, reporting, and billing across both APIs.
+* **Auth**: V2 uses API-key auth; V1 uses Basic Auth (key + secret).
+* **Webhooks**: V2 webhooks are managed via API (create/list/update/delete). V1 webhooks are configured in the UI.
+* **Delivery reports**: V2 via webhook; V1 via webhook or email.
+* **Retries**: Both retry failed webhook deliveries; V2 has a more granular schedule.
+
+## Migration guidance
+
+* **New customers**: Build on TransmitMessage (V2) to access MMS, multi-link tracking, message_ref, and API-managed webhooks.
+* **Existing V1 customers**: No rush. Continue on TransmitSMS (V1) and migrate when you want MMS, API-managed webhooks, or multiple tracked links.
