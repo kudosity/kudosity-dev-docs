@@ -20,8 +20,8 @@ Meet the two ways to send messages on Kudosity. Both run on the same platform an
 | ------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------ |
 | **MMS via API** (send & receive)                        | **TransmitMessage (V2)** | V2 is the only API with MMS support, including an `inbound_mms` webhook.       |
 | **Simple, programmatic sends** with modern webhooks     | **TransmitMessage (V2)** | Webhooks are created/managed by API; JSON responses; streamlined API-key auth. |
-| **WhatsApp** (send & receive)                           | **TransmitMessage (V2)** |                                                                                |
-| **RCS** (send & receive)                                | **TransmitMessage (V2)** |                                                                                |
+| **WhatsApp** (send & receive)                           | **TransmitMessage (V2)** | Rich WhatsApp messaging, notifications.                                        |
+| **RCS** (send & receive)                                | **TransmitMessage (V2)** | RCS notifications, rich messaging.                                             |
 | **Track multiple links** in one SMS                     | **TransmitMessage (V2)** | Auto-detect & track multiple links in a message.                               |
 | **Your own message reference** alongside our message ID | **TransmitMessage (V2)** | Add a `message_ref` for reconciliation/workflows.                              |
 | **Classic integration staying put**                     | **TransmitSMS (V1)**     | Fully supported; shares your senders, reporting, and UI.                       |
