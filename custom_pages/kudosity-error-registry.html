@@ -1,0 +1,92 @@
+---
+title: Kudosity Error Registry
+fullscreen: false
+hidden: false
+---
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Kudosity Error Registry</title>
+    <style>
+        body { font-family: sans-serif; margin: 2rem; }
+        h1 { color: #333; }
+        h2 { margin-top: 2rem; }
+        .error-block { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; background: #f9f9f9; }
+        .error-title { font-size: 1.2rem; font-weight: bold; }
+        .example { font-family: monospace; background: #eee; padding: 0.5rem; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; }
+        a.anchor { text-decoration: none; color: #000; }
+        a.anchor:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<h1>Kudosity Error Registry</h1>
+
+<a name="server-error"></a>
+<div class="error-block">
+    <div class="error-title">InternalServerErrorProblem</div>
+    <div class="error-description"><p>This problem occurs when the server encounters an unexpected condition that prevents it from fulfilling the request.<br><br>Your client application did everything correct. Unfortunately our API encountered a condition that resulted in this problem.<br></p></div>
+    <p><strong>Type:</strong> <a href="https://developers.kudosity.com/errors#server-error">https://developers.kudosity.com/errors#server-error</a></p>
+    <p><strong>Title:</strong> Server Error</p>
+    <p><strong>Detail:</strong> The server encountered an unexpected error</p>
+    <p><strong>Status:</strong> 500</p>
+    
+    <p><strong>Example:</strong></p>
+    <pre class="example">{
+  &#34;detail&#34;: &#34;The server encountered an unexpected error&#34;,
+  &#34;status&#34;: 500,
+  &#34;title&#34;: &#34;Server Error&#34;,
+  &#34;type&#34;: &#34;https://developers.kudosity.com/errors#server-error&#34;
+}</pre>
+</div>
+
+<a name="input-validation"></a>
+<div class="error-block">
+    <div class="error-title">InputValidationProblem</div>
+    <div class="error-description"><p>This problem occurs when the request is deemed unprocessable.<br><br>Your client issued a request that failed validation. Certain validation libraries return multi-errors and cannot be easily parsed into discreet types. This problem type, afforded the provider with the ability to surface all validation errors and negate the need for a trial and error workflow on your side.<br></p></div>
+    <p><strong>Type:</strong> <a href="https://developers.kudosity.com/errors#input-validation">https://developers.kudosity.com/errors#input-validation</a></p>
+    <p><strong>Title:</strong> Invalid Input Parameters</p>
+    <p><strong>Detail:</strong> The request contained invalid, or malformed parameters.</p>
+    <p><strong>Status:</strong> 422</p>
+    
+    <p><strong>Fields:</strong></p>
+    <ul>
+        <li><strong>issues</strong></li>
+    </ul>
+    
+    <p><strong>Example:</strong></p>
+    <pre class="example">{
+  &#34;detail&#34;: &#34;The request contained invalid, or malformed parameters.&#34;,
+  &#34;issues&#34;: [
+    {
+      &#34;code&#34;: 2200,
+      &#34;field&#34;: &#34;account_id&#34;,
+      &#34;message&#34;: &#34;The account_id supplied was invalid.&#34;
+    }
+  ],
+  &#34;status&#34;: 422,
+  &#34;title&#34;: &#34;Invalid Input Parameters&#34;,
+  &#34;type&#34;: &#34;https://developers.kudosity.com/errors#input-validation&#34;
+}</pre>
+</div>
+
+<a name="not-found"></a>
+<div class="error-block">
+    <div class="error-title">NotFoundProblem</div>
+    <div class="error-description"><p>This problem occurs when the requested resource could not be found.<br><br>Your client application tried to access a resource that does not exist (or could not be found). Please review how your users initiated such a request.<br></p></div>
+    <p><strong>Type:</strong> <a href="https://developers.kudosity.com/errors#not-found">https://developers.kudosity.com/errors#not-found</a></p>
+    <p><strong>Title:</strong> Not Found</p>
+    <p><strong>Detail:</strong> The requested resource was not found</p>
+    <p><strong>Status:</strong> 404</p>
+    
+    <p><strong>Example:</strong></p>
+    <pre class="example">{
+  &#34;detail&#34;: &#34;The requested resource was not found&#34;,
+  &#34;status&#34;: 404,
+  &#34;title&#34;: &#34;Not Found&#34;,
+  &#34;type&#34;: &#34;https://developers.kudosity.com/errors#not-found&#34;
+}</pre>
+</div>
+
+</body>
+</html>
