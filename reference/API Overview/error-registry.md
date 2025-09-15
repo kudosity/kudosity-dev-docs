@@ -1,5 +1,5 @@
 ---
-title: Kudosity Error Registry
+title: Error Registry
 deprecated: false
 hidden: false
 metadata:
