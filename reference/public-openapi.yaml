@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Transmit Message API
   description: Transmit APIs
-  version: 1.0.0
+  version: '2025-01-01'
   x-go-package: github.com/oapi-codegen/runtime
 servers:
   - url: https://api.transmitmessage.com
@@ -331,6 +331,34 @@ paths:
           $ref: '#/components/responses/NotFoundErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/whatsapp/stats:
+    get:
+      tags:
+        - WhatsApp
+      summary: WhatsApp message statistics
+      description: >-
+        Retrieves WhatsApp message statistics to provide aggregated Whatsapp
+        message data submitted.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: query
+          in: query
+          description: >
+            Filter query parameters are added to the URL. Use as:
+
+            ?start_at=2024-01-01T00:00:00Z&end_at=2024-01-02T00:00:00Z&sender=14155238886
+          schema:
+            $ref: '#/components/schemas/WhatsappStatsRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/GetWhatsappStatsSuccessResponse'
+        '400':
+          $ref: '#/components/responses/InputValidationResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
   /v2/rcs:
     post:
       tags:
@@ -350,6 +378,64 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/RCSSuccessResponse'
+        '400':
+          $ref: '#/components/responses/InputValidationResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/rcs/{id}:
+    get:
+      tags:
+        - RCS
+      summary: Retrieve an RCS message
+      description: >
+        Retrieves details of a previously sent RCS message by its unique
+        identifier.
+
+        Returns the message content, delivery status, and metadata.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the RCS message to retrieve
+          schema:
+            type: string
+            format: uuid
+            example: 550e8400-e29b-41d4-a716-446655440000
+      responses:
+        '200':
+          $ref: '#/components/responses/GetSuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/rcs/stats:
+    get:
+      tags:
+        - RCS
+      summary: RCS message statistics
+      description: Retrieves RCS message statistics to provide aggregated RCS data.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: query
+          in: query
+          description: >-
+            Filter query parameters are added to the URL. Use as:
+
+            ?start_at=2024-01-01T00:00:00Z&end_at=2024-01-02T00:00:00Z&sender=DemoSender
+          schema:
+            $ref: '#/components/schemas/RcsStatsRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/GetRcsStatsSuccessResponse'
         '400':
           $ref: '#/components/responses/InputValidationResponse'
         '404':
@@ -460,7 +546,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/MMSResponse'
               example:
                 id: 6fdae71c-dad7-4c36-9734-a69693ec2318
                 recipient: '61435795809'
@@ -490,8 +576,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Unique ID of the sent MMS
           required: true
+          description: Unique ID of the sent MMS
           schema:
             type: string
             format: uuid
@@ -707,6 +793,7 @@ components:
       properties:
         message:
           type: string
+          minLength: 1
           description: The text message body.
       required:
         - message
@@ -964,6 +1051,75 @@ components:
           parameters:
             - Joe
         created_at: '2021-01-01T00:00:00Z'
+    WhatsappStatsRequest:
+      type: object
+      properties:
+        start_at:
+          type: string
+          format: string
+          description: >-
+            Start date for statistics period in ISO 8601
+            (`YYYY-MM-DDTHH:MM:SSZ`).
+          x-go-type-skip-optional-pointer: true
+        end_at:
+          type: string
+          format: string
+          description: End date for statistics period in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
+          x-go-type-skip-optional-pointer: true
+        sender:
+          type: string
+          description: |
+            Registered WhastApp sender number.
+
+             - Must be in **international format** <a href="http://en.wikipedia.org/wiki/E.164">E.164 format</a> (e.g., +14155238886).
+             - Number must be registered with the WhatsApp Business API.
+          x-go-type-skip-optional-pointer: true
+    WhatsappStatsResponse:
+      type: object
+      properties:
+        start_at:
+          type: string
+          format: date-time
+          description: >-
+            Start date for statistics period in ISO 8601
+            (`YYYY-MM-DDTHH:MM:SSZ`).
+        end_at:
+          type: string
+          format: date-time
+          description: End date for statistics period in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
+        totals:
+          type: object
+          description: Aggregated totals for WhatsApp messages.
+          properties:
+            sent:
+              type: integer
+              description: Total number of messages sent.
+            delivered:
+              type: integer
+              description: Total number of messages successfully delivered.
+            failed:
+              type: integer
+              description: Total number of messages that failed to deliver.
+            read:
+              type: integer
+              description: Total number of messages read by recipients.
+          required:
+            - sent
+            - delivered
+            - failed
+            - read
+      required:
+        - totals
+        - start_at
+        - end_at
+      example:
+        start_at: '2025-01-01T00:00:00Z'
+        end_at: '2025-01-01T01:00:00Z'
+        totals:
+          sent: 10
+          delivered: 9
+          failed: 1
+          read: 8
     CommonResponseMeta:
       type: object
       properties:
@@ -1114,6 +1270,7 @@ components:
       properties:
         message:
           type: string
+          minLength: 1
           maxLength: 3072
           description: >
             The text message body.
@@ -1136,7 +1293,6 @@ components:
         - text
     RCSSMSFallback:
       type: object
-      nullable: true
       description: >
         Provides intelligent fallback for non-RCS capable devices and carrier
         delivery issues. If the RCS message fails, the SMS will send the
@@ -1150,6 +1306,34 @@ components:
             details.
       required:
         - message
+    MessageEvent:
+      type: object
+      description: A single event in the message lifecycle.
+      properties:
+        event_type:
+          type: string
+          description: Type of event that occurred.
+          enum:
+            - QUEUED
+            - SENT
+            - DELIVERED
+            - FAILED
+            - READ
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp in ISO 8601 when the event occurred.
+        details:
+          type: string
+          description: Description of the event.
+      required:
+        - event_type
+        - created_at
+        - details
+      example:
+        event_type: DELIVERED
+        created_at: '2024-01-15T14:31:42Z'
+        details: Message delivered to recipient device
     RcsRequest:
       type: object
       properties:
@@ -1223,7 +1407,7 @@ components:
         - content
       example:
         sender: DemoSender
-        recipient: '+447903749662'
+        recipient: '447903749662'
         content_type: text
         content:
           text:
@@ -1277,7 +1461,7 @@ components:
         id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
         message_ref: order-12345
         sender: DemoSender
-        recipient: '+447903749662'
+        recipient: '447903749662'
         content_type: text
         content:
           text:
@@ -1286,6 +1470,183 @@ components:
               Just a quick reminder. You are amazing!!
               Reply STOP to opt out.
         created_at: '2021-01-01T00:00:00Z'
+    RcsGetResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the message.
+        account_id:
+          type: string
+          description: Account identifier that sent the message.
+        message_ref:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Optional reference ID set by the user for the message.
+        sender:
+          type: string
+          description: Registered RCS Agent ID.
+        recipient:
+          type: string
+          description: Recipient phone number in international format.
+        content_type:
+          type: string
+          description: Type of the message content.
+          enum:
+            - text
+        content:
+          type: object
+          description: Content of the message.
+          oneOf:
+            - $ref: '#/components/schemas/RCSTextContent'
+        sms_fallback:
+          $ref: '#/components/schemas/RCSSMSFallback'
+        created_at:
+          type: string
+          format: date-time
+          description: >-
+            Timestamp in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) when the message was
+            created on the server.
+        status:
+          type: string
+          description: Current status of the message.
+          enum:
+            - QUEUED
+            - SENT
+            - DELIVERED
+            - FAILED
+            - READ
+        events:
+          type: array
+          x-go-type-skip-optional-pointer: true
+          x-oapi-codegen-extra-tags:
+            json: events,omitempty
+          description: Array of events showing the message history.
+          items:
+            $ref: '#/components/schemas/MessageEvent'
+      required:
+        - id
+        - account_id
+        - sender
+        - recipient
+        - content_type
+        - content
+        - created_at
+        - status
+      example:
+        id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+        account_id: '123123'
+        message_ref: order-12345
+        sender: DemoSender
+        recipient: '447903749662'
+        content_type: text
+        content:
+          text:
+            message: |-
+              Hi Michael,
+              Just a quick reminder. You are amazing!!
+              Reply STOP to opt out.
+        created_at: '2021-01-01T00:00:00Z'
+        status: DELIVERED
+        events:
+          - event_type: QUEUED
+            created_at: '2021-01-01T00:00:00Z'
+            details: Message queued for processing
+          - event_type: SENT
+            created_at: '2021-01-01T00:00:30Z'
+            details: Message sent to Google RCS gateway
+          - event_type: DELIVERED
+            created_at: '2021-01-01T00:01:15Z'
+            details: Message delivered to recipient device
+    RcsStatsRequest:
+      type: object
+      properties:
+        start_at:
+          type: string
+          format: string
+          description: >-
+            Start date for statistics period in ISO 8601
+            (`YYYY-MM-DDTHH:MM:SSZ`).
+        end_at:
+          type: string
+          format: string
+          description: End date for statistics period in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
+        sender:
+          type: string
+          description: >-
+            RCS Agent ID provided to you that refers to your registered RCS
+            Agent.
+
+             - Must be a registered RCS Agent identifier
+             - Example: "DemoSender"
+          x-go-type-skip-optional-pointer: true
+      required:
+        - start_at
+        - end_at
+    RcsStatsResponse:
+      type: object
+      properties:
+        start_at:
+          type: string
+          format: date-time
+          description: >-
+            Start date for statistics period in ISO 8601
+            (`YYYY-MM-DDTHH:MM:SSZ`).
+        end_at:
+          type: string
+          format: date-time
+          description: End date for statistics period in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
+        totals:
+          type: object
+          description: Aggregated totals for RCS messages.
+          properties:
+            sent:
+              type: integer
+              description: Total number of messages sent.
+            delivered:
+              type: integer
+              description: Total number of messages successfully delivered.
+            failed:
+              type: integer
+              description: Total number of messages that failed to deliver.
+            read:
+              type: integer
+              description: Total number of messages read by recipients.
+          required:
+            - sent
+            - delivered
+            - failed
+            - read
+      required:
+        - totals
+        - start_at
+        - end_at
+      example:
+        start_at: '2025-01-01T00:00:00Z'
+        end_at: '2025-01-01T01:00:00Z'
+        totals:
+          sent: 10
+          delivered: 9
+          failed: 1
+          read: 8
+    UnauthorizedProblem:
+      description: >
+        HTTP 401 Unauthorized - API authentication failed.
+
+
+        The request was rejected because the API key is missing, invalid,
+        expired, or lacks sufficient permissions for this resource. Check your
+        Authorization header and API key configuration.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/errors#unauthorized
+        title: API Authentication Failed
+        detail: >-
+          Missing or invalid API key in Authorization header. Verify your API
+          key is correct and has the required permissions
+        status: 401
     ListSMSRequest:
       type: object
       properties:
@@ -1547,7 +1908,6 @@ components:
         is_sandbox:
           type: boolean
           description: Whether the message was sent in sandbox mode.
-          example: false
         routed_via:
           type: string
           description: The route used to send the message.
@@ -1806,7 +2166,7 @@ components:
           type: array
           description: Types of events to subscribe to
           items:
-            $ref: '#/components/schemas/EventTypeEnum'
+            $ref: '#/components/schemas/EventType'
           example:
             - SMS_STATUS
             - SMS_INBOUND
@@ -1842,20 +2202,6 @@ components:
           example:
             - campaign_123
             - campaign_456
-    EventTypeEnum:
-      type: string
-      enum:
-        - LINK_HIT
-        - OPT_OUT
-        - SMS_STATUS
-        - SMS_INBOUND
-        - MMS_STATUS
-        - MMS_INBOUND
-        - WHATSAPP_STATUS
-        - WHATSAPP_INBOUND
-        - RCS_STATUS
-        - RCS_INBOUND
-      description: Types of events that can trigger a webhook.
     WebhookResponse:
       type: object
       description: Webhook details.
@@ -1924,7 +2270,7 @@ components:
       properties:
         event_type:
           allOf:
-            - $ref: '#/components/schemas/EventTypeEnum'
+            - $ref: '#/components/schemas/EventType'
           description: >-
             Type of event to subscribe to. Deprecated - use filter.event_type
             instead.
@@ -1962,7 +2308,7 @@ components:
               type: array
               description: Types of events to subscribe to
               items:
-                $ref: '#/components/schemas/EventTypeEnum'
+                $ref: '#/components/schemas/EventType'
               example:
                 - SMS_STATUS
                 - SMS_INBOUND
@@ -2031,6 +2377,597 @@ components:
       required:
         - name
         - url
+    EventType:
+      type: string
+      enum:
+        - LINK_HIT
+        - OPT_OUT
+        - MMS_STATUS
+        - SMS_INBOUND
+        - SMS_STATUS
+        - MMS_INBOUND
+        - WHATSAPP_STATUS
+        - WHATSAPP_INBOUND
+        - RCS_STATUS
+        - RCS_INBOUND
+      description: >
+        Event type string values:
+
+        - LINK_HIT: Link hit event when a recipient visits a tracked link
+
+        - OPT_OUT: Opt out event when a recipient visits an opt-out link or by
+        sending a message with the text "STOP"
+
+        - MMS_STATUS: Status change for a MMS messages. Currently only comprised
+        of internal statuses (sent, failed)
+
+        - SMS_INBOUND: Inbound SMS sent from a recipient back to the sender
+
+        - SMS_STATUS: Status change for a SMS message. Includes internal
+        statuses (sent, failed) and delivery receipts (soft_bounce, hard_bounce,
+        delivered, undelivered). Multiple status events can be triggered for a
+        single message
+
+        - MMS_INBOUND: Inbound MMS sent from a recipient back to the sender
+
+        - WHATSAPP_STATUS: Status change for Whatsapp messages
+
+        - WHATSAPP_INBOUND: Inbound Whatsapp sent from a recipient back to the
+        sender
+
+        - RCS_STATUS: Status change for RCS messages
+
+        - RCS_INBOUND: Inbound RCS sent from a recipient back to the sender
+    MessageType:
+      type: string
+      enum:
+        - MMS
+        - SMS
+        - WHATSAPP
+        - RCS
+      description: |
+        Message type values:
+        - MMS: Multimedia Messaging Service
+        - SMS: Short Message Service
+        - WHATSAPP: WhatsApp message
+        - RCS: Rich Communication Services
+    MessageStatus:
+      type: string
+      enum:
+        - INVALID
+        - PENDING
+        - SENT
+        - FAILED
+        - DELIVERED
+        - ACCEPTED
+        - SOFT_BOUNCE
+        - HARD_BOUNCE
+        - OTHER
+        - REJECTED
+        - PENDING_APPROVAL
+        - SUBMITTED
+        - UNDELIVERABLE
+        - READ
+      description: >
+        Message delivery status values:
+
+        - INVALID: Invalid status
+
+        - PENDING: Queued for processing
+
+        - SENT: Submitted to the provider
+
+        - FAILED: Failed because of an error from the provider, a carrier, or
+        the handset
+
+        - DELIVERED: Delivered to handset
+
+        - ACCEPTED: Accepted by the provider and delivery might have been
+        attempted (but is not confirmed)
+
+        - SOFT_BOUNCE: Undeliverable due to handset being switched off, out of
+        range or other temporary deliverability issue
+
+        - HARD_BOUNCE: Handset was disconnected
+
+        - OTHER: Any other DLR status from the provider
+
+        - REJECTED: Message pending approval was rejected by the Kudosity
+        support team
+
+        - PENDING_APPROVAL: Message is pending approval by the Kudosity support
+        team
+
+        - SUBMITTED: Message is submitted to the provider
+
+        - UNDELIVERABLE: Message is undeliverable
+
+        - READ: Message is read by the recipient
+    V1Message:
+      type: object
+      description: >
+        V1 message data used in source_message and last_message fields.
+
+        All fields are always included for backward compatibility, even if
+        empty.
+      properties:
+        type:
+          type: string
+          description: Message type
+        id:
+          type: string
+          description: Message ID
+        sender:
+          type: string
+          description: Sender address
+        recipient:
+          type: string
+          description: Recipient number
+        subject:
+          type: string
+          description: Message subject (empty string if not set)
+        message_ref:
+          type: string
+          description: Custom reference set by the customer (empty string if not set)
+        message:
+          type: string
+          description: Message text
+        content_urls:
+          type: array
+          items:
+            type: string
+          description: Content URLs (empty array if none)
+      required:
+        - type
+        - id
+        - sender
+        - recipient
+        - subject
+        - message_ref
+        - message
+        - content_urls
+    V2LinkHit:
+      type: object
+      description: V2 link hit notification
+      properties:
+        url:
+          type: string
+          description: Tracked URL that was clicked
+        hits:
+          type: integer
+          format: int32
+          description: Number of hits
+        source_message:
+          $ref: '#/components/schemas/V2Message'
+      required:
+        - url
+        - hits
+        - source_message
+    V2MO:
+      type: object
+      description: V2 mobile originating (inbound) message from the receiver
+      properties:
+        type:
+          $ref: '#/components/schemas/MessageType'
+          description: Message Type
+        id:
+          type: string
+          description: Message ID
+        sender:
+          type: string
+          description: Sender number
+        recipient:
+          type: string
+          description: Recipient number
+        routed_via:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Number in sender's country that this MO is routed through due to
+            global routing
+        message:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Message text
+        subject:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Message subject (for MMS)
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/Medium'
+          x-go-type-skip-optional-pointer: true
+          description: Base64-encoded MMS media
+        last_message:
+          $ref: '#/components/schemas/V2Message'
+          x-go-type-skip-optional-pointer: true
+        content_type:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          enum:
+            - INVALID
+            - TEXT
+            - LOCATION
+            - FILE
+            - VIDEO
+            - AUDIO
+            - IMAGE
+            - REPLY
+            - STICKER
+            - BUTTON
+            - REACTION
+            - CONTACT
+          description: |
+            Rich content type values (only present for WhatsApp/RCS messages):
+            - INVALID: Invalid content type
+            - TEXT: Text message
+            - LOCATION: Location message
+            - FILE: File attachment
+            - VIDEO: Video attachment
+            - AUDIO: Audio attachment
+            - IMAGE: Image attachment
+            - REPLY: Reply to another message
+            - STICKER: Sticker message
+            - BUTTON: Button message
+            - REACTION: Reaction to another message
+            - CONTACT: Contact card
+        content:
+          $ref: '#/components/schemas/RichContent'
+      required:
+        - type
+        - id
+        - sender
+        - recipient
+    V2OptOut:
+      type: object
+      description: V2 opt-out message from the receiver
+      properties:
+        source:
+          $ref: '#/components/schemas/EventType'
+        source_message:
+          $ref: '#/components/schemas/V2Message'
+      required:
+        - source
+        - source_message
+    V2Status:
+      type: object
+      description: V2 status update from the provider (delivery receipt)
+      properties:
+        id:
+          type: string
+          description: Message ID
+        type:
+          $ref: '#/components/schemas/MessageType'
+          description: Message Type
+        message_ref:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Custom reference set by the customer
+        sender:
+          type: string
+          description: Sender address
+        routed_via:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Number in recipient's country that this message is routed through
+            due to global routing
+        recipient:
+          type: string
+          description: Recipient number
+        status:
+          $ref: '#/components/schemas/MessageStatus'
+          description: DLR status fom the provider
+        description:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Description of the status
+        campaign_id:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Campaign ID
+      required:
+        - id
+        - type
+        - sender
+        - recipient
+        - status
+    V2Message:
+      type: object
+      description: V2 message information in payload data
+      properties:
+        id:
+          type: string
+          description: Message ID
+        type:
+          $ref: '#/components/schemas/MessageType'
+          description: Message Type
+        sender:
+          type: string
+          description: Sender address
+        routed_via:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Number in recipient's country that this message is routed through
+            due to global routing
+        recipient:
+          type: string
+          description: Recipient number
+        message:
+          type: string
+          description: Message text
+        message_ref:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Custom reference set by the customer
+        subject:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Subject
+        content_urls:
+          type: array
+          items:
+            type: string
+          x-go-type-skip-optional-pointer: true
+          description: Content URLs
+        campaign_id:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Campaign ID
+      required:
+        - id
+        - type
+        - sender
+        - recipient
+        - message
+    RichContent:
+      type: object
+      description: Rich content data with flattened structure
+      properties:
+        text:
+          $ref: '#/components/schemas/RichContentText'
+        location:
+          $ref: '#/components/schemas/RichContentLocation'
+        file:
+          $ref: '#/components/schemas/RichContentFile'
+        video:
+          $ref: '#/components/schemas/RichContentVideo'
+        audio:
+          $ref: '#/components/schemas/RichContentAudio'
+        image:
+          $ref: '#/components/schemas/RichContentImage'
+        reply:
+          $ref: '#/components/schemas/RichContentReply'
+        sticker:
+          $ref: '#/components/schemas/RichContentSticker'
+        button:
+          $ref: '#/components/schemas/RichContentButton'
+        reaction:
+          $ref: '#/components/schemas/RichContentReaction'
+        contact:
+          $ref: '#/components/schemas/RichContentContact'
+    RichContentText:
+      type: object
+      description: Rich content text data
+      properties:
+        message:
+          type: string
+          description: Text content
+      required:
+        - message
+    RichContentLocation:
+      type: object
+      description: Rich content location data
+      properties:
+        lat:
+          type: number
+          format: double
+          description: Latitude
+        long:
+          type: number
+          format: double
+          description: Longitude
+        name:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Location name
+        address:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Location address
+      required:
+        - lat
+        - long
+    RichContentFile:
+      type: object
+      description: Rich content file data
+      properties:
+        url:
+          type: string
+          description: File URL
+        name:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: File name
+      required:
+        - url
+    RichContentVideo:
+      type: object
+      description: Rich content video data
+      properties:
+        url:
+          type: string
+          description: Video URL
+        name:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Video name
+      required:
+        - url
+    RichContentAudio:
+      type: object
+      description: Rich content audio data
+      properties:
+        url:
+          type: string
+          description: Audio URL
+        name:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Audio name
+      required:
+        - url
+    RichContentImage:
+      type: object
+      description: Rich content image data
+      properties:
+        url:
+          type: string
+          description: Image URL
+        name:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Image name
+        caption:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Image caption
+      required:
+        - url
+    RichContentReply:
+      type: object
+      description: Rich content reply data
+      properties:
+        id:
+          type: string
+          description: Reply ID
+        title:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Reply title
+        description:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Reply description
+      required:
+        - id
+    RichContentSticker:
+      type: object
+      description: Rich content sticker data
+      properties:
+        url:
+          type: string
+          description: Sticker URL
+        name:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Sticker name
+      required:
+        - url
+    RichContentButton:
+      type: object
+      description: Rich content button data
+      properties:
+        text:
+          type: string
+          description: Button text
+        payload:
+          type: string
+          description: Button payload
+      required:
+        - text
+        - payload
+    RichContentReaction:
+      type: object
+      description: Rich content reaction data
+      properties:
+        action:
+          type: string
+          description: Reaction action
+        emoji:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Reaction emoji
+      required:
+        - action
+    RichContentContact:
+      type: object
+      description: Rich content contact data
+      properties:
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/RichContentContactEmail'
+          description: Contact email addresses
+        name:
+          $ref: '#/components/schemas/RichContentContactName'
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/RichContentContactPhone'
+          description: Contact phone numbers
+      required:
+        - emails
+        - name
+        - phones
+    RichContentContactEmail:
+      type: object
+      description: Contact email information
+      properties:
+        email:
+          type: string
+          description: Email address
+        type:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Type of email (e.g., "work", "home")
+      required:
+        - email
+    RichContentContactName:
+      type: object
+      description: Contact name information
+      properties:
+        formatted_name:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Full name
+        first_name:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: First name
+        last_name:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Last name
+    RichContentContactPhone:
+      type: object
+      description: Contact phone information
+      properties:
+        phone:
+          type: string
+          description: Phone number in international format (E.164 standard)
+        type:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Type of phone (e.g., "mobile", "home")
+      required:
+        - phone
+    Medium:
+      type: object
+      description: MMS media content
+      properties:
+        name:
+          type: string
+          description: Name is usually the filename with extension
+        content:
+          type: string
+          format: byte
+          description: Base64 encoded media data
+      required:
+        - name
+        - content
   responses:
     SuccessResponse:
       description: OK
@@ -2043,6 +2980,17 @@ components:
                 properties:
                   data:
                     $ref: '#/components/schemas/WhatsappResponse'
+    GetWhatsappStatsSuccessResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WhatsappStatsResponse'
     InputValidationResponse:
       description: Input Validation Error
       content:
@@ -2087,6 +3035,39 @@ components:
                 properties:
                   data:
                     $ref: '#/components/schemas/RcsResponse'
+    GetSuccessResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RcsGetResponse'
+    GetRcsStatsSuccessResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RcsStatsResponse'
+    UnauthorizedErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/UnauthorizedProblem'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
