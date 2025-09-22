@@ -1,5 +1,5 @@
 ---
-title: Send an RCS message
+title: Send RCS message
 excerpt: |
   This endpoint is in beta and may change in future versions.
   Sends an RCS message to a single recipient.

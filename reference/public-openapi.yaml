@@ -310,7 +310,7 @@ paths:
     post:
       tags:
         - WhatsApp
-      summary: Send WhatsApp message.
+      summary: Send WhatsApp message
       description: >-
         Sends a single templated message to a single recipient. Templates need
         to be registered and pre-approved by WhatsApp.
@@ -335,10 +335,20 @@ paths:
     get:
       tags:
         - WhatsApp
-      summary: WhatsApp message statistics
-      description: >-
-        Retrieves WhatsApp message statistics to provide aggregated Whatsapp
-        message data submitted.
+      summary: Get WhatsApp message statistics
+      description: >
+        Retrieves aggregated WhatsApp message statistics for a specified time
+        period.
+
+
+        Filter query parameters are added to the URL. For example:
+
+
+        ```
+
+        ?start_at=2024-01-01T00:00:00Z&end_at=2024-01-02T00:00:00Z&sender=14155238886
+
+        ```
       security:
         - ApiKeyAuth: []
       parameters:
@@ -363,7 +373,7 @@ paths:
     post:
       tags:
         - RCS
-      summary: Send an RCS message
+      summary: Send RCS message
       description: |
         This endpoint is in beta and may change in future versions.
         Sends an RCS message to a single recipient.
@@ -390,12 +400,12 @@ paths:
     get:
       tags:
         - RCS
-      summary: Retrieve an RCS message
+      summary: Get RCS message
       description: >
         Retrieves details of a previously sent RCS message by its unique
         identifier.
 
-        Returns the message content, delivery status, and metadata.
+        Returns message content, delivery status, and metadata.
       security:
         - ApiKeyAuth: []
       parameters:
@@ -420,8 +430,19 @@ paths:
     get:
       tags:
         - RCS
-      summary: RCS message statistics
-      description: Retrieves RCS message statistics to provide aggregated RCS data.
+      summary: Get RCS message statistics
+      description: >
+        Retrieves aggregated RCS message statistics for a specified time period.
+
+
+        Filter query parameters are added to the URL. For example:
+
+
+        ```
+
+        ?start_at=2024-01-01T00:00:00Z&end_at=2024-01-02T00:00:00Z&sender=DemoSender
+
+        ```
       security:
         - ApiKeyAuth: []
       parameters:
@@ -812,7 +833,7 @@ components:
         parameters:
           type: array
           description: >
-            The **dynamic values** to populate placeholdes in the template
+            The **dynamic values** to populate placeholders in the template
             message.
 
 
@@ -862,7 +883,6 @@ components:
         - custom
     SMSFallback:
       type: object
-      nullable: true
       description: SMS fallback message details.
       properties:
         message:
@@ -876,7 +896,7 @@ components:
         sender:
           type: string
           description: |
-            Registered WhastApp sender number.
+            Registered WhatsApp sender number.
 
              - Must be in **international format** <a href="http://en.wikipedia.org/wiki/E.164">E.164 format</a> (e.g., +14155238886).
              - Number must be registered with the WhatsApp Business API.
@@ -909,14 +929,14 @@ components:
             The message content to be sent.
 
 
-            - Must follow the WhastApp-approved **template format** or be a
+            - Must follow the WhatsApp-approved **template format** or be a
             **custom object** following the Meta Cloud API guidelines.
 
             - **Example JSON (Text Content):**
               ```json
               {
                 "text": {
-                  "message": "hello, world!",
+                  "message": "hello, world!"
                 }
               }
               ```
@@ -967,13 +987,11 @@ components:
           type: string
           x-go-type-skip-optional-pointer: true
           description: >
-            A unique reference ID supplied by your system to track messages.
+            A unique reference from your system (max 500 characters). The value
+            is included
 
-
-            - **Maximum Length:** 500 characters.
-
-            - This `message_ref` will be included in webhook events, allowing
-            you to correlate sent messages with received events.
+            in webhook events so you can correlate events with the original
+            message.
 
 
             **Example Usage:**
@@ -1057,22 +1075,17 @@ components:
         start_at:
           type: string
           format: string
-          description: >-
-            Start date for statistics period in ISO 8601
-            (`YYYY-MM-DDTHH:MM:SSZ`).
+          description: Start of the time range in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
           x-go-type-skip-optional-pointer: true
         end_at:
           type: string
           format: string
-          description: End date for statistics period in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
+          description: End of the time range in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
           x-go-type-skip-optional-pointer: true
         sender:
           type: string
           description: |
-            Registered WhastApp sender number.
-
-             - Must be in **international format** <a href="http://en.wikipedia.org/wiki/E.164">E.164 format</a> (e.g., +14155238886).
-             - Number must be registered with the WhatsApp Business API.
+            Optional WhatsApp sender number to scope the results.
           x-go-type-skip-optional-pointer: true
     WhatsappStatsResponse:
       type: object
@@ -1296,12 +1309,12 @@ components:
       description: >
         Provides intelligent fallback for non-RCS capable devices and carrier
         delivery issues. If the RCS message fails, the SMS will send the
-        configured message to the recipeint instead.
+        configured message to the recipient instead.
       properties:
         message:
           type: string
           description: >-
-            The message to send via SMS. SMS messages are subject to certain
+            The message to send through SMS. SMS messages are subject to certain
             character limitations, please read our SMS documentation for
             details.
       required:
@@ -1312,7 +1325,9 @@ components:
       properties:
         event_type:
           type: string
-          description: Type of event that occurred.
+          description: >-
+            Type of event: one of `QUEUED`, `SENT`, `DELIVERED`, `FAILED`,
+            `READ`.
           enum:
             - QUEUED
             - SENT
@@ -1322,7 +1337,7 @@ components:
         created_at:
           type: string
           format: date-time
-          description: Timestamp in ISO 8601 when the event occurred.
+          description: Timestamp (ISO 8601) when the event occurred.
         details:
           type: string
           description: Description of the event.
@@ -1340,14 +1355,18 @@ components:
         sender:
           type: string
           description: >
-            RCS Agent ID provided to you that refers to your registered RCS
-            Agent. Unlike WhatsApp, SMS, and MMS, RCS doesn't send through a
-            sender phone number. Messages are sent through agents.
+            The RCS agent ID assigned to your registered agent.
 
 
-            - Must be a registered RCS Agent identifier
+            Unlike SMS, WhatsApp, and MMS, RCS messages do not come from a phone
+            number. 
 
-            - Example: "DemoSender"
+            They are always sent through an agent.
+
+
+            - Must be a registered RCS agent identifier.
+
+            - Example: `DemoSender`
 
             - Can be alphanumeric or numeric.
         recipient:
@@ -1394,8 +1413,8 @@ components:
             characters.
 
 
-            This reference will be passed back in webhooks so that you can
-            relate events to messages you sent.
+            This reference is included in webhook events so you can relate
+            events with the original message.
 
 
             For example, being able to relate a Link Hit event to a specific
@@ -1509,7 +1528,9 @@ components:
             created on the server.
         status:
           type: string
-          description: Current status of the message.
+          description: >-
+            Current message status: one of `QUEUED`, `SENT`, `DELIVERED`,
+            `FAILED`, `READ`.
           enum:
             - QUEUED
             - SENT
@@ -1521,7 +1542,7 @@ components:
           x-go-type-skip-optional-pointer: true
           x-oapi-codegen-extra-tags:
             json: events,omitempty
-          description: Array of events showing the message history.
+          description: Array of lifecycle events for the message.
           items:
             $ref: '#/components/schemas/MessageEvent'
       required:
@@ -1564,18 +1585,15 @@ components:
         start_at:
           type: string
           format: string
-          description: >-
-            Start date for statistics period in ISO 8601
-            (`YYYY-MM-DDTHH:MM:SSZ`).
+          description: Start of the time range in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
         end_at:
           type: string
           format: string
-          description: End date for statistics period in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
+          description: End of the time range in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
         sender:
           type: string
-          description: >-
-            RCS Agent ID provided to you that refers to your registered RCS
-            Agent.
+          description: |-
+            Optional RCS agent ID to scope the results.
 
              - Must be a registered RCS Agent identifier
              - Example: "DemoSender"
@@ -1939,6 +1957,7 @@ components:
         - status
         - sms_count
         - is_gsm
+        - is_sandbox
         - routed_via
         - track_links
         - direction
