@@ -1925,7 +1925,11 @@ components:
           example: true
         is_sandbox:
           type: boolean
-          description: Whether the message was sent in sandbox mode.
+          deprecated: true
+          description: Deprecated. Will be removed in a future version.
+          x-readme:
+            sample: null
+            hidden: true
         routed_via:
           type: string
           description: The route used to send the message.
@@ -2051,9 +2055,10 @@ components:
         is_sandbox:
           type: boolean
           deprecated: true
-          description: >-
-            Deprecated. Use a sandbox account instead, or contact support to
-            request one.
+          description: Deprecated. Will be removed in a future version.
+          x-readme:
+            sample: null
+            hidden: true
           x-go-type-skip-optional-pointer: true
         created_at:
           type: string
@@ -2167,9 +2172,10 @@ components:
         is_sandbox:
           type: boolean
           deprecated: true
-          description: >-
-            Deprecated. Use a sandbox account instead, or contact support to
-            request one.
+          description: Deprecated. Will be removed in a future version.
+          x-readme:
+            sample: null
+            hidden: true
           x-go-type-skip-optional-pointer: true
       required:
         - sender
@@ -2245,7 +2251,11 @@ components:
           example: 10
         is_sandbox:
           type: boolean
-          description: Indicates if the webhook is in sandbox mode (deprecated).
+          deprecated: true
+          description: Deprecated. Will be removed in a future version.
+          x-readme:
+            sample: null
+            hidden: true
           example: false
         created_at:
           type: string
@@ -2388,9 +2398,10 @@ components:
         is_sandbox:
           type: boolean
           deprecated: true
-          description: >-
-            Deprecated. Use a sandbox account instead, or contact support to
-            request one.
+          description: Deprecated. Will be removed in a future version.
+          x-readme:
+            sample: null
+            hidden: true
           x-go-type-skip-optional-pointer: true
       required:
         - name
