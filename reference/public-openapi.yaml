@@ -306,11 +306,11 @@ tags:
         }
       } ```
 paths:
-  /v2/whatsapp:
+  /v2/whatsapp/messages:
     post:
       tags:
         - WhatsApp
-      summary: Send WhatsApp message
+      summary: Send WhatsApp message.
       description: >-
         Sends a single templated message to a single recipient. Templates need
         to be registered and pre-approved by WhatsApp.
@@ -331,45 +331,37 @@ paths:
           $ref: '#/components/responses/NotFoundErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
-  /v2/whatsapp/stats:
+  /v2/whatsapp/messages/{id}:
     get:
       tags:
         - WhatsApp
-      summary: Get WhatsApp message statistics
+      summary: Get WhatsApp message
       description: >
-        Retrieves aggregated WhatsApp message statistics for a specified time
-        period.
+        Retrieves details of a previously sent WhatsApp message by its unique
+        identifier.
 
-
-        Filter query parameters are added to the URL. For example:
-
-
-        ```
-
-        ?start_at=2024-01-01T00:00:00Z&end_at=2024-01-02T00:00:00Z&sender=14155238886
-
-        ```
+        Returns message content, delivery status, and metadata.
       security:
         - ApiKeyAuth: []
       parameters:
-        - name: query
-          in: query
-          description: >
-            Filter query parameters are added to the URL. Use as:
-
-            ?start_at=2024-01-01T00:00:00Z&end_at=2024-01-02T00:00:00Z&sender=14155238886
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the WhatsApp message to retrieve
           schema:
-            $ref: '#/components/schemas/WhatsappStatsRequest'
+            type: string
+            format: uuid
+            example: 550e8400-e29b-41d4-a716-446655440000
       responses:
         '200':
-          $ref: '#/components/responses/GetWhatsappStatsSuccessResponse'
-        '400':
-          $ref: '#/components/responses/InputValidationResponse'
+          $ref: '#/components/responses/GetWhatsappSuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
         '404':
           $ref: '#/components/responses/NotFoundErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
-  /v2/rcs:
+  /v2/rcs/messages:
     post:
       tags:
         - RCS
@@ -396,7 +388,7 @@ paths:
           $ref: '#/components/responses/NotFoundErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
-  /v2/rcs/{id}:
+  /v2/rcs/messages/{id}:
     get:
       tags:
         - RCS
@@ -430,30 +422,45 @@ paths:
     get:
       tags:
         - RCS
-      summary: Get RCS message statistics
-      description: >
-        Retrieves aggregated RCS message statistics for a specified time period.
-
-
-        Filter query parameters are added to the URL. For example:
-
-
-        ```
-
-        ?start_at=2024-01-01T00:00:00Z&end_at=2024-01-02T00:00:00Z&sender=DemoSender
-
-        ```
+      summary: Get RCS stats
+      description: >-
+        Retrieves RCS message statistics to provide aggregated RCS message data
+        submitted.
       security:
         - ApiKeyAuth: []
       parameters:
-        - name: query
+        - name: start_at
           in: query
+          required: true
           description: >-
-            Filter query parameters are added to the URL. Use as:
-
-            ?start_at=2024-01-01T00:00:00Z&end_at=2024-01-02T00:00:00Z&sender=DemoSender
+            Start date for statistics period in ISO 8601
+            (`YYYY-MM-DDTHH:MM:SSZ`). Must end with 'Z' for UTC timezone.
           schema:
-            $ref: '#/components/schemas/RcsStatsRequest'
+            type: string
+            format: date-time
+            pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{2,9})?Z$
+            example: '2024-01-01T00:00:00Z'
+        - name: end_at
+          in: query
+          required: true
+          description: >-
+            End date for statistics period in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
+            Must end with 'Z' for UTC timezone.
+          schema:
+            type: string
+            format: date-time
+            pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{2,9})?Z$
+            example: '2024-01-02T00:00:00Z'
+        - name: sender
+          in: query
+          required: false
+          description: |
+            Optional registered RCS agent ID.
+
+             - Must be a registered RCS Agent identifier.
+             - Example: `DemoSender`
+          schema:
+            type: string
       responses:
         '200':
           $ref: '#/components/responses/GetRcsStatsSuccessResponse'
@@ -833,7 +840,7 @@ components:
         parameters:
           type: array
           description: >
-            The **dynamic values** to populate placeholders in the template
+            The **dynamic values** to populate placeholdes in the template
             message.
 
 
@@ -896,7 +903,7 @@ components:
         sender:
           type: string
           description: |
-            Registered WhatsApp sender number.
+            Registered WhastApp sender number.
 
              - Must be in **international format** <a href="http://en.wikipedia.org/wiki/E.164">E.164 format</a> (e.g., +14155238886).
              - Number must be registered with the WhatsApp Business API.
@@ -929,14 +936,14 @@ components:
             The message content to be sent.
 
 
-            - Must follow the WhatsApp-approved **template format** or be a
+            - Must follow the WhastApp-approved **template format** or be a
             **custom object** following the Meta Cloud API guidelines.
 
             - **Example JSON (Text Content):**
               ```json
               {
                 "text": {
-                  "message": "hello, world!"
+                  "message": "hello, world!",
                 }
               }
               ```
@@ -987,11 +994,13 @@ components:
           type: string
           x-go-type-skip-optional-pointer: true
           description: >
-            A unique reference from your system (max 500 characters). The value
-            is included
+            A unique reference ID supplied by your system to track messages.
 
-            in webhook events so you can correlate events with the original
-            message.
+
+            - **Maximum Length:** 500 characters.
+
+            - This `message_ref` will be included in webhook events, allowing
+            you to correlate sent messages with received events.
 
 
             **Example Usage:**
@@ -1069,24 +1078,125 @@ components:
           parameters:
             - Joe
         created_at: '2021-01-01T00:00:00Z'
-    WhatsappStatsRequest:
+    WhatsappMessageEvent:
+      type: object
+      description: Lifecycle event for a WhatsApp message.
+      properties:
+        event_type:
+          type: string
+          description: Type of event that occurred.
+          enum:
+            - SENT
+            - DELIVERED
+            - READ
+            - FAILED
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp in ISO 8601 when the event occurred.
+        details:
+          type: string
+          description: Description of the event.
+      required:
+        - event_type
+        - created_at
+        - details
+      example:
+        event_type: DELIVERED
+        created_at: '2024-01-15T14:31:42Z'
+        details: Message delivered to recipient device
+    WhatsappGetResponse:
       type: object
       properties:
-        start_at:
+        id:
           type: string
-          format: string
-          description: Start of the time range in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
-          x-go-type-skip-optional-pointer: true
-        end_at:
+          description: Unique identifier for the message.
+        account_id:
           type: string
-          format: string
-          description: End of the time range in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
+          description: Account identifier that sent the message.
+        message_ref:
+          type: string
           x-go-type-skip-optional-pointer: true
+          description: Optional reference ID set by the user for the message.
         sender:
           type: string
-          description: |
-            Optional WhatsApp sender number to scope the results.
+          format: phone
+          description: Registered WhatsApp sender number in international format.
+        recipient:
+          type: string
+          format: phone
+          description: WhatsApp recipient phone number in international format.
+        content_type:
+          type: string
+          description: Type of the message content.
+          enum:
+            - text
+            - template
+            - custom
+        content:
+          type: object
+          description: Content details for the message.
+          oneOf:
+            - $ref: '#/components/schemas/TextContent'
+            - $ref: '#/components/schemas/TemplateContent'
+            - $ref: '#/components/schemas/CustomContent'
+        sms_fallback:
+          $ref: '#/components/schemas/SMSFallback'
+        created_at:
+          type: string
+          format: date-time
+          description: >-
+            Timestamp in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) when the message was
+            created on the server.
+        status:
+          type: string
+          description: Current status of the message.
+          enum:
+            - QUEUED
+            - SENT
+            - DELIVERED
+            - READ
+            - FAILED
+        events:
+          type: array
           x-go-type-skip-optional-pointer: true
+          x-oapi-codegen-extra-tags:
+            json: events,omitempty
+          description: Array of events showing the message history.
+          items:
+            $ref: '#/components/schemas/WhatsappMessageEvent'
+      required:
+        - id
+        - account_id
+        - sender
+        - recipient
+        - content_type
+        - content
+        - created_at
+        - status
+      example:
+        id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+        account_id: '123123'
+        message_ref: optional-ref-123
+        sender: '14155238886'
+        recipient: '61411122211'
+        content_type: template
+        content:
+          template:
+            name: welcome_new_customer
+            parameters:
+              - Joe
+        sms_fallback:
+          message: Welcome Joe! Your account is now active.
+        created_at: '2021-01-01T00:00:00Z'
+        status: DELIVERED
+        events:
+          - event_type: SENT
+            created_at: '2021-01-01T00:00:30Z'
+            details: Message sent to WhatsApp gateway
+          - event_type: DELIVERED
+            created_at: '2021-01-01T00:01:15Z'
+            details: Message delivered to recipient device
     WhatsappStatsResponse:
       type: object
       properties:
@@ -1277,6 +1387,24 @@ components:
         title: Server Error
         detail: The server encountered an unexpected error
         status: 500
+    UnauthorizedProblem:
+      description: >
+        HTTP 401 Unauthorized - API authentication failed.
+
+
+        The request was rejected because the API key is missing, invalid,
+        expired, or lacks sufficient permissions for this resource. Check your
+        Authorization header and API key configuration.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/errors#unauthorized
+        title: API Authentication Failed
+        detail: >-
+          Missing or invalid API key in Authorization header. Verify your API
+          key is correct and has the required permissions
+        status: 401
     RCSText:
       type: object
       description: Text content for the message.
@@ -1319,21 +1447,18 @@ components:
             details.
       required:
         - message
-    MessageEvent:
+    RCSMessageEvent:
       type: object
-      description: A single event in the message lifecycle.
+      description: Lifecycle event for an RCS message.
       properties:
         event_type:
           type: string
-          description: >-
-            Type of event: one of `QUEUED`, `SENT`, `DELIVERED`, `FAILED`,
-            `READ`.
+          description: 'Type of event: one of `SENT`, `DELIVERED`, `READ`, `FAILED`.'
           enum:
-            - QUEUED
             - SENT
             - DELIVERED
-            - FAILED
             - READ
+            - FAILED
         created_at:
           type: string
           format: date-time
@@ -1359,7 +1484,7 @@ components:
 
 
             Unlike SMS, WhatsApp, and MMS, RCS messages do not come from a phone
-            number. 
+            number.
 
             They are always sent through an agent.
 
@@ -1530,13 +1655,13 @@ components:
           type: string
           description: >-
             Current message status: one of `QUEUED`, `SENT`, `DELIVERED`,
-            `FAILED`, `READ`.
+            `READ`, `FAILED`.
           enum:
             - QUEUED
             - SENT
             - DELIVERED
-            - FAILED
             - READ
+            - FAILED
         events:
           type: array
           x-go-type-skip-optional-pointer: true
@@ -1544,7 +1669,7 @@ components:
             json: events,omitempty
           description: Array of lifecycle events for the message.
           items:
-            $ref: '#/components/schemas/MessageEvent'
+            $ref: '#/components/schemas/RCSMessageEvent'
       required:
         - id
         - account_id
@@ -1570,37 +1695,12 @@ components:
         created_at: '2021-01-01T00:00:00Z'
         status: DELIVERED
         events:
-          - event_type: QUEUED
-            created_at: '2021-01-01T00:00:00Z'
-            details: Message queued for processing
           - event_type: SENT
             created_at: '2021-01-01T00:00:30Z'
             details: Message sent to Google RCS gateway
           - event_type: DELIVERED
             created_at: '2021-01-01T00:01:15Z'
             details: Message delivered to recipient device
-    RcsStatsRequest:
-      type: object
-      properties:
-        start_at:
-          type: string
-          format: string
-          description: Start of the time range in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
-        end_at:
-          type: string
-          format: string
-          description: End of the time range in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
-        sender:
-          type: string
-          description: |-
-            Optional RCS agent ID to scope the results.
-
-             - Must be a registered RCS Agent identifier
-             - Example: "DemoSender"
-          x-go-type-skip-optional-pointer: true
-      required:
-        - start_at
-        - end_at
     RcsStatsResponse:
       type: object
       properties:
@@ -1647,24 +1747,6 @@ components:
           delivered: 9
           failed: 1
           read: 8
-    UnauthorizedProblem:
-      description: >
-        HTTP 401 Unauthorized - API authentication failed.
-
-
-        The request was rejected because the API key is missing, invalid,
-        expired, or lacks sufficient permissions for this resource. Check your
-        Authorization header and API key configuration.
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/ProblemDetails'
-      example:
-        type: https://developers.kudosity.com/errors#unauthorized
-        title: API Authentication Failed
-        detail: >-
-          Missing or invalid API key in Authorization header. Verify your API
-          key is correct and has the required permissions
-        status: 401
     ListSMSRequest:
       type: object
       properties:
@@ -1927,9 +2009,6 @@ components:
           type: boolean
           deprecated: true
           description: Deprecated. Will be removed in a future version.
-          x-readme:
-            sample: null
-            hidden: true
         routed_via:
           type: string
           description: The route used to send the message.
@@ -2056,9 +2135,6 @@ components:
           type: boolean
           deprecated: true
           description: Deprecated. Will be removed in a future version.
-          x-readme:
-            sample: null
-            hidden: true
           x-go-type-skip-optional-pointer: true
         created_at:
           type: string
@@ -2173,9 +2249,6 @@ components:
           type: boolean
           deprecated: true
           description: Deprecated. Will be removed in a future version.
-          x-readme:
-            sample: null
-            hidden: true
           x-go-type-skip-optional-pointer: true
       required:
         - sender
@@ -2253,9 +2326,6 @@ components:
           type: boolean
           deprecated: true
           description: Deprecated. Will be removed in a future version.
-          x-readme:
-            sample: null
-            hidden: true
           example: false
         created_at:
           type: string
@@ -2399,9 +2469,6 @@ components:
           type: boolean
           deprecated: true
           description: Deprecated. Will be removed in a future version.
-          x-readme:
-            sample: null
-            hidden: true
           x-go-type-skip-optional-pointer: true
       required:
         - name
@@ -3009,7 +3076,7 @@ components:
                 properties:
                   data:
                     $ref: '#/components/schemas/WhatsappResponse'
-    GetWhatsappStatsSuccessResponse:
+    GetWhatsappSuccessResponse:
       description: OK
       content:
         application/json:
@@ -3019,7 +3086,7 @@ components:
               - type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/WhatsappStatsResponse'
+                    $ref: '#/components/schemas/WhatsappGetResponse'
     InputValidationResponse:
       description: Input Validation Error
       content:
@@ -3053,6 +3120,17 @@ components:
                 properties:
                   error:
                     $ref: '#/components/schemas/InternalServerErrorProblem'
+    UnauthorizedErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/UnauthorizedProblem'
     RCSSuccessResponse:
       description: OK
       content:
@@ -3086,17 +3164,6 @@ components:
                 properties:
                   data:
                     $ref: '#/components/schemas/RcsStatsResponse'
-    UnauthorizedErrorResponse:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            allOf:
-              - $ref: '#/components/schemas/CommonErrorResponse'
-              - type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/UnauthorizedProblem'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

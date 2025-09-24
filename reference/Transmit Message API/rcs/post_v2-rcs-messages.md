@@ -5,6 +5,6 @@ excerpt: |
   Sends an RCS message to a single recipient.
 api:
   file: public-openapi.yaml
-  operationId: post_v2-rcs
+  operationId: post_v2-rcs-messages
 hidden: false
 ---
