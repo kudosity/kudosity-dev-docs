@@ -437,9 +437,9 @@ paths:
             (`YYYY-MM-DDTHH:MM:SSZ`). Must end with 'Z' for UTC timezone.
           schema:
             type: string
-            format: date-time
-            pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{2,9})?Z$
+            format: datetimez
             example: '2024-01-01T00:00:00Z'
+            title: start_at
         - name: end_at
           in: query
           required: true
@@ -448,9 +448,9 @@ paths:
             Must end with 'Z' for UTC timezone.
           schema:
             type: string
-            format: date-time
-            pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{2,9})?Z$
+            format: datetimez
             example: '2024-01-02T00:00:00Z'
+            title: end_at
         - name: sender
           in: query
           required: false
@@ -1305,7 +1305,7 @@ components:
         - detail
         - status
       example:
-        type: https://developers.kudosity.com/errors
+        type: https://developers.kudosity.com/reference/errors
         title: Description of the type of problem that occurred
         detail: Description of specific occurrence of the problem
         status: 400
@@ -1347,10 +1347,10 @@ components:
               items:
                 $ref: '#/components/schemas/InputValidationIssue'
       example:
-        type: https://developers.kudosity.com/errors#input-validation
+        type: https://developers.kudosity.com/reference/errors#input-validation
         title: Invalid Input Parameters
         detail: The request contained invalid, or malformed parameters.
-        status: 422
+        status: 400
         issues:
           - field: account_id
             code: 2200
@@ -1367,7 +1367,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/ProblemDetails'
       example:
-        type: https://developers.kudosity.com/errors#not-found
+        type: https://developers.kudosity.com/reference/errors#not-found
         title: Not Found
         detail: The requested resource was not found
         status: 404
@@ -1383,7 +1383,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/ProblemDetails'
       example:
-        type: https://developers.kudosity.com/errors#server-error
+        type: https://developers.kudosity.com/reference/errors#server-error
         title: Server Error
         detail: The server encountered an unexpected error
         status: 500
@@ -1399,7 +1399,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/ProblemDetails'
       example:
-        type: https://developers.kudosity.com/errors#unauthorized
+        type: https://developers.kudosity.com/reference/errors#unauthorized
         title: API Authentication Failed
         detail: >-
           Missing or invalid API key in Authorization header. Verify your API
@@ -2057,7 +2057,6 @@ components:
         status: delivered
         sms_count: '1'
         is_gsm: true
-        is_sandbox: false
         routed_via: ''
         track_links: true
         direction: OUT
