@@ -9,94 +9,41 @@ metadata:
   description: ''
   robots: index
 ---
-# Which API Should I Use?
-
 Meet the two ways to send messages on Kudosity. Both run on the same platform and share your account, API keys, senders, reporting, and billing — so you can pick what fits your build today and evolve later.
 
 <Image align="center" src="https://files.readme.io/2e548b11a0ecaa5dec79b3a7994a3696abddddc7d252958a709d5f2caea81e25-kudosity-apis-compare-cards-brand-template-classic.png" />
 
-## Quick Recommendation
+# Which API should I use?
 
-<Cards columns="2">
-  <Card title="TransmitMessage (V2)" href="#transmitmessage-v2" icon="rocket">
-    **Recommended for new builds**
-    
-    Modern API with MMS, WhatsApp, RCS support and API-managed webhooks.
-  </Card>
-  <Card title="TransmitSMS (V1)" href="#transmitsms-v1" icon="cog">
-    **For classic integrations**
-    
-    Fully supported with multi-recipient sends and custom tracked links.
-  </Card>
-</Cards>
+* Use TransmitMessage (V2) (api.transmitmessage.com) for new builds.
+* Choose TransmitSMS (V1) (api.transmitsms.com) when you need a classic-specific feature.
 
-## API Comparison
+## API Picker
 
-<Tabs>
-  <Tab title="When to Use V2">
-    Choose **TransmitMessage (V2)** when you need:
-    
-    - **MMS via API** (send & receive) - V2 is the only API with MMS support, including an `inbound_mms` webhook
-    - **Simple, programmatic sends** with modern webhooks - Webhooks are created/managed by API; JSON responses; streamlined API-key auth
-    - **WhatsApp** (send & receive) - Rich WhatsApp messaging, notifications
-    - **RCS** (send & receive) - RCS notifications, rich messaging
-    - **Track multiple links** in one SMS - Auto-detect & track multiple links in a message
-    - **Your own message reference** alongside our message ID - Add a `message_ref` for reconciliation/workflows
-  </Tab>
-  
-  <Tab title="When to Use V1">
-    Choose **TransmitSMS (V1)** when you need:
-    
-    - **Classic integration staying put** - Fully supported; shares your senders, reporting, and UI
-    - **Single-request multi-recipient sends** - V1 supports multi-recipient (one call, many numbers)
-    - **Custom tracked link format/domain** - Custom tracked links are available on V1 (V2 roadmap)
-    - **XML response format** - V1 supports XML or JSON; V2 is JSON-only
-  </Tab>
-</Tabs>
+| If you need…                                            | Use                      | Why                                                                            |
+| ------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------ |
+| **MMS via API** (send & receive)                        | **TransmitMessage (V2)** | V2 is the only API with MMS support, including an `inbound_mms` webhook.       |
+| **Simple, programmatic sends** with modern webhooks     | **TransmitMessage (V2)** | Webhooks are created/managed by API; JSON responses; streamlined API-key auth. |
+| **WhatsApp** (send & receive)                           | **TransmitMessage (V2)** | Rich WhatsApp messaging, notifications.                                        |
+| **RCS** (send & receive)                                | **TransmitMessage (V2)** | RCS notifications, rich messaging.                                             |
+| **Track multiple links** in one SMS                     | **TransmitMessage (V2)** | Auto-detect & track multiple links in a message.                               |
+| **Your own message reference** alongside our message ID | **TransmitMessage (V2)** | Add a `message_ref` for reconciliation/workflows.                              |
+| **Classic integration staying put**                     | **TransmitSMS (V1)**     | Fully supported; shares your senders, reporting, and UI.                       |
+| **Single-request multi-recipient sends**                | **TransmitSMS (V1)**     | V1 supports multi-recipient (one call, many numbers).                          |
+| **Custom tracked link format/domain**                   | **TransmitSMS (V1)**     | Custom tracked links are available on V1. (V2 roadmap)                         |
+| **XML response format**                                 | **TransmitSMS (V1)**     | V1 supports XML or JSON; V2 is JSON-only.                                      |
 
-> **💡 Recommendation:** Start on V2. Keep V1 if you rely on multi-recipient requests or custom tracked links. You can use both under the same account and senders.
+> Recommendation: Start on V2. Keep V1 if you rely on multi-recipient requests or custom tracked links. You can use both under the same account and senders.
 
-## Feature Comparison
+## Feature Highlights (at a glance)
 
-<Accordion title="Account & Authentication" icon="key">
-- **Unified account & UI**: Same login, senders, reporting, and billing across both APIs
-- **Auth**: V2 uses API-key auth; V1 uses Basic Auth (key + secret)
-</Accordion>
+* **Unified account & UI**: Same login, senders, reporting, and billing across both APIs.
+* **Auth**: V2 uses API-key auth; V1 uses Basic Auth (key + secret).
+* **Webhooks**: V2 webhooks are managed via API (create/list/update/delete). V1 webhooks are configured in the UI.
+* **Delivery reports**: V2 via webhook; V1 via webhook or email.
+* **Retries**: Both retry failed webhook deliveries; V2 has a more granular schedule.
 
-<Accordion title="Webhooks & Delivery" icon="webhook">
-- **Webhooks**: V2 webhooks are managed via API (create/list/update/delete). V1 webhooks are configured in the UI
-- **Delivery reports**: V2 via webhook; V1 via webhook or email
-- **Retries**: Both retry failed webhook deliveries; V2 has a more granular schedule
-</Accordion>
+## Migration guidance
 
-<Accordion title="Message Features" icon="message">
-- **Message Types**: V2 supports SMS, MMS, WhatsApp, RCS; V1 supports SMS only
-- **Link Tracking**: V2 auto-detects multiple links; V1 supports custom domains
-- **Multi-recipient**: V1 supports batch sends; V2 requires individual requests
-- **Response Format**: V2 is JSON-only; V1 supports both JSON and XML
-</Accordion>
-
-## Migration Guidance
-
-<Columns layout="auto">
-  <Column>
-    ### New Customers
-    
-    **Build on TransmitMessage (V2)** to access:
-    - MMS capabilities
-    - Multi-link tracking
-    - Message references
-    - API-managed webhooks
-    - Modern messaging channels (WhatsApp, RCS)
-  </Column>
-  
-  <Column>
-    ### Existing V1 Customers
-    
-    **No rush to migrate.** Continue on TransmitSMS (V1) and consider migrating when you need:
-    - MMS support
-    - API-managed webhooks
-    - Multiple tracked links per message
-    - WhatsApp or RCS messaging
-  </Column>
-</Columns>
+* **New customers**: Build on TransmitMessage (V2) to access MMS, multi-link tracking, message_ref, and API-managed webhooks.
+* **Existing V1 customers**: No rush. Continue on TransmitSMS (V1) and migrate when you want MMS, API-managed webhooks, or multiple tracked links.
