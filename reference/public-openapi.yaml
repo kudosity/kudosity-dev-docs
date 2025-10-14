@@ -327,8 +327,8 @@ paths:
           $ref: '#/components/responses/SuccessResponse'
         '400':
           $ref: '#/components/responses/InputValidationResponse'
-        '404':
-          $ref: '#/components/responses/NotFoundErrorResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
   /v2/whatsapp/messages/{id}:
@@ -384,8 +384,6 @@ paths:
           $ref: '#/components/responses/InputValidationResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedErrorResponse'
-        '404':
-          $ref: '#/components/responses/NotFoundErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
   /v2/rcs/messages/{id}:
@@ -414,58 +412,6 @@ paths:
           $ref: '#/components/responses/GetSuccessResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedErrorResponse'
-        '404':
-          $ref: '#/components/responses/NotFoundErrorResponse'
-        '500':
-          $ref: '#/components/responses/InternalServerErrorResponse'
-  /v2/rcs/stats:
-    get:
-      tags:
-        - RCS
-      summary: Get RCS stats
-      description: >-
-        Retrieves RCS message statistics to provide aggregated RCS message data
-        submitted.
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - name: start_at
-          in: query
-          required: true
-          description: >-
-            Start date for statistics period in ISO 8601
-            (`YYYY-MM-DDTHH:MM:SSZ`). Must end with 'Z' for UTC timezone.
-          schema:
-            type: string
-            format: datetimez
-            example: '2024-01-01T00:00:00Z'
-            title: start_at
-        - name: end_at
-          in: query
-          required: true
-          description: >-
-            End date for statistics period in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
-            Must end with 'Z' for UTC timezone.
-          schema:
-            type: string
-            format: datetimez
-            example: '2024-01-02T00:00:00Z'
-            title: end_at
-        - name: sender
-          in: query
-          required: false
-          description: |
-            Optional registered RCS agent ID.
-
-             - Must be a registered RCS Agent identifier.
-             - Example: `DemoSender`
-          schema:
-            type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/GetRcsStatsSuccessResponse'
-        '400':
-          $ref: '#/components/responses/InputValidationResponse'
         '404':
           $ref: '#/components/responses/NotFoundErrorResponse'
         '500':
@@ -1348,29 +1294,27 @@ components:
                 $ref: '#/components/schemas/InputValidationIssue'
       example:
         type: https://developers.kudosity.com/reference/errors#input-validation
-        title: Invalid Input Parameters
-        detail: The request contained invalid, or malformed parameters.
+        title: Invalid Request
+        detail: Request validation failed
         status: 400
         issues:
-          - field: account_id
-            code: 2200
-            message: The account_id supplied was invalid.
-    NotFoundProblem:
+          - name: field_name
+            message: 'Error at "field_name" property: validation error description'
+    ForbiddenProblem:
       description: >
-        This problem occurs when the requested resource could not be found.
+        HTTP 403 Forbidden - Access to the requested resource is forbidden.
 
 
-        Your client application tried to access a resource that does not exist
-        (or could not be found). Please review how your users initiated such a
-        request.
+        Your client application is authenticated but does not have permission to
+        access this resource.
       type: object
       allOf:
         - $ref: '#/components/schemas/ProblemDetails'
       example:
-        type: https://developers.kudosity.com/reference/errors#not-found
-        title: Not Found
-        detail: The requested resource was not found
-        status: 404
+        type: https://developers.kudosity.com/reference/errors#forbidden
+        title: Forbidden
+        detail: Access to this resource is forbidden
+        status: 403
     InternalServerErrorProblem:
       description: >
         This problem occurs when the server encounters an unexpected condition
@@ -1405,6 +1349,22 @@ components:
           Missing or invalid API key in Authorization header. Verify your API
           key is correct and has the required permissions
         status: 401
+    NotFoundProblem:
+      description: >
+        This problem occurs when the requested resource could not be found.
+
+
+        Your client application tried to access a resource that does not exist
+        (or could not be found). Please review how your users initiated such a
+        request.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/reference/errors#not-found
+        title: Not Found
+        detail: The requested resource was not found
+        status: 404
     RCSText:
       type: object
       description: Text content for the message.
@@ -3097,8 +3057,8 @@ components:
                 properties:
                   error:
                     $ref: '#/components/schemas/InputValidationProblem'
-    NotFoundErrorResponse:
-      description: Not Found
+    ForbiddenErrorResponse:
+      description: Forbidden
       content:
         application/json:
           schema:
@@ -3107,7 +3067,7 @@ components:
               - type: object
                 properties:
                   error:
-                    $ref: '#/components/schemas/NotFoundProblem'
+                    $ref: '#/components/schemas/ForbiddenProblem'
     InternalServerErrorResponse:
       description: Internal Server Error
       content:
@@ -3130,6 +3090,17 @@ components:
                 properties:
                   error:
                     $ref: '#/components/schemas/UnauthorizedProblem'
+    NotFoundErrorResponse:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/NotFoundProblem'
     RCSSuccessResponse:
       description: OK
       content:
@@ -3152,17 +3123,6 @@ components:
                 properties:
                   data:
                     $ref: '#/components/schemas/RcsGetResponse'
-    GetRcsStatsSuccessResponse:
-      description: OK
-      content:
-        application/json:
-          schema:
-            allOf:
-              - $ref: '#/components/schemas/CommonSuccessResponse'
-              - type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/RcsStatsResponse'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
