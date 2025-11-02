@@ -3,3 +3,8 @@
 - post_format-number-json
 - post_get-sms-responses-json
 - get_get-user-sms-responses-json
+- post_send-sms-json-1
+- post_cancel-sms-json-1
+- post_format-number-json-1
+- post_get-sms-responses-json-1
+- get_get-user-sms-responses-json-1
