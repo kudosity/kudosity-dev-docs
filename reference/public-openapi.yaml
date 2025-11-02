@@ -327,15 +327,15 @@ paths:
           $ref: '#/components/responses/SuccessResponse'
         '400':
           $ref: '#/components/responses/InputValidationResponse'
-        '403':
-          $ref: '#/components/responses/ForbiddenErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
   /v2/whatsapp/messages/{id}:
     get:
       tags:
         - WhatsApp
-      summary: Get WhatsApp message
+      summary: Get WhatsApp message.
       description: >
         Retrieves details of a previously sent WhatsApp message by its unique
         identifier.
@@ -1300,21 +1300,21 @@ components:
         issues:
           - name: field_name
             message: 'Error at "field_name" property: validation error description'
-    ForbiddenProblem:
+    TooManyRequestsProblem:
       description: >
-        HTTP 403 Forbidden - Access to the requested resource is forbidden.
+        HTTP 429 Too Many Requests - Rate limit exceeded.
 
 
-        Your client application is authenticated but does not have permission to
-        access this resource.
+        Your client application has sent too many requests in a given amount of
+        time and should retry later.
       type: object
       allOf:
         - $ref: '#/components/schemas/ProblemDetails'
       example:
-        type: https://developers.kudosity.com/reference/errors#forbidden
-        title: Forbidden
-        detail: Access to this resource is forbidden
-        status: 403
+        type: https://developers.kudosity.com/reference/errors#too-many-requests
+        title: Too Many Requests
+        detail: Rate limit exceeded
+        status: 429
     InternalServerErrorProblem:
       description: >
         This problem occurs when the server encounters an unexpected condition
@@ -3057,8 +3057,8 @@ components:
                 properties:
                   error:
                     $ref: '#/components/schemas/InputValidationProblem'
-    ForbiddenErrorResponse:
-      description: Forbidden
+    TooManyRequestsErrorResponse:
+      description: Too Many Requests
       content:
         application/json:
           schema:
@@ -3067,7 +3067,7 @@ components:
               - type: object
                 properties:
                   error:
-                    $ref: '#/components/schemas/ForbiddenProblem'
+                    $ref: '#/components/schemas/TooManyRequestsProblem'
     InternalServerErrorResponse:
       description: Internal Server Error
       content:
