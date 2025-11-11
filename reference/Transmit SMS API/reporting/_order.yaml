@@ -1,1 +1,11 @@
-[]
+- post_get-sms-json
+- post_get-sms-delivery-status-json
+- post_get-sms-sent-count-json
+- post_get-user-sms-sent-json
+- get_get-contact-sms-stats-json
+- post_get-sms-stats-json
+- post_get-sms-sent-json
+- post_get-message-report-json
+- post_get-list-json
+- get_get-lists-json
+- post_get-contact-json
