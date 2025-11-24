@@ -2864,6 +2864,7 @@ paths:
               type: object
               required:
                 - list_id
+                - msisdn
               properties:
                 list_id:
                   type: integer
