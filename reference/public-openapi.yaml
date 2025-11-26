@@ -2339,7 +2339,6 @@ components:
             Filter to apply to webhook events. The filters are applied
             differently based on the event type:
 
-
             - For status events (`SMS_STATUS`, `MMS_STATUS`, etc.): `sender`,
             `status`,
               `message_ref`, and `campaign_id` filters are applied to the **status** payload.
@@ -2350,8 +2349,9 @@ components:
             applied to
               the `source_message` in the opt-out payload.
             - For inbound events (`SMS_INBOUND`, `MMS_INBOUND`, etc.): `sender`
-            and
-              `message_ref` filters are applied to the `last_message` in the inbound payload.
+            filter is
+              applied to the `recipient` field (the sender address that received the inbound message),
+              while `message_ref` and `campaign_id` filters are applied to `last_message` if available.
 
             Within each filter array (e.g., sender, status, message_ref), the
             conditions are combined using an OR logic. For example, if multiple
@@ -2371,7 +2371,11 @@ components:
                 - SMS_INBOUND
             sender:
               type: array
-              description: Filter by sender
+              description: >-
+                Filter by sender. For outbound events (status, link-hit,
+                opt-out), this filters by the sender of the outbound message.
+                For inbound events, this filters by the recipient of the inbound
+                message (the sender address that received it).
               items:
                 type: string
               example:
