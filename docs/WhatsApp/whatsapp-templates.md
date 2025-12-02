@@ -1,9 +1,5 @@
 ---
 title: WhatsApp Templates
-excerpt: >-
-  Complete guide to WhatsApp templates including content types (text, template,
-  custom) and message categories (Marketing, Utility, Authentication, Service)
-  for Kudosity WhatsApp API.
 deprecated: false
 hidden: true
 metadata:
@@ -16,9 +12,7 @@ metadata:
 next:
   description: ''
 ---
-## Introduction
-
-WhatsApp templates are pre-approved message formats that enable businesses to send structured, compliant messages through the WhatsApp Business API. This document provides an overview of how Kudosity's WhatsApp templates work and how to create them.
+WhatsApp templates are pre-approved message formats that enable businesses to send structured, compliant messages through the WhatsApp Business API. This document provides an overview of how Kudosity's WhatsApp templates work.
 
 ***
 
@@ -685,89 +679,6 @@ I understand your concern. Let me look into this for you right away.
 
 ***
 
-## Category Classification Rules
-
-### Mixed Content Classification
-
-If a template contains elements from multiple categories:
-
-**Rule**: **Utility + Marketing = Marketing Template**
-
-Example of mixed content:
-
-```
-Your order #12345 has shipped! 🎉
-
-Track your package here: [link]
-
-While you wait, check out our new arrivals and get 20% off! [promotional link]
-```
-
-☝️ This would be classified as **Marketing** (and charged accordingly) because it contains promotional content.
-
-**Pure Utility Example**:
-
-```
-Your order #12345 has shipped!
-
-Estimated delivery: January 15, 2025
-
-Track your package: [tracking link]
-```
-
-☝️ This is **Utility** - purely transactional, no promotional content.
-
-***
-
-## Choosing the Right Content Type
-
-### Use **Text** (Free-Form) when:
-
-* ✅ Responding to customer inquiries within 24 hours
-* ✅ Having real-time customer service conversations
-* ✅ Providing personalized support responses
-* ✅ No template approval time available
-* ✅ User has initiated the conversation
-
-### Use **Template - Marketing** when:
-
-* ✅ Sending promotional offers or announcements
-* ✅ Product launches and campaigns
-* ✅ Re-engaging inactive customers
-* ✅ Sending newsletters or updates
-* ✅ Abandoned cart reminders
-* ⚠️ User has opted in to marketing messages
-
-### Use **Template - Utility** when:
-
-* ✅ Sending order confirmations or updates
-* ✅ Appointment reminders
-* ✅ Delivery notifications
-* ✅ Payment reminders or receipts
-* ✅ Account alerts or status changes
-* ✅ Initiating conversations outside 24-hour window
-* ✅ Need consistent, approved messaging for transactions
-
-### Use **Template - Authentication** when:
-
-* ✅ Sending OTP codes
-* ✅ Account verification
-* ✅ Password reset codes
-* ✅ Two-factor authentication
-* ✅ Security verification
-* ✅ Need fastest approval and lowest cost
-
-### Use **Custom** (Rich Media Templates) when:
-
-* ✅ Showcasing products with images/videos
-* ✅ Creating multi-product carousels
-* ✅ Marketing campaigns with rich media
-* ✅ Interactive promotional content
-* ✅ Complex button configurations needed
-* ✅ Dynamic media URLs required
-
-***
-
 ## Template Structure
 
 ### Required Fields
@@ -793,65 +704,6 @@ Templates can include:
 3. **Footer**: Optional footer text
 4. **Buttons**: Call-to-action, quick reply, or URL buttons
 5. **Carousel**: Multiple cards with media and buttons
-
-***
-
-## Creating Templates in WhatsApp Manager
-
-### Step 1: Access WhatsApp Manager
-
-1. Log in to [Meta Business Suite](https://business.facebook.com/)
-2. Navigate to WhatsApp Manager
-3. Select your WhatsApp Business Account
-
-### Step 2: Create New Template
-
-1. Click "Message Templates" in the left sidebar
-2. Click "Create Template"
-3. Choose template category:
-   * **Marketing**: Promotional content
-   * **Utility**: Account updates, order updates
-   * **Authentication**: OTP and verification codes
-
-### Step 3: Design Template
-
-1. **Name**: Use lowercase, underscores only (e.g., `order_confirmation_v2`)
-2. **Language**: Select primary language
-3. **Header** (optional): Add text, media, or leave blank
-4. **Body**: Write message with placeholders `{{1}}`, `{{2}}`, etc.
-5. **Footer** (optional): Add footer text
-6. **Buttons** (optional): Add call-to-action or quick reply buttons
-
-### Step 4: Add Sample Content
-
-Provide sample values for all dynamic parameters to help with approval.
-
-### Step 5: Submit for Approval
-
-Templates typically get approved within 24-48 hours.
-
-***
-
-## Template Approval Process
-
-### Approval Timeline
-
-* **Standard**: 24-48 hours
-* **Expedited**: Contact Meta support for urgent cases
-
-### Common Rejection Reasons
-
-1. **Misleading content**: False claims or deceptive information
-2. **Poor quality**: Spelling errors, formatting issues
-3. **Policy violations**: Prohibited content categories
-4. **Missing opt-out**: Marketing messages must include opt-out language
-
-### Tips for Approval
-
-* Use clear, professional language
-* Include opt-out instructions for marketing messages
-* Provide accurate sample content
-* Follow WhatsApp's commerce and business policies
 
 ***
 
@@ -924,52 +776,3 @@ curl --location 'https://api.transmitmessage.com/v2/whatsapp/messages' \
   }
 }'
 ```
-
-***
-
-## Best Practices
-
-### Template Design
-
-1. **Keep it concise**: WhatsApp users prefer brief messages
-2. **Use clear CTAs**: Make action buttons obvious
-3. **Personalize**: Use dynamic parameters for names and details
-4. **Test thoroughly**: Send test messages before production use
-
-### Parameter Usage
-
-1. **Limit parameters**: Use only necessary dynamic fields
-2. **Validate data**: Ensure parameter values are properly formatted
-3. **Handle missing data**: Have fallback values for optional parameters
-
-### Compliance
-
-1. **Opt-in required**: Only message users who have opted in
-2. **24-hour window**: Respond to user messages within 24 hours
-3. **Template categories**: Use correct category (Marketing/Utility/Authentication)
-4. **Opt-out mechanism**: Include clear opt-out instructions
-
-### Performance
-
-1. **Monitor delivery rates**: Track successful deliveries
-2. **Handle failures**: Implement retry logic and SMS fallback
-3. **Rate limiting**: Respect API rate limits
-4. **Message timing**: Send during appropriate hours for recipient timezone
-
-***
-
-## Next Steps
-
-* [Creating Beautiful Messaging with WhatsApp Templates](./creating-whatsapp-carousel-templates.md) - Learn how to create rich media carousel templates
-* [Kudosity WhatsApp API Reference](https://developers.kudosity.com/reference/post_v2-whatsapp-messages) - Complete API documentation
-* [WhatsApp Business Policy](https://www.whatsapp.com/legal/business-policy) - Official WhatsApp policies
-
-***
-
-## Support
-
-For questions or issues:
-
-* **Documentation**: [https://developers.kudosity.com](https://developers.kudosity.com)
-* **Support**: Contact your Kudosity account manager
-* **API Status**: Check system status for any ongoing issues
