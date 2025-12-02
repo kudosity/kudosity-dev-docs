@@ -1,5 +1,5 @@
 ---
-title: WhatsApp Templates
+title: WhatsApp Message Types
 deprecated: false
 hidden: true
 metadata:
@@ -12,6 +12,8 @@ metadata:
 next:
   description: ''
 ---
+Kudosity's WhatsApp service supports three primary types of business messages: text, templates, and custom.
+
 WhatsApp templates are pre-approved message formats that enable businesses to send structured, compliant messages through the WhatsApp Business API. This document provides an overview of how Kudosity's WhatsApp templates work.
 
 ***
