@@ -133,7 +133,7 @@ These templates:
 
 # 3. Authentication Templates
 
-**Technical format:** `content_type: "template"`
+**Technical format:** `content_type: "custom"`
 
 Authentication templates are used strictly for OTP codes and follow Meta's mandated structure.
 
@@ -146,6 +146,8 @@ Authentication templates are used strictly for OTP codes and follow Meta's manda
 * Must include the OTP placeholder as `{{1}}`
 
 ## Example (Authentication Template)
+
+<Image align="center" border={false} src="https://files.readme.io/357dad5fa102c3fb9a0b93acd6f9e5a98dbb248690ca182eb3d57493f26df060-Screenshot_2025-12-03_at_4.44.25_pm.png" />
 
 ```json
 {
