@@ -53,45 +53,183 @@ Marketing templates may include:
 * Buttons (quick reply or URL)
 * Carousels (multiple cards)
 
-## Example (Simple Marketing Template)
+## Example (Advanced Marketing Template)
 
-<br />
+<Image align="center" border={false} src="https://files.readme.io/b066be729c14fbad10c8e246b15bb3dfd9bad1523b4c7d25fe0c5ebcd689a9ba-Screenshot_2025-12-03_at_5.08.13_pm.png" />
 
 ```json
 {
-  "sender": "1234567890",
-  "recipient": "+12345550123",
-  "content_type": "custom",
-  "content": {
-    "custom": {
-      "type": "template",
-      "template": {
-        "name": "promo_announcement_v1",
-        "language": {
-          "code": "en_US",
-          "policy": "deterministic"
-        },
-        "components": [
-          {
-            "type": "HEADER",
-            "parameters": [
-              {
-                "type": "image",
-                "image": { "link": "https://example.com/promo.jpg" }
-              }
-            ]
-          },
-          {
-            "type": "BODY",
-            "parameters": [
-              { "type": "text", "text": "Hi {{1}}, we have a new offer for you." }
-            ]
-          }
-        ]
-      }
-    }
-  },
-  "message_ref": "marketing-001"
+    "sender": "1111111",
+    "recipient": "+2222222",
+    "content_type": "custom",
+    "content": {
+        "custom": {
+            "type": "template",
+            "template": {
+                "name": "kudosity_whatsapp_partnership_carousel",
+                "language": {
+                    "code": "en_US",
+                    "policy": "deterministic"
+                },
+                "components": [
+                    {
+                        "type": "body",
+                        "parameters": []
+                    },
+                    {
+                        "type": "carousel",
+                        "cards": [
+                            {
+                                "card_index": "0",
+                                "components": [
+                                    {
+                                        "type": "header",
+                                        "parameters": [
+                                            {
+                                                "type": "video",
+                                                "video": {
+                                                    "link": "https://storage.googleapis.com/waba-images/CAROUSEL_1.mp4"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "body",
+                                        "parameters": []
+                                    },
+                                    {
+                                        "type": "button",
+                                        "index": "0",
+                                        "sub_type": "quick_reply"
+                                    },
+                                    {
+                                        "type": "button",
+                                        "index": "1",
+                                        "sub_type": "URL",
+                                        "parameters": [
+                                            {
+                                                "type": "text",
+                                                "text": "https://kudosity.com/products/messaging/whatsapp"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "card_index": "1",
+                                "components": [
+                                    {
+                                        "type": "header",
+                                        "parameters": [
+                                            {
+                                                "type": "video",
+                                                "video": {
+                                                    "link": "https://storage.googleapis.com/waba-images/CAROUSEL_2.mp4"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "body",
+                                        "parameters": []
+                                    },
+                                    {
+                                        "type": "button",
+                                        "index": "0",
+                                        "sub_type": "quick_reply"
+                                    },
+                                    {
+                                        "type": "button",
+                                        "index": "1",
+                                        "sub_type": "URL",
+                                        "parameters": [
+                                            {
+                                                "type": "text",
+                                                "text": "https://kudosity.com/products/messaging/whatsapp"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "card_index": "2",
+                                "components": [
+                                    {
+                                        "type": "header",
+                                        "parameters": [
+                                            {
+                                                "type": "video",
+                                                "video": {
+                                                    "link": "https://storage.googleapis.com/waba-images/CAROUSEL_3.mp4"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "body",
+                                        "parameters": []
+                                    },
+                                    {
+                                        "type": "button",
+                                        "index": "0",
+                                        "sub_type": "quick_reply"
+                                    },
+                                    {
+                                        "type": "button",
+                                        "index": "1",
+                                        "sub_type": "URL",
+                                        "parameters": [
+                                            {
+                                                "type": "text",
+                                                "text": "https://kudosity.com/products/messaging/whatsapp"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "card_index": "3",
+                                "components": [
+                                    {
+                                        "type": "header",
+                                        "parameters": [
+                                            {
+                                                "type": "video",
+                                                "video": {
+                                                    "link": "https://storage.googleapis.com/waba-images/CAROUSEL_4.mp4"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "body",
+                                        "parameters": []
+                                    },
+                                    {
+                                        "type": "button",
+                                        "index": "0",
+                                        "sub_type": "quick_reply"
+                                    },
+                                    {
+                                        "type": "button",
+                                        "index": "1",
+                                        "sub_type": "URL",
+                                        "parameters": [
+                                            {
+                                                "type": "text",
+                                                "text": "https://kudosity.com/products/messaging/whatsapp"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "message_ref": "ref--kudosity-carousel-message-lab"
 }
 ```
 
