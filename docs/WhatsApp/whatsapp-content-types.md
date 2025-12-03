@@ -182,8 +182,8 @@ All messages—regardless of content type—must include the following fields:
 | `recipient`    | The user's WhatsApp number (E.164)               |
 | `content_type` | One of: `text`, `template`, `custom`             |
 | `content`      | Message content object for the selected type     |
-| `message_ref`  | Unique reference ID for tracking (max 500 chars) |
 
 ### Optional Fields
 
 * `sms_fallback`: SMS text to send if WhatsApp delivery fails
+* `message_ref`: Unique reference ID for tracking (max 500 chars)
