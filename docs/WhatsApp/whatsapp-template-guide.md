@@ -16,10 +16,12 @@ A WhatsApp template can include several structured components:
 * Buttons – optional; can be quick replies or URL buttons
 * Carousel Cards (Marketing only) – optional; interactive rich-media cards
 
-Visual Breakdown of a WhatsApp Template
+### Visual Breakdown of a WhatsApp Template
 
 This visual shows the standard layout of a WhatsApp template message as it appears to the end user.
 It helps developers understand where template components render and how they map to template structure.
+
+<Image align="center" border={false} src="https://files.readme.io/4c99feda64de95cd8139f48888e26be648454ae4cf948be4165c9b7e5c06f887-Screenshot_2025-12-03_at_4.18.19_pm.png" />
 
 ***
 
