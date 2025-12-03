@@ -5,7 +5,21 @@ hidden: true
 metadata:
   robots: index
 ---
-This guide explains how WhatsApp business message templates work within Kudosity’s WhatsApp API.
+WhatsApp templates are pre-approved, structured message formats used for outbound or business-initiated communication.
+Templates allow businesses to send notifications, authentication codes, marketing messages, and transactional updates outside the 24-hour customer-service window.
+
+A WhatsApp template can include several structured components:
+
+* Header – optional; may contain text or rich media (image, video, or document)
+* Body – required; contains the main message text and dynamic placeholders
+* Footer – optional; short supporting text
+* Buttons – optional; can be quick replies or URL buttons
+* Carousel Cards (Marketing only) – optional; interactive rich-media cards
+
+Visual Breakdown of a WhatsApp Template
+
+This visual shows the standard layout of a WhatsApp template message as it appears to the end user.
+It helps developers understand where template components render and how they map to template structure.
 
 ***
 
