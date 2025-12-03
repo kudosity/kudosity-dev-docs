@@ -220,23 +220,6 @@ They are free‑form and allowed only within the 24‑hour window.
 
 ***
 
-# Template Component Overview
-
-### Utility Templates (`template`)
-
-* Body text only
-* Supports positional variables: `{{1}}`, `{{2}}`, etc.
-
-### Marketing Templates (`custom`)
-
-* `HEADER` components
-* `BODY` components
-* `FOOTER` (optional)
-* `BUTTONS` (quick reply, URL)
-* `CAROUSEL` (multiple cards)
-
-***
-
 # Sending Templates: Required Fields
 
 All template sends require:
