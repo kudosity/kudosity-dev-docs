@@ -30,7 +30,7 @@ The available content types are:
 
 ***
 
-# 1. `content_type: "text"`
+# `content_type: "text"`
 
 Free-form text messages used for real-time support and customer service conversations.  
 These can only be sent **within 24 hours** of the user's last message.
@@ -67,7 +67,7 @@ These can only be sent **within 24 hours** of the user's last message.
 
 ***
 
-# 2. `content_type: "template"`
+# `content_type: "template"`
 
 Template messages use **pre-approved** WhatsApp templates.  
 Templates allow structured text with dynamic placeholders such as `{{1}}` and `{{2}}`.
@@ -109,7 +109,7 @@ Template messages **can initiate conversations** and are not restricted by the 2
 
 ***
 
-# 3. `content_type: "custom"`
+# `content_type: "custom"`
 
 Custom messages support **rich media**, **buttons**, and **interactive components**, following Meta's Cloud API component schema.  
 Use this type when sending advanced templates such as product showcases, carousels, or media-driven promotions.
