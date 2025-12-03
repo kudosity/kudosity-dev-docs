@@ -5,7 +5,7 @@ hidden: true
 metadata:
   robots: index
 ---
-This guide explains how WhatsApp business message templates work within Kudosity’s WhatsApp API.  
+This guide explains how WhatsApp business message templates work within Kudosity’s WhatsApp API.
 
 ***
 
@@ -201,22 +201,4 @@ All template sends require:
 | `content`      | Template content block          |
 | `message_ref`  | Developer‑assigned reference ID |
 
-***
-
-# Summary
-
-| Category           | Format     | Allows Media | Can Initiate Conversations | Notes                                 |
-| ------------------ | ---------- | ------------ | -------------------------- | ------------------------------------- |
-| **Marketing**      | `custom`   | Yes          | Yes                        | Uses component‑based custom templates |
-| **Utility**        | `template` | No           | Yes                        | Text‑only templates                   |
-| **Authentication** | `template` | No           | Yes                        | Strict OTP rules                      |
-| **Service**        | `text`     | Yes          | No                         | Only inside 24‑hour service window    |
-
-***
-
-This version includes **only essential details**, aligns with your product rules:
-
-* Utility → `template`
-* Marketing → `custom`
-* Fewer use cases
-* No unnecessary explanations
+<br />
