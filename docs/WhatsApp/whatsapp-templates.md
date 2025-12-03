@@ -24,6 +24,8 @@ Kudosity's WhatsApp service supports three primary types of message `content_typ
 
 Kudosity's WhatsApp API supports three distinct content types for sending messages. Each content type serves different messaging needs and has specific use cases and requirements.
 
+-> NOTE HERE SHOWING THE TYPES
+
 ### 1. Text type
 
 `content_type: "text"`
@@ -36,7 +38,6 @@ Kudosity's WhatsApp API supports three distinct content types for sending messag
 * ✅ Free-form message content
 * ✅ Can only be sent within 24 hours of last user message
 * ❌ Cannot initiate conversations
-* ❌ Not suitable for proactive messaging
 
 **When to Use:**
 
