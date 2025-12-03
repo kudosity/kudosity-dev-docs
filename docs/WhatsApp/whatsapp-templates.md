@@ -1,5 +1,5 @@
 ---
-title: WhatsApp Message Types
+title: WhatsApp Content Types
 deprecated: false
 hidden: true
 metadata:
@@ -15,17 +15,8 @@ next:
 Kudosity's WhatsApp service supports three primary types of message `content_type`s for business messages:
 
 * **text** - Are free-form messages, sent within the 24-hour customer service window. These are conversational messages, or back and forth replies to an original business message.
-* **templates** - These are the cornerstones of WhatsApp business communications. Templates allow you to send structured business messages to customers. They need to be pre-approved by Meta, which takes seconds, and adhere to Meta message requirements. There's 4 types of templates, as seen in the image below.
-* **custom** - Custom content types support rich media, carosels, images, interactive buttons, and [WhatsApp Flows](https://developers.facebook.com/docs/whatsapp/flows/).
-
-WhatsApp Templates
-
-|    |    |
-| :- | :- |
-|    |    |
-|    |    |
-
-<br />
+* **templates** - These are the cornerstones of WhatsApp business communications. Templates allow you to send structured business messages to customers. They need to be pre-approved by Meta, which takes seconds, and adhere to Meta message requirements. There's 4 types of templates, see [WhatsApp Message Types](https://developers.kudosity.com/docs/introduction-to-whatsapp#/whatsapp-message-types).
+* **custom** - Custom content types support rich media, carousels, images, interactive buttons, and [WhatsApp Flows](https://developers.facebook.com/docs/whatsapp/flows/).
 
 ***
 
