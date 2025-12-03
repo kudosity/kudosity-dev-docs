@@ -24,7 +24,7 @@ Kudosity's WhatsApp service supports three primary types of message `content_typ
 
 Kudosity's WhatsApp API supports three distinct content types for sending messages. Each content type serves different messaging needs and has specific use cases and requirements.
 
-### 1. Text
+### 1. Text type
 
 `content_type: "text"`
 
@@ -85,7 +85,9 @@ Kudosity's WhatsApp API supports three distinct content types for sending messag
 
 ***
 
-### 2. Template (`content_type: "template"`)
+### 2. Template type
+
+`content_type: "template"`
 
 **Text-based templates with dynamic parameters** that must be pre-approved by WhatsApp. These templates allow you to send structured messages with variable content (like names, order numbers, dates) outside the 24-hour window.
 
@@ -188,7 +190,9 @@ You can manage your order below.
 
 ***
 
-### 3. Custom (`content_type: "custom"`)
+### 3. Custom type
+
+`content_type: "custom"`
 
 **Advanced templates with rich media and interactive components** following Meta's Cloud API format. This content type is used for templates that include images, videos, documents, carousels, or complex button configurations.
 
