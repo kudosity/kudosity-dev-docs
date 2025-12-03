@@ -691,6 +691,8 @@ I understand your concern. Let me look into this for you right away.
 
 ## Template Structure
 
+<Image align="center" border={false} src="https://files.readme.io/5f664a00f49a8c883033d91015b1601d5e9499be94b5468c9bda6705b2a4d83e-whatsapp-message-template.png" />
+
 ### Required Fields
 
 All WhatsApp template messages require:
