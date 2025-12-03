@@ -16,18 +16,6 @@ A WhatsApp template can include several structured components:
 * Buttons – optional; can be quick replies or URL buttons
 * Carousel Cards (Marketing only) – optional; interactive rich-media cards
 
-### Sending Templates: Required Fields
-
-All template sends require:
-
-| Field          | Description                     |
-| -------------- | ------------------------------- |
-| `sender`       | WhatsApp Business Number        |
-| `recipient`    | Customer WhatsApp Number        |
-| `content_type` | `template` or `custom`          |
-| `content`      | Template content block          |
-| `message_ref`  | Developer‑assigned reference ID |
-
 ### Visual Breakdown of a WhatsApp Template
 
 This visual shows the standard layout of a WhatsApp template message as it appears to the end user.
