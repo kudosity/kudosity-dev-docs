@@ -36,7 +36,7 @@ It helps developers understand where template components render and how they map
 
 ***
 
-# 1. Marketing Templates
+# Marketing Templates
 
 **Technical format:** `content_type: "custom"`
 
@@ -55,7 +55,7 @@ Marketing templates may include:
 
 ## Example (Advanced Marketing Template)
 
-<Callout icon="❗️">
+<Callout icon="❗️" theme="error">
   Carousels are advanced Meta functionality that requires you to upload the images to Meta and register the template through the API. How to do this will be covered in another section.
 </Callout>
 
@@ -239,7 +239,7 @@ Marketing templates may include:
 
 ***
 
-# 2. Utility Templates
+# Utility Templates
 
 **Technical format:** `content_type: "template"`
 
@@ -274,7 +274,7 @@ These templates:
 
 ***
 
-# 3. Authentication Templates
+# Authentication Templates
 
 **Technical format:** `content_type: "custom"`
 
@@ -337,7 +337,7 @@ Authentication templates are used strictly for OTP codes and follow Meta's manda
 
 ***
 
-# 4. Service Messages (Not Templates)
+# Service Messages (Not Templates)
 
 **Technical format:** `content_type: "text"`
 
