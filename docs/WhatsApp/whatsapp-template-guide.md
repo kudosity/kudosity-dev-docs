@@ -55,55 +55,7 @@ Marketing templates may include:
 
 ## Example (Simple Marketing Template)
 
-<Columns layout="auto">
-  <Column>
-    ```json
-{
-  "sender": "1234567890",
-  "recipient": "+12345550123",
-  "content_type": "custom",
-  "content": {
-    "custom": {
-      "type": "template",
-      "template": {
-        "name": "promo_announcement_v1",
-        "language": {
-          "code": "en_US",
-          "policy": "deterministic"
-        },
-        "components": [
-          {
-            "type": "HEADER",
-            "parameters": [
-              {
-                "type": "image",
-                "image": { "link": "https://example.com/promo.jpg" }
-              }
-            ]
-          },
-          {
-            "type": "BODY",
-            "parameters": [
-              { "type": "text", "text": "Hi {{1}}, we have a new offer for you." }
-            ]
-          }
-        ]
-      }
-    }
-  },
-  "message_ref": "marketing-001"
-}
-```
-  </Column>
-
-  <Column>
-    *Lorem ipsum dolor sit amet, consectetur adipiscing elit*
-  </Column>
-  
-  <Column>
-    > Ut enim ad minim veniam, quis nostrud ullamco
-  </Column>
-</Columns>
+<br />
 
 ```json
 {
