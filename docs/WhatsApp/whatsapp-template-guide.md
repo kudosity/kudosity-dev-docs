@@ -113,19 +113,20 @@ These templates:
 
 ## Example (Utility Template)
 
+<Image align="center" border={false} src="https://files.readme.io/33b09acae5f0e8838dc28fa960d49ef430068c35d8604fa3b8c0d525b8c5d424-Screenshot_2025-12-03_at_4.50.39_pm.png" />
+
 ```json
 {
-  "sender": "1234567890",
-  "recipient": "+12345550123",
-  "content_type": "template",
-  "content": {
-    "template": {
-      "name": "order_update_v2",
-      "parameters": ["John", "ORD-12345", "Delivered"],
-      "locale": "en_US"
-    }
-  },
-  "message_ref": "utility-001"
+    "sender": "1111111",
+    "recipient": "+222222222",
+    "content_type": "template",
+    "content": {
+        "template": {
+            "name": "appointment_reminder_sample",
+            "locale": "en"
+        }
+    },
+    "message_ref": "ref-appointment-reminder-sample-message-lab"
 }
 ```
 
