@@ -149,17 +149,44 @@ Authentication templates are used strictly for OTP codes and follow Meta's manda
 
 ```json
 {
-  "sender": "1234567890",
-  "recipient": "+12345550123",
-  "content_type": "template",
-  "content": {
-    "template": {
-      "name": "otp_code_v1",
-      "parameters": ["123456"],
-      "locale": "en_US"
-    }
-  },
-  "message_ref": "auth-otp-001"
+    "sender": "1111111111",
+    "recipient": "+2222222222",
+    "content_type": "custom",
+    "content": {
+        "custom": {
+            "type": "template",
+            "template": {
+                "name": "otp_verification_message_sample",
+                "language": {
+                    "code": "en",
+                    "policy": "deterministic"
+                },
+                "components": [
+                    {
+                        "type": "body",
+                        "parameters": [
+                            {
+                                "type": "text",
+                                "text": "1234"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "button",
+                        "sub_type": "url",
+                        "index": "0",
+                        "parameters": [
+                            {
+                                "type": "text",
+                                "text": "1234"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "message_ref": "ref-otp-working-solution"
 }
 ```
 
