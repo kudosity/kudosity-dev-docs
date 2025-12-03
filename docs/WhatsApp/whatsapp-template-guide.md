@@ -55,6 +55,10 @@ Marketing templates may include:
 
 ## Example (Advanced Marketing Template)
 
+<Callout icon="❗️">
+  Carousels are advanced Meta functionality that requires you to upload the images to Meta and register the template through the API. How to do this will be covered in another section.
+</Callout>
+
 <Image align="center" border={false} src="https://files.readme.io/b066be729c14fbad10c8e246b15bb3dfd9bad1523b4c7d25fe0c5ebcd689a9ba-Screenshot_2025-12-03_at_5.08.13_pm.png" />
 
 ```json
