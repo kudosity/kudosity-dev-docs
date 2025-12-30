@@ -10,19 +10,21 @@ metadata:
 next:
   description: ''
 ---
-Kudosity’s Webhooks API enables you to subscribe to key messaging events in real time. To receive events, you must configure a publicly accessible HTTPS endpoint that can accept POST requests. Each event includes an event\_type field to indicate the kind of event and also include a status object with more detailed delivery information.
+Kudosity’s Webhooks API enables you to subscribe to key messaging events in real time. To receive events, you must configure a publicly accessible HTTPS endpoint that can accept POST requests. Each event includes an event_type field to indicate the kind of event and also include a status object with more detailed delivery information.
 
 ## Supported `event_type` Values
 
-| Event Type    | Description                                                                 |
-| ------------- | --------------------------------------------------------------------------- |
-| `LINK_HIT`    | Triggered when a tracked link in a message is clicked                       |
-| `OPT_OUT`     | Triggered when a recipient opts out via link or STOP reply                  |
-| `MMS_INBOUND` | Triggered when an inbound MMS is received                                   |
-| `MMS_STATUS`  | Delivery status updates for MMS messages                                    |
-| `SMS_INBOUND` | Triggered when an inbound SMS is received                                   |
-| `SMS_STATUS`  | Delivery status updates for SMS messages                                    |
-| `RCS_STATUS`  | Delivery status updates for RCS messages (includes extra RCS-specific info) |
+| Event Type         | Description                                                                              |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| `LINK_HIT`         | Triggered when a tracked link in a message is clicked                                    |
+| `OPT_OUT`          | Triggered when a recipient opts out via link or STOP reply                               |
+| `MMS_INBOUND`      | Triggered when an inbound MMS is received                                                |
+| `MMS_STATUS`       | Delivery status updates for MMS messages                                                 |
+| `SMS_INBOUND`      | Triggered when an inbound SMS is received                                                |
+| `SMS_STATUS`       | Delivery status updates for SMS messages                                                 |
+| `RCS_STATUS`       | Delivery status updates for RCS messages (includes extra RCS-specific info)              |
+| `WHATSAPP_STATUS`  | Delivery status updates for WhatsApp messages (submitted, delivered, read, failed, etc.) |
+| `WHATSAPP_INBOUND` | Triggered when an inbound WhatsApp message is received (supports rich content)           |
 
 ### ⚠️ Important: `event_type` Field Deprecation
 
@@ -52,7 +54,7 @@ The `event_type` field is **deprecated** and will be removed in a future version
 
 ## Status Events
 
-For all status-related events (MMS\_STATUS, SMS\_STATUS, RCS\_STATUS), the payload includes a status object that contains metadata about the message and its delivery state.
+For all status-related events (MMS_STATUS, SMS_STATUS, RCS_STATUS), the payload includes a status object that contains metadata about the message and its delivery state.
 
 ### Common Status Values
 
@@ -69,7 +71,7 @@ These values apply to both SMS and MMS messages:
 
 ### RCS Status Events
 
-The RCS\_STATUS event is triggered when the status of an RCS message changes. These updates are sent as a webhook with a status object that includes delivery metadata and a status field indicating the message’s current state.
+The RCS_STATUS event is triggered when the status of an RCS message changes. These updates are sent as a webhook with a status object that includes delivery metadata and a status field indicating the message’s current state.
 
 **Supported RCS Status Values**
 
@@ -79,6 +81,19 @@ The RCS\_STATUS event is triggered when the status of an RCS message changes. Th
 | `DELIVERED` | The message has been delivered to the recipient’s device.                 |
 | `FAILED`    | Delivery failed due to a carrier or handset error.                        |
 | `READ`      | The message was read by the recipient (when supported by device/carrier). |
+
+### WhatsApp Status Events
+
+The `WHATSAPP_STATUS` event is triggered when the status of a WhatsApp message changes.
+
+Supported WhatsApp Status Values:
+
+* `SUBMITTED` - Message submitted to provider
+* `DELIVERED` - Delivered to recipient
+* `READ` - Message read by recipient
+* `REJECTED` - Message rejected
+* `UNDELIVERABLE` - Message undeliverable
+* `FAILED` - Failed delivery
 
 ## Enhanced Filtering Capabilities
 
@@ -130,7 +145,7 @@ Filter by sender, status, message reference, and campaign:
 
 ## Link Hit
 
-The LINK\_HIT event is triggered any time a recipient visits a link that is tracked. Track Links is an optional flag on the send message API calls. Along with the URL that was being tracked is a hits field indicating how many visits this tracked link has in total and a source\_message which contains the track link sent to the recipient.
+The LINK_HIT event is triggered any time a recipient visits a link that is tracked. Track Links is an optional flag on the send message API calls. Along with the URL that was being tracked is a hits field indicating how many visits this tracked link has in total and a source_message which contains the track link sent to the recipient.
 
 Example Payloads
 
@@ -186,9 +201,9 @@ Example Payloads
 
 ## Opt Out
 
-The OPT\_OUT event is triggered when a recipient has visited an opt-out link in a message they have received or by sending a message with the text "STOP".
+The OPT_OUT event is triggered when a recipient has visited an opt-out link in a message they have received or by sending a message with the text "STOP".
 
-Using parameter \[opt-out-link] in message body, inserts the opt-out link.
+Using parameter [opt-out-link] in message body, inserts the opt-out link.
 
 The source field will be set according to the method a recipient has used to opt-out and contain a value of either link or SMS.
 
@@ -236,7 +251,7 @@ Example Payloads
 
 ## MMS Inbound
 
-The MMS\_INBOUND event is posted to you on receipt of an MMS sent from a recipient to one of the senders listed on your account. For convenience we will try and find a message that you have sent to this recipient from that sender in the past `72 hours` and supply it as the last\_message field. This is useful for determining if an inbound message is potentially a reply.
+The MMS_INBOUND event is posted to you on receipt of an MMS sent from a recipient to one of the senders listed on your account. For convenience we will try and find a message that you have sent to this recipient from that sender in the past `72 hours` and supply it as the last_message field. This is useful for determining if an inbound message is potentially a reply.
 
 ```json JSON
 {
@@ -270,7 +285,7 @@ The MMS\_INBOUND event is posted to you on receipt of an MMS sent from a recipie
 
 ## MMS Status
 
-The MMS\_STATUS event data is posted to you for changes to an MMS message status. These are currently only comprised of internal statuses (SENT, FAILED).
+The MMS_STATUS event data is posted to you for changes to an MMS message status. These are currently only comprised of internal statuses (SENT, FAILED).
 
 ```json JSON
 {
@@ -291,7 +306,7 @@ The MMS\_STATUS event data is posted to you for changes to an MMS message status
 
 ## SMS Inbound
 
-The SMS\_INBOUND event is posted to you on receipt of an SMS sent from a recipient to one of the senders listed on your account. For convenience we will try and find a message that you have sent to this recipient from that sender and supply it as the last\_message field. This is useful for determining if an inbound message is potentially a reply. The routed\_via field will display when a shared local number has been used to deliver your message.
+The SMS_INBOUND event is posted to you on receipt of an SMS sent from a recipient to one of the senders listed on your account. For convenience we will try and find a message that you have sent to this recipient from that sender and supply it as the last_message field. This is useful for determining if an inbound message is potentially a reply. The routed_via field will display when a shared local number has been used to deliver your message.
 
 ```json JSON
 {
@@ -322,9 +337,9 @@ The SMS\_INBOUND event is posted to you on receipt of an SMS sent from a recipie
 
 ## SMS Status
 
-The SMS\_STATUS event data is posted to you for changes to a SMS message status. Multiple status events can be triggered for a single message. The routed\_via field will display when a shared local number has been used to deliver your message.
+The SMS_STATUS event data is posted to you for changes to a SMS message status. Multiple status events can be triggered for a single message. The routed_via field will display when a shared local number has been used to deliver your message.
 
-**SMS\_Status: SENT**
+**SMS_Status: SENT**
 
 ```json JSON
 {
@@ -344,7 +359,7 @@ The SMS\_STATUS event data is posted to you for changes to a SMS message status.
 }
 ```
 
-**SMS\_Status: DELIVERED**
+**SMS_Status: DELIVERED**
 
 ```json JSON
 {
@@ -384,3 +399,71 @@ Example Payloads
   }
 }
 ```
+
+## WhatsApp Status
+
+Example Payloads
+
+### WhatsApp Read Event 
+
+```json
+{
+  "event_type": "WHATSAPP_STATUS",
+  "status": {
+    "id": "9a372bac-8c39-4ce3-bde1-f8f7562c6933",
+    "message_ref": "payment-reminder-ref-002",
+    "recipient": "61411111111",
+    "sender": "61411111111",
+    "status": "READ",
+    "type": "WHATSAPP"
+  },
+  "timestamp": "2025-12-16T08:01:02Z",
+  "webhook_id": "d68f7766-ed51-443e-852f-8a0c7655b7f4",
+  "webhook_name": "WhatsApp All Events Webhook"
+}
+```
+
+### WhatsApp Delivered Event
+
+```json
+{
+  "event_type": "WHATSAPP_STATUS",
+  "status": {
+    "id": "9a372bac-8c39-4ce3-bde1-f8f7562c6933",
+    "message_ref": "payment-reminder-ref-002",
+    "recipient": "61411111111",
+    "sender": "61411111111",
+    "status": "DELIVERED",
+    "type": "WHATSAPP"
+  },
+  "timestamp": "2025-12-16T08:00:48Z",
+  "webhook_id": "d68f7766-ed51-443e-852f-8a0c7655b7f4",
+  "webhook_name": "WhatsApp All Events Webhook"
+}
+```
+
+### WhatsApp Inbound Event
+
+```json
+{
+  "event_type": "WHATSAPP_INBOUND",
+  "mo": {
+    "content": {
+      "reaction": {
+        "action": "react",
+        "emoji": "❤️"
+      }
+    },
+    "content_type": "REACTION",
+    "id": "552e8cfc-5d5a-4b13-9523-c4bbce93c5c0",
+    "recipient": "61411111111",
+    "sender": "61411111111",
+    "type": "WHATSAPP"
+  },
+  "timestamp": "2025-12-16T08:24:33Z",
+  "webhook_id": "d68f7766-ed51-443e-852f-8a0c7655b7f4",
+  "webhook_name": "WhatsApp All Events Webhook"
+}
+```
+
+<br />
