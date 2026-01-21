@@ -838,6 +838,10 @@ components:
       type: object
       description: SMS fallback message details.
       properties:
+        sender:
+          type: string
+          description: The sender number to use for SMS fallback.
+          x-go-type-skip-optional-pointer: true
         message:
           type: string
           description: The message to send via SMS.
