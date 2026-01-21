@@ -1403,6 +1403,10 @@ components:
         delivery issues. If the RCS message fails, the SMS will send the
         configured message to the recipient instead.
       properties:
+        sender:
+          type: string
+          description: The sender number to use for SMS fallback.
+          x-go-type-skip-optional-pointer: true
         message:
           type: string
           description: >-
