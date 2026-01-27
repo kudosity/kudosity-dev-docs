@@ -840,7 +840,9 @@ components:
       properties:
         sender:
           type: string
-          description: The sender number to use for SMS fallback.
+          description: >-
+            The sender number to use for SMS fallback, which can be in E.164
+            international format or an alphanumeric sender ID.
           x-go-type-skip-optional-pointer: true
         message:
           type: string
@@ -1405,7 +1407,9 @@ components:
       properties:
         sender:
           type: string
-          description: The sender number to use for SMS fallback.
+          description: >-
+            The sender number to use for SMS fallback, which can be in E.164
+            international format or an alphanumeric sender ID.
           x-go-type-skip-optional-pointer: true
         message:
           type: string
