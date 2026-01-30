@@ -19,7 +19,7 @@ Kudosity hosts a remote MCP server at `https://developers.kudosity.com/mcp`. Con
 
 <Tabs>
   <Tab title="Cursor">
-    **Add to `~/.cursor/mcp.json`:**
+    **Add to`~/.cursor/mcp.json`:**
 
     ```json
     {
@@ -30,24 +30,10 @@ Kudosity hosts a remote MCP server at `https://developers.kudosity.com/mcp`. Con
       }
     }
     ```
-
-    </Tab>
-  <Tab title="Windsurf">
-    **Add to `~/.codeium/windsurf/mcp_config.json`:**
-
-    ```json
-    {
-      "mcpServers": {
-        "kudosity": {
-          "url": "https://developers.kudosity.com/mcp"
-        }
-      }
-    }
-    ```
-
   </Tab>
-  <Tab title="Claude Desktop">
-    **Add to `claude_desktop_config.json`:**
+
+  <Tab title="Windsurf">
+    **Add to`~/.codeium/windsurf/mcp_config.json`:**
 
     ```json
     {
@@ -58,9 +44,28 @@ Kudosity hosts a remote MCP server at `https://developers.kudosity.com/mcp`. Con
       }
     }
     ```
+  </Tab>
 
+  <Tab title="Claude Desktop">
+    **Add to`claude_desktop_config.json`:**
+
+    ```json
+    {
+      "mcpServers": {
+        "kudosity": {
+          "url": "https://developers.kudosity.com/mcp"
+        }
+      }
+    }
+    ```
   </Tab>
 </Tabs>
+
+You can also install the Claude MCP integration for this project using:
+
+```bash
+claude mcp add kudosity --scope project -- npx mcp-remote https://developers.kudosity.com/mcp
+```
 
 ## Testing Your MCP Setup
 
