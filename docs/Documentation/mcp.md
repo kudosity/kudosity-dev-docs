@@ -157,6 +157,12 @@ Use your API Key directly in the `x-api-key` header (no Base64 encoding required
 
 **Important**: Restart your AI tool after saving the configuration file.
 
+You can also install the Claude MCP integration for this project using:
+
+```bash
+claude mcp add kudosity --scope project -- npx mcp-remote https://developers.kudosity.com/mcp
+```
+
 ## Testing Your MCP Setup
 
 Once configured, you can test your MCP server connection:
