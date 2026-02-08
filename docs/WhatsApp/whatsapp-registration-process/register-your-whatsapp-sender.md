@@ -10,15 +10,11 @@ metadata:
 next:
   description: ''
 ---
-Kudosity will provide you an online to create a WhatsApp Business Account and a WhatsApp Sender for your validated business portfolio.
-
-> 📘 Meta Onboarding form
->
-> The form is hosted by Meta
+Kudosity will provide you with an online onboarding form to create a WhatsApp Business Account and register a WhatsApp Sender for your verified business portfolio.
 
 Steps
 
-* First, you need a Meta Verified Business portfolio, see [Verify Your WhastApp Business](verify-your-whatsapp-business-account) for details.
-* Once you have a Verified Business portfolio, contact your **Kudosity Account Manager**, who will provide you a Unique onboarding URL.
-* Use the link to complete the onboarding flow, which will guide you through creating a **WhatsApp Business Account** and registering a **WhatsApp Sender**.
-* Kudosity will review the application and send you an email when complete.
+1. Verify your Meta Business Portfolio. See [Verify Your WhastApp Business](verify-your-whatsapp-business-account) for details.
+2. Contact your Kudosity Account Manager, who will provide you with a unique onboarding URL.
+3. Use the onboarding URL to complete Meta’s onboarding flow. This will guide you through creating a WhatsApp Business Account and registering a WhatsApp Sender.
+4. Kudosity will review your submission and email you once your Sender is approved and ready to use.
