@@ -3039,6 +3039,55 @@ components:
       required:
         - name
         - content
+    SenderRegistrationType:
+      type: string
+      description: Type of sender registration
+      enum:
+        - PERSONAL_MOBILE_NUMBER
+        - DEDICATED_VIRTUAL_NUMBER
+        - ALPHANUMERIC
+    SenderRegistrationStatus:
+      type: string
+      description: Status of a sender registration
+      enum:
+        - PENDING_APPROVAL
+        - VERIFIED
+        - REJECTED
+        - CANCELLED
+    SenderRegistration:
+      type: object
+      description: A sender registration record
+      properties:
+        registration_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the registration
+        sender:
+          type: string
+          description: The registered sender address
+        country:
+          type: string
+          description: Country code for the sender
+        type:
+          $ref: '#/components/schemas/SenderRegistrationType'
+        status:
+          $ref: '#/components/schemas/SenderRegistrationStatus'
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the registration was created
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the registration was last updated
+      required:
+        - registration_id
+        - sender
+        - country
+        - type
+        - status
+        - created_at
+        - updated_at
   responses:
     SuccessResponse:
       description: OK
