@@ -1226,7 +1226,7 @@ components:
         - $ref: '#/components/schemas/CommonResponseMeta'
     Uri:
       type: string
-      description: string providing an URI formatted according to IETFÂ RFCÂ 3986.
+      description: string providing an URI formatted according to IETF RFC 3986.
       format: uri
     ProblemDetails:
       description: |
@@ -3067,7 +3067,7 @@ components:
           description: The registered sender address
         country:
           type: string
-          description: Country code for the sender
+          description: ISO 3166-1 alpha-2 country code for the sender
         type:
           $ref: '#/components/schemas/SenderRegistrationType'
         status:
@@ -3088,6 +3088,70 @@ components:
         - status
         - created_at
         - updated_at
+    VerificationMethod:
+      type: string
+      description: Method used to deliver the verification code
+      enum:
+        - SMS
+    VerificationStatus:
+      type: string
+      description: Status of a sender registration verification
+      enum:
+        - SENT
+        - CONFIRMED
+        - EXPIRED
+        - FAILED
+    Verification:
+      type: object
+      description: A verification record for a sender registration
+      properties:
+        verification_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the verification
+        registration_id:
+          type: string
+          format: uuid
+          description: The registration this verification belongs to
+        method:
+          $ref: '#/components/schemas/VerificationMethod'
+        originating_sender:
+          type: string
+          description: The sender address used to deliver the verification code
+        status:
+          $ref: '#/components/schemas/VerificationStatus'
+        expires_at:
+          type: string
+          format: date-time
+          description: When the verification code expires
+        attempts_remaining:
+          type: integer
+          description: Number of remaining attempts to submit the verification code
+      required:
+        - verification_id
+        - registration_id
+        - method
+        - originating_sender
+        - status
+        - expires_at
+        - attempts_remaining
+    ConflictProblem:
+      description: >
+        HTTP 409 Conflict - The request conflicts with the current state of the
+        resource.
+
+
+        Your client application attempted an operation that conflicts with an
+        existing resource or an operation already in progress. Review the
+        current state of the resource before retrying.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/reference/errors#conflict
+        title: Conflict
+        detail: The request conflicts with the current state of the resource
+        status: 409
   responses:
     SuccessResponse:
       description: OK
