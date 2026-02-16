@@ -3105,10 +3105,6 @@ components:
       type: object
       description: A verification record for a sender registration
       properties:
-        verification_id:
-          type: string
-          format: uuid
-          description: Unique identifier for the verification
         registration_id:
           type: string
           format: uuid
@@ -3128,13 +3124,30 @@ components:
           type: integer
           description: Number of remaining attempts to submit the verification code
       required:
-        - verification_id
         - registration_id
         - method
         - originating_sender
         - status
         - expires_at
         - attempts_remaining
+    VerificationConfirmation:
+      type: object
+      description: The result of a successful verification code confirmation
+      properties:
+        registration_id:
+          type: string
+          format: uuid
+          description: The registration this verification belongs to
+        status:
+          $ref: '#/components/schemas/VerificationStatus'
+        verified_at:
+          type: string
+          format: date-time
+          description: Timestamp when the verification was confirmed
+      required:
+        - registration_id
+        - status
+        - verified_at
     ConflictProblem:
       description: >
         HTTP 409 Conflict - The request conflicts with the current state of the
