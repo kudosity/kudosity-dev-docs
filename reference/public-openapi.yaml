@@ -3148,6 +3148,16 @@ components:
         - registration_id
         - status
         - verified_at
+    SenderDeleteResponse:
+      type: object
+      description: Confirmation of sender deletion
+      properties:
+        message:
+          type: string
+          description: Confirmation message
+          example: Sender deleted successfully
+      required:
+        - message
     ConflictProblem:
       description: >
         HTTP 409 Conflict - The request conflicts with the current state of the
