@@ -761,6 +761,13 @@ paths:
                     example: Webhook not found
 components:
   schemas:
+    WhatsappContentType:
+      type: string
+      description: Type of the message content.
+      enum:
+        - text
+        - template
+        - custom
     Text:
       type: object
       description: Text content for the message.
@@ -876,12 +883,7 @@ components:
             - Ensure the recipient **has opted in** to receive WhatsApp
             messages.
         content_type:
-          type: string
-          description: Type of the message content (e.g., text, template, custom).
-          enum:
-            - text
-            - template
-            - custom
+          $ref: '#/components/schemas/WhatsappContentType'
         content:
           type: object
           description: >
@@ -992,8 +994,7 @@ components:
           format: phone
           description: WhatsApp recipient phone number in international format.
         content_type:
-          type: string
-          description: Type of the message content (e.g., template).
+          $ref: '#/components/schemas/WhatsappContentType'
         content:
           type: object
           description: Content details for the message.
@@ -1030,6 +1031,15 @@ components:
           parameters:
             - Joe
         created_at: '2021-01-01T00:00:00Z'
+    WhatsappMessageStatus:
+      type: string
+      description: Current status of a WhatsApp message.
+      enum:
+        - QUEUED
+        - SENT
+        - DELIVERED
+        - READ
+        - FAILED
     WhatsappMessageEvent:
       type: object
       description: Lifecycle event for a WhatsApp message.
@@ -1079,12 +1089,7 @@ components:
           format: phone
           description: WhatsApp recipient phone number in international format.
         content_type:
-          type: string
-          description: Type of the message content.
-          enum:
-            - text
-            - template
-            - custom
+          $ref: '#/components/schemas/WhatsappContentType'
         content:
           type: object
           description: Content details for the message.
@@ -1101,14 +1106,7 @@ components:
             Timestamp in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) when the message was
             created on the server.
         status:
-          type: string
-          description: Current status of the message.
-          enum:
-            - QUEUED
-            - SENT
-            - DELIVERED
-            - READ
-            - FAILED
+          $ref: '#/components/schemas/WhatsappMessageStatus'
         events:
           type: array
           x-go-type-skip-optional-pointer: true
@@ -1195,6 +1193,69 @@ components:
           delivered: 9
           failed: 1
           read: 8
+    WhatsappListMessageItem:
+      type: object
+      description: Summary representation of a WhatsApp message for list responses.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the message.
+        message_ref:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Optional reference ID set by the user for the message.
+        sender:
+          type: string
+          format: phone
+          description: Registered WhatsApp sender number in international format.
+        recipient:
+          type: string
+          format: phone
+          description: WhatsApp recipient phone number in international format.
+        content_type:
+          $ref: '#/components/schemas/WhatsappContentType'
+        status:
+          $ref: '#/components/schemas/WhatsappMessageStatus'
+        created_at:
+          type: string
+          format: date-time
+          description: >-
+            Timestamp in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) when the message was
+            created on the server.
+      required:
+        - id
+        - sender
+        - recipient
+        - content_type
+        - status
+        - created_at
+      example:
+        id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+        message_ref: optional-ref-123
+        sender: '14155238886'
+        recipient: '61411122211'
+        content_type: template
+        status: DELIVERED
+        created_at: '2021-01-01T00:00:00Z'
+    WhatsappListMessagesData:
+      type: object
+      description: Container for the list of WhatsApp messages.
+      properties:
+        messages:
+          type: array
+          description: Array of WhatsApp messages.
+          items:
+            $ref: '#/components/schemas/WhatsappListMessageItem'
+      required:
+        - messages
+    WhatsappListMessagesMeta:
+      type: object
+      description: Metadata for the list messages response including pagination details.
+      properties:
+        pagination:
+          $ref: '#/components/schemas/PaginationMeta'
+      required:
+        - pagination
     CommonResponseMeta:
       type: object
       properties:
@@ -1214,6 +1275,59 @@ components:
           required:
             - data
         - $ref: '#/components/schemas/CommonResponseMeta'
+    PaginationMeta:
+      title: Pagination Metadata
+      description: |
+        Pagination metadata for cursor-based pagination.
+        Reusable across all paginated API endpoints.
+      type: object
+      required:
+        - type
+        - has_next
+        - has_prev
+      properties:
+        type:
+          type: string
+          description: The pagination strategy being used.
+          enum:
+            - cursor
+          example: cursor
+          x-oapi-codegen-extra-tags:
+            valid: required
+        next_cursor:
+          type: string
+          description: >-
+            Cursor to fetch the next page of results. Omitted if there are no
+            more results.
+          nullable: true
+          example: MTIzNDU2
+          x-oapi-codegen-extra-tags:
+            json: next_cursor,omitempty
+        prev_cursor:
+          type: string
+          description: >-
+            Cursor to fetch the previous page of results. Omitted if on the
+            first page.
+          nullable: true
+          example: MTIzNDkw
+          x-oapi-codegen-extra-tags:
+            json: prev_cursor,omitempty
+        has_next:
+          type: boolean
+          description: >-
+            Indicates whether there are more results available after the current
+            page.
+          example: true
+          x-oapi-codegen-extra-tags:
+            valid: required
+        has_prev:
+          type: boolean
+          description: >-
+            Indicates whether there are results available before the current
+            page.
+          example: false
+          x-oapi-codegen-extra-tags:
+            valid: required
     CommonErrorResponse:
       allOf:
         - type: object
@@ -1306,37 +1420,6 @@ components:
         issues:
           - name: field_name
             message: 'Error at "field_name" property: validation error description'
-    TooManyRequestsProblem:
-      description: >
-        HTTP 429 Too Many Requests - Rate limit exceeded.
-
-
-        Your client application has sent too many requests in a given amount of
-        time and should retry later.
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/ProblemDetails'
-      example:
-        type: https://developers.kudosity.com/reference/errors#too-many-requests
-        title: Too Many Requests
-        detail: Rate limit exceeded
-        status: 429
-    InternalServerErrorProblem:
-      description: >
-        This problem occurs when the server encounters an unexpected condition
-        that prevents it from fulfilling the request.
-
-
-        Your client application did everything correct. Unfortunately our API
-        encountered a condition that resulted in this problem.
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/ProblemDetails'
-      example:
-        type: https://developers.kudosity.com/reference/errors#server-error
-        title: Server Error
-        detail: The server encountered an unexpected error
-        status: 500
     UnauthorizedProblem:
       description: >
         HTTP 401 Unauthorized - API authentication failed.
@@ -1355,6 +1438,37 @@ components:
           Missing or invalid API key in Authorization header. Verify your API
           key is correct and has the required permissions
         status: 401
+    InternalServerErrorProblem:
+      description: >
+        This problem occurs when the server encounters an unexpected condition
+        that prevents it from fulfilling the request.
+
+
+        Your client application did everything correct. Unfortunately our API
+        encountered a condition that resulted in this problem.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/reference/errors#server-error
+        title: Server Error
+        detail: The server encountered an unexpected error
+        status: 500
+    TooManyRequestsProblem:
+      description: >
+        HTTP 429 Too Many Requests - Rate limit exceeded.
+
+
+        Your client application has sent too many requests in a given amount of
+        time and should retry later.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/reference/errors#too-many-requests
+        title: Too Many Requests
+        detail: Rate limit exceeded
+        status: 429
     NotFoundProblem:
       description: >
         This problem occurs when the requested resource could not be found.
@@ -3209,28 +3323,6 @@ components:
                 properties:
                   error:
                     $ref: '#/components/schemas/InputValidationProblem'
-    TooManyRequestsErrorResponse:
-      description: Too Many Requests
-      content:
-        application/json:
-          schema:
-            allOf:
-              - $ref: '#/components/schemas/CommonErrorResponse'
-              - type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/TooManyRequestsProblem'
-    InternalServerErrorResponse:
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            allOf:
-              - $ref: '#/components/schemas/CommonErrorResponse'
-              - type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/InternalServerErrorProblem'
     UnauthorizedErrorResponse:
       description: Unauthorized
       content:
@@ -3242,6 +3334,28 @@ components:
                 properties:
                   error:
                     $ref: '#/components/schemas/UnauthorizedProblem'
+    InternalServerErrorResponse:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/InternalServerErrorProblem'
+    TooManyRequestsErrorResponse:
+      description: Too Many Requests
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/TooManyRequestsProblem'
     NotFoundErrorResponse:
       description: Not Found
       content:
