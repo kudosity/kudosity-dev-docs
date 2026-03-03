@@ -1147,6 +1147,30 @@ components:
           - event_type: DELIVERED
             created_at: '2021-01-01T00:01:15Z'
             details: Message delivered to recipient device
+    WhatsappStatsRequest:
+      type: object
+      properties:
+        start_at:
+          type: string
+          format: string
+          description: >-
+            Start date for statistics period in ISO 8601
+            (`YYYY-MM-DDTHH:MM:SSZ`).
+        end_at:
+          type: string
+          format: string
+          description: End date for statistics period in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
+        sender:
+          type: string
+          description: |
+            Optional registered Whatsapp sender ID.
+
+             - Must be a registered Whatsapp Sender ID.
+             - Example: `14155238886`
+          x-go-type-skip-optional-pointer: true
+      required:
+        - start_at
+        - end_at
     WhatsappStatsResponse:
       type: object
       properties:
@@ -1787,6 +1811,30 @@ components:
           - event_type: DELIVERED
             created_at: '2021-01-01T00:01:15Z'
             details: Message delivered to recipient device
+    RcsStatsRequest:
+      type: object
+      properties:
+        start_at:
+          type: string
+          format: string
+          description: >-
+            Start date for statistics period in ISO 8601
+            (`YYYY-MM-DDTHH:MM:SSZ`).
+        end_at:
+          type: string
+          format: string
+          description: End date for statistics period in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
+        sender:
+          type: string
+          description: |
+            Optional registered RCS agent ID.
+
+             - Must be a registered RCS Agent identifier.
+             - Example: `DemoSender`
+          x-go-type-skip-optional-pointer: true
+      required:
+        - start_at
+        - end_at
     RcsStatsResponse:
       type: object
       properties:
@@ -2668,6 +2716,89 @@ components:
         - UNDELIVERABLE: Message is undeliverable
 
         - READ: Message is read by the recipient
+    V1Payload:
+      type: object
+      description: >
+        V1 webhook payload that is sent to the customer's webhook URL.
+
+        The data field contains the event payload with protobuf Any type
+        structure including the @type field.
+      deprecated: true
+      properties:
+        event:
+          type: string
+          description: Event type
+          example: status
+        data:
+          type: object
+          description: >
+            Event data with protobuf Any type structure. Contains an @type field
+            indicating the message type
+
+            followed by the actual data fields. All fields are included even if
+            empty for backward compatibility.
+          properties:
+            '@type':
+              type: string
+              description: |
+                Protobuf Any type URL indicating the message type.
+                Format: "type.googleapis.com/transmit.webhook.v1.{MessageType}"
+              example: type.googleapis.com/transmit.webhook.v1.Status
+          required:
+            - '@type'
+          additionalProperties: true
+      required:
+        - event
+        - data
+    V1Status:
+      type: object
+      description: >
+        V1 status data for delivery receipts.
+
+        Note: This is wrapped in the V1Payload data field with @type =
+        "type.googleapis.com/transmit.webhook.v1.Status".
+
+        All fields are always included for backward compatibility, even if
+        empty.
+      properties:
+        '@type':
+          type: string
+          description: Always "type.googleapis.com/transmit.webhook.v1.Status"
+          example: type.googleapis.com/transmit.webhook.v1.Status
+        mms_id:
+          type: string
+          description: MMS ID (empty string for SMS messages)
+        sms_id:
+          type: string
+          description: SMS ID (empty string for MMS messages)
+        message_ref:
+          type: string
+          description: Custom reference set by the customer (empty string if not set)
+        sender:
+          type: string
+          description: Sender address
+        recipient:
+          type: string
+          description: Recipient number
+        status:
+          type: string
+          description: Delivery status
+        status_updated_at:
+          type: string
+          description: Status update timestamp in RFC3339 format (no sub-seconds)
+        description:
+          type: string
+          description: Status description (empty string if not provided)
+      required:
+        - '@type'
+        - mms_id
+        - sms_id
+        - message_ref
+        - sender
+        - recipient
+        - status
+        - status_updated_at
+        - description
     V1Message:
       type: object
       description: >
@@ -2711,6 +2842,160 @@ components:
         - message_ref
         - message
         - content_urls
+    V1OptOut:
+      type: object
+      description: >
+        V1 opt-out data.
+
+        Note: This is wrapped in the V1Payload data field with @type =
+        "type.googleapis.com/transmit.webhook.v1.OptOut".
+
+        All fields are always included for backward compatibility, even if
+        empty.
+      properties:
+        '@type':
+          type: string
+          description: Always "type.googleapis.com/transmit.webhook.v1.OptOut"
+          example: type.googleapis.com/transmit.webhook.v1.OptOut
+        source:
+          type: string
+          description: Opt-out source
+        contact_ref:
+          type: string
+          description: Contact reference (always empty string)
+        timestamp:
+          type: string
+          description: RFC 3339 format timestamp (no sub-seconds)
+        source_message:
+          $ref: '#/components/schemas/V1Message'
+      required:
+        - '@type'
+        - source
+        - contact_ref
+        - timestamp
+        - source_message
+    V1MO:
+      type: object
+      description: >
+        V1 mobile originating (inbound) message data.
+
+        Note: This is wrapped in the V1Payload data field with @type =
+        "type.googleapis.com/transmit.webhook.v1.MO".
+
+        All fields are always included for backward compatibility, even if
+        empty.
+      properties:
+        '@type':
+          type: string
+          description: Always "type.googleapis.com/transmit.webhook.v1.MO"
+          example: type.googleapis.com/transmit.webhook.v1.MO
+        mms_id:
+          type: string
+          description: MMS ID (empty string for SMS messages)
+        sms_id:
+          type: string
+          description: SMS ID (empty string for MMS messages)
+        recipient:
+          type: string
+          description: Recipient number
+        sender:
+          type: string
+          description: Sender number
+        subject:
+          type: string
+          description: MMS subject (empty string for SMS)
+        message:
+          type: string
+          description: Message text
+        content_urls:
+          type: array
+          items:
+            type: string
+          description: MMS content URLs (empty array for SMS)
+        contact_ref:
+          type: string
+          description: Contact reference (always empty string)
+        timestamp:
+          type: string
+          description: RFC 3339 format timestamp (no sub-seconds)
+        last_message:
+          $ref: '#/components/schemas/V1Message'
+      required:
+        - '@type'
+        - mms_id
+        - sms_id
+        - recipient
+        - sender
+        - subject
+        - message
+        - content_urls
+        - contact_ref
+        - timestamp
+        - last_message
+    V1LinkHit:
+      type: object
+      description: >
+        V1 link hit data.
+
+        Note: This is wrapped in the V1Payload data field with @type =
+        "type.googleapis.com/transmit.webhook.v1.LinkHit".
+
+        All fields are always included for backward compatibility, even if
+        empty.
+      properties:
+        '@type':
+          type: string
+          description: Always "type.googleapis.com/transmit.webhook.v1.LinkHit"
+          example: type.googleapis.com/transmit.webhook.v1.LinkHit
+        url:
+          type: string
+          description: Tracked URL that was clicked
+        hits:
+          type: integer
+          format: int32
+          description: Number of hits
+        timestamp:
+          type: string
+          description: RFC 3339 format timestamp (no sub-seconds)
+        source_message:
+          $ref: '#/components/schemas/V1Message'
+      required:
+        - '@type'
+        - url
+        - hits
+        - timestamp
+        - source_message
+    V2Payload:
+      type: object
+      description: V2 webhook payload that is sent to the customer's webhook URL
+      properties:
+        event_type:
+          $ref: '#/components/schemas/EventType'
+        timestamp:
+          type: string
+          description: >-
+            RFC 3339 format timestamp without sub-seconds (e.g.
+            "2007-04-05T14:30Z")
+          example: 2007-04-05T14:30Z
+        webhook_id:
+          type: string
+          description: Webhook ID
+        webhook_name:
+          type: string
+          description: Webhook name
+        link_hit:
+          $ref: '#/components/schemas/V2LinkHit'
+        status:
+          $ref: '#/components/schemas/V2Status'
+        mo:
+          $ref: '#/components/schemas/V2MO'
+        opt_out:
+          $ref: '#/components/schemas/V2OptOut'
+      required:
+        - event_type
+        - timestamp
+        - webhook_id
+        - webhook_name
     V2LinkHit:
       type: object
       description: V2 link hit notification
@@ -2907,6 +3192,34 @@ components:
         - sender
         - recipient
         - message
+    LinkHitDataItem:
+      type: object
+      description: Link hit data item
+      properties:
+        url:
+          type: string
+          description: URL
+        node_key:
+          type: string
+          description: Node key
+        count:
+          type: integer
+          format: int32
+          description: Hit count
+        first_hit_timestamp:
+          type: string
+          format: date-time
+          description: First hit timestamp
+        last_hit_timestamp:
+          type: string
+          format: date-time
+          description: Last hit timestamp
+      required:
+        - url
+        - node_key
+        - count
+        - first_hit_timestamp
+        - last_hit_timestamp
     RichContent:
       type: object
       description: Rich content data with flattened structure
@@ -3168,6 +3481,33 @@ components:
         - VERIFIED
         - REJECTED
         - CANCELLED
+    SenderRegistrationRequest:
+      type: object
+      description: Request body for creating a sender registration
+      properties:
+        sender:
+          type: string
+          description: The sender address to register (e.g. phone number)
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2 country code for the sender (e.g. AU)
+          minLength: 2
+          maxLength: 2
+          pattern: ^[A-Z]{2}$
+        type:
+          $ref: '#/components/schemas/SenderRegistrationType'
+        child_account_id:
+          type: string
+          description: >-
+            Optional child account ID to register the sender for. For accounts
+            without a parent/child relationship, this field is ignored and the
+            sender is registered for the authenticated account. For parent
+            accounts, if not specified, the sender will be registered for the
+            parent account itself.
+      required:
+        - sender
+        - country
+        - type
     SenderRegistration:
       type: object
       description: A sender registration record
@@ -3215,6 +3555,21 @@ components:
         - CONFIRMED
         - EXPIRED
         - FAILED
+    VerificationRequest:
+      type: object
+      description: Request body for requesting a verification code
+      properties:
+        method:
+          $ref: '#/components/schemas/VerificationMethod'
+        originating_sender:
+          type: string
+          description: >-
+            A sender address owned by the account, used as the source for
+            delivering the verification code (e.g. an existing verified phone
+            number)
+      required:
+        - method
+        - originating_sender
     Verification:
       type: object
       description: A verification record for a sender registration
@@ -3244,6 +3599,18 @@ components:
         - status
         - expires_at
         - attempts_remaining
+    VerificationConfirmRequest:
+      type: object
+      description: Request body for confirming a verification code
+      properties:
+        code:
+          type: string
+          description: The verification code received via the selected verification method
+          minLength: 6
+          maxLength: 6
+          pattern: ^[0-9]{6}$
+      required:
+        - code
     VerificationConfirmation:
       type: object
       description: The result of a successful verification code confirmation
@@ -3312,6 +3679,30 @@ components:
                 properties:
                   data:
                     $ref: '#/components/schemas/WhatsappGetResponse'
+    GetWhatsappStatsSuccessResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WhatsappStatsResponse'
+    ListWhatsappMessagesSuccessResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WhatsappListMessagesData'
+                  meta:
+                    $ref: '#/components/schemas/WhatsappListMessagesMeta'
     InputValidationResponse:
       description: Input Validation Error
       content:
@@ -3389,6 +3780,97 @@ components:
                 properties:
                   data:
                     $ref: '#/components/schemas/RcsGetResponse'
+    GetRcsStatsSuccessResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RcsStatsResponse'
+    SenderRegistrationSuccessResponse:
+      description: Successful response containing the new sender registration details.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SenderRegistration'
+          example:
+            data:
+              registration_id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+              sender: '61412312312'
+              country: AU
+              type: PERSONAL_MOBILE_NUMBER
+              status: PENDING_APPROVAL
+              created_at: '2025-08-26T10:30:00Z'
+              updated_at: '2025-08-26T10:30:00Z'
+    VerificationSuccessResponse:
+      description: Successful response containing the verification details.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Verification'
+          example:
+            data:
+              registration_id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+              method: SMS
+              originating_sender: '61400000000'
+              status: SENT
+              expires_at: '2025-08-26T10:35:00Z'
+              attempts_remaining: 5
+    VerificationConfirmationSuccessResponse:
+      description: Successful response containing the verification confirmation details.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/VerificationConfirmation'
+          example:
+            data:
+              registration_id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+              status: CONFIRMED
+              verified_at: '2025-08-26T10:32:00Z'
+    SenderDeleteSuccessResponse:
+      description: Successful response confirming the sender has been deleted.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SenderDeleteResponse'
+          example:
+            data:
+              message: Sender deleted successfully
+    ConflictErrorResponse:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/ConflictProblem'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
