@@ -3155,14 +3155,14 @@ components:
         - content
     SenderRegistrationType:
       type: string
-      description: Type of sender registration
+      description: Type of sender registration.
       enum:
         - PERSONAL_MOBILE_NUMBER
         - DEDICATED_VIRTUAL_NUMBER
         - ALPHANUMERIC
     SenderRegistrationStatus:
       type: string
-      description: Status of a sender registration
+      description: Status of a sender registration.
       enum:
         - PENDING_APPROVAL
         - VERIFIED
@@ -3170,18 +3170,18 @@ components:
         - CANCELLED
     SenderRegistration:
       type: object
-      description: A sender registration record
+      description: A sender registration record.
       properties:
         registration_id:
           type: string
           format: uuid
-          description: Unique identifier for the registration
+          description: Unique identifier for the registration.
         sender:
           type: string
-          description: The registered sender address
+          description: The registered sender number.
         country:
           type: string
-          description: ISO 3166-1 alpha-2 country code for the sender
+          description: ISO 3166-1 alpha-2 country code for the sender.
         type:
           $ref: '#/components/schemas/SenderRegistrationType'
         status:
@@ -3189,11 +3189,11 @@ components:
         created_at:
           type: string
           format: date-time
-          description: Timestamp when the registration was created
+          description: Timestamp when the registration was created.
         updated_at:
           type: string
           format: date-time
-          description: Timestamp when the registration was last updated
+          description: Timestamp when the registration was last updated.
       required:
         - registration_id
         - sender
@@ -3204,12 +3204,12 @@ components:
         - updated_at
     VerificationMethod:
       type: string
-      description: Method used to deliver the verification code
+      description: Method used to deliver the verification code.
       enum:
         - SMS
     VerificationStatus:
       type: string
-      description: Status of a sender registration verification
+      description: Status of a sender registration verification.
       enum:
         - SENT
         - CONFIRMED
@@ -3217,26 +3217,26 @@ components:
         - FAILED
     Verification:
       type: object
-      description: A verification record for a sender registration
+      description: A verification record for a sender registration.
       properties:
         registration_id:
           type: string
           format: uuid
-          description: The registration this verification belongs to
+          description: The registration this verification belongs to.
         method:
           $ref: '#/components/schemas/VerificationMethod'
         originating_sender:
           type: string
-          description: The sender address used to deliver the verification code
+          description: The sender number used to deliver the verification code.
         status:
           $ref: '#/components/schemas/VerificationStatus'
         expires_at:
           type: string
           format: date-time
-          description: When the verification code expires
+          description: When the verification code expires.
         attempts_remaining:
           type: integer
-          description: Number of remaining attempts to submit the verification code
+          description: Number of remaining attempts to submit the verification code.
       required:
         - registration_id
         - method
@@ -3246,29 +3246,29 @@ components:
         - attempts_remaining
     VerificationConfirmation:
       type: object
-      description: The result of a successful verification code confirmation
+      description: The result of a successful verification code confirmation.
       properties:
         registration_id:
           type: string
           format: uuid
-          description: The registration this verification belongs to
+          description: The registration this verification belongs to.
         status:
           $ref: '#/components/schemas/VerificationStatus'
         verified_at:
           type: string
           format: date-time
-          description: Timestamp when the verification was confirmed
+          description: Timestamp when the verification was confirmed.
       required:
         - registration_id
         - status
         - verified_at
     SenderDeleteResponse:
       type: object
-      description: Confirmation of sender deletion
+      description: Confirmation of sender deletion.
       properties:
         message:
           type: string
-          description: Confirmation message
+          description: Confirmation message.
           example: Sender deleted successfully
       required:
         - message
