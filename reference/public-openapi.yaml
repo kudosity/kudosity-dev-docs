@@ -759,39 +759,7 @@ paths:
                   error:
                     type: string
                     example: Webhook not found
-  /v2/senders/registrations:
-    post:
-      tags:
-        - Sender
-      summary: Create a sender registration.
-      security:
-        - ApiKeyAuth: []
-      description: |
-        Creates a sender registration and sets `status` to `PENDING_APPROVAL`.
-
-          - If the account does not use parent/child accounts, the API ignores `child_account_id` and registers the sender for the authenticated account.
-          - If the account is a parent account and you omit `child_account_id`, the API registers the sender for the parent account.
-          - If you provide `child_account_id`, the API registers the sender for that child account.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SenderRegistrationRequest'
-            example:
-              sender: '61412312312'
-              country: AU
-              type: PERSONAL_MOBILE_NUMBER
-              child_account_id: '1234'
-      responses:
-        '201':
-          $ref: '#/components/responses/SenderRegistrationSuccessResponse'
-        '400':
-          $ref: '#/components/responses/InputValidationResponse'
-        '401':
-          $ref: '#/components/responses/UnauthorizedErrorResponse'
-        '500':
-          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/senders/registrations: {}
   /v2/senders/phone-numbers/{phone_number}: {}
   /v2/senders/registrations/{registration_id}/verifications: {}
   /v2/senders/registrations/{registration_id}/verifications/confirmation: {}
