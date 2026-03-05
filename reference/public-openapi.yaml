@@ -836,50 +836,7 @@ paths:
           $ref: '#/components/responses/NotFoundErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
-  /v2/senders/registrations/{registration_id}/verifications:
-    post:
-      tags:
-        - Senders
-      summary: Request a verification code.
-      security:
-        - ApiKeyAuth: []
-      description: >
-        Requests a verification code for a sender registration. This endpoint
-        supports registrations with `type` = `PERSONAL_MOBILE_NUMBER` only.
-
-          - The API delivers the code to the registered sender number using the selected `method`, such as `SMS`.
-          - Codes expire after 30 minutes.
-          - You have a maximum of 5 attempts to confirm the code.
-      parameters:
-        - name: registration_id
-          in: path
-          required: true
-          description: Unique identifier for the sender registration.
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/VerificationRequest'
-            example:
-              method: SMS
-              originating_sender: '61400000000'
-      responses:
-        '201':
-          $ref: '#/components/responses/VerificationSuccessResponse'
-        '400':
-          $ref: '#/components/responses/InputValidationResponse'
-        '401':
-          $ref: '#/components/responses/UnauthorizedErrorResponse'
-        '404':
-          $ref: '#/components/responses/NotFoundErrorResponse'
-        '409':
-          $ref: '#/components/responses/ConflictErrorResponse'
-        '500':
-          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/senders/registrations/{registration_id}/verifications: {}
   /v2/senders/registrations/{registration_id}/verifications/confirmation: {}
 components:
   schemas:
