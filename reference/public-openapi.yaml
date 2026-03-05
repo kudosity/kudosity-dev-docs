@@ -792,50 +792,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
-  /v2/senders/phone-numbers/{phone_number}:
-    delete:
-      tags:
-        - Sender
-      summary: Delete a sender by phone number.
-      security:
-        - ApiKeyAuth: []
-      description: |
-        Deletes a sender phone number from the account.
-
-          - If the account does not use parent/child accounts, the API ignores `child_account_id` and deletes the sender from the authenticated account.
-          - If the account is a parent account and you omit `child_account_id`, the API deletes the sender from the parent account.
-          - If you provide `child_account_id`, the API deletes the sender from that child account.
-      parameters:
-        - name: phone_number
-          in: path
-          required: true
-          description: >-
-            The phone number to delete in E.164 international format, for
-            example 61412312312.
-          schema:
-            type: string
-          example: '61412312312'
-        - name: child_account_id
-          in: query
-          required: false
-          description: >-
-            Child account ID to delete the sender from. Ignored for accounts
-            without parent/child accounts. If omitted for a parent account, the
-            API deletes the sender from the parent account.
-          schema:
-            type: string
-          example: '456'
-      responses:
-        '200':
-          $ref: '#/components/responses/SenderDeleteSuccessResponse'
-        '400':
-          $ref: '#/components/responses/InputValidationResponse'
-        '401':
-          $ref: '#/components/responses/UnauthorizedErrorResponse'
-        '404':
-          $ref: '#/components/responses/NotFoundErrorResponse'
-        '500':
-          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/senders/phone-numbers/{phone_number}: {}
   /v2/senders/registrations/{registration_id}/verifications:
     post:
       tags:
