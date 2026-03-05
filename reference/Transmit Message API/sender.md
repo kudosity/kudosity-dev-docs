@@ -1,4 +1,0 @@
----
-title: Sender
-hidden: false
----
