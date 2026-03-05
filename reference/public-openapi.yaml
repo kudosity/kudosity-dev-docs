@@ -762,7 +762,7 @@ paths:
   /v2/senders/registrations:
     post:
       tags:
-        - Sender
+        - Senders
       summary: Create a sender registration.
       security:
         - ApiKeyAuth: []
@@ -795,7 +795,7 @@ paths:
   /v2/senders/phone-numbers/{phone_number}:
     delete:
       tags:
-        - Sender
+        - Senders
       summary: Delete a sender by phone number.
       security:
         - ApiKeyAuth: []
@@ -839,7 +839,7 @@ paths:
   /v2/senders/registrations/{registration_id}/verifications:
     post:
       tags:
-        - Sender
+        - Senders
       summary: Request a verification code.
       security:
         - ApiKeyAuth: []
@@ -883,7 +883,7 @@ paths:
   /v2/senders/registrations/{registration_id}/verifications/confirmation:
     post:
       tags:
-        - Sender
+        - Senders
       summary: Confirm a verification code.
       security:
         - ApiKeyAuth: []
