@@ -762,7 +762,7 @@ paths:
   /v2/senders/registrations:
     post:
       tags:
-        - Sender Registration
+        - Sender
       summary: Create a sender registration.
       security:
         - ApiKeyAuth: []
@@ -839,7 +839,7 @@ paths:
   /v2/senders/registrations/{registration_id}/verifications:
     post:
       tags:
-        - Sender Registration
+        - Sender
       summary: Request a verification code.
       security:
         - ApiKeyAuth: []
@@ -883,7 +883,7 @@ paths:
   /v2/senders/registrations/{registration_id}/verifications/confirmation:
     post:
       tags:
-        - Sender Registration
+        - Sender
       summary: Confirm a verification code.
       security:
         - ApiKeyAuth: []
