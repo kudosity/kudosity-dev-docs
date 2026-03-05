@@ -759,10 +759,173 @@ paths:
                   error:
                     type: string
                     example: Webhook not found
-  /v2/senders/registrations: {}
-  /v2/senders/phone-numbers/{phone_number}: {}
-  /v2/senders/registrations/{registration_id}/verifications: {}
-  /v2/senders/registrations/{registration_id}/verifications/confirmation: {}
+  /v2/senders/registrations:
+    post:
+      tags:
+        - Senders
+      summary: Create a sender registration.
+      security:
+        - ApiKeyAuth: []
+      description: |
+        Creates a sender registration and sets `status` to `PENDING_APPROVAL`.
+
+          - If the account does not use parent/child accounts, the API ignores `child_account_id` and registers the sender for the authenticated account.
+          - If the account is a parent account and you omit `child_account_id`, the API registers the sender for the parent account.
+          - If you provide `child_account_id`, the API registers the sender for that child account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SenderRegistrationRequest'
+            example:
+              sender: '61412312312'
+              country: AU
+              type: PERSONAL_MOBILE_NUMBER
+              child_account_id: '1234'
+      responses:
+        '201':
+          $ref: '#/components/responses/SenderRegistrationSuccessResponse'
+        '400':
+          $ref: '#/components/responses/InputValidationResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/senders/phone-numbers/{phone_number}:
+    delete:
+      tags:
+        - Senders
+      summary: Delete a sender by phone number.
+      security:
+        - ApiKeyAuth: []
+      description: |
+        Deletes a sender phone number from the account.
+
+          - If the account does not use parent/child accounts, the API ignores `child_account_id` and deletes the sender from the authenticated account.
+          - If the account is a parent account and you omit `child_account_id`, the API deletes the sender from the parent account.
+          - If you provide `child_account_id`, the API deletes the sender from that child account.
+      parameters:
+        - name: phone_number
+          in: path
+          required: true
+          description: >-
+            The phone number to delete in E.164 international format, for
+            example 61412312312.
+          schema:
+            type: string
+          example: '61412312312'
+        - name: child_account_id
+          in: query
+          required: false
+          description: >-
+            Child account ID to delete the sender from. Ignored for accounts
+            without parent/child accounts. If omitted for a parent account, the
+            API deletes the sender from the parent account.
+          schema:
+            type: string
+          example: '456'
+      responses:
+        '200':
+          $ref: '#/components/responses/SenderDeleteSuccessResponse'
+        '400':
+          $ref: '#/components/responses/InputValidationResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/senders/registrations/{registration_id}/verifications:
+    post:
+      tags:
+        - Senders
+      summary: Request a verification code.
+      security:
+        - ApiKeyAuth: []
+      description: >
+        Requests a verification code for a sender registration. This endpoint
+        supports registrations with `type` = `PERSONAL_MOBILE_NUMBER` only.
+
+          - The API delivers the code to the registered sender number using the selected `method`, such as `SMS`.
+          - Codes expire after 30 minutes.
+          - You have a maximum of 5 attempts to confirm the code.
+      parameters:
+        - name: registration_id
+          in: path
+          required: true
+          description: Unique identifier for the sender registration.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerificationRequest'
+            example:
+              method: SMS
+              originating_sender: '61400000000'
+      responses:
+        '201':
+          $ref: '#/components/responses/VerificationSuccessResponse'
+        '400':
+          $ref: '#/components/responses/InputValidationResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '409':
+          $ref: '#/components/responses/ConflictErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/senders/registrations/{registration_id}/verifications/confirmation:
+    post:
+      tags:
+        - Senders
+      summary: Confirm a verification code.
+      security:
+        - ApiKeyAuth: []
+      description: >
+        Confirms a sender registration by submitting the verification code.
+
+        On success, the verification `status` becomes `CONFIRMED` and the sender
+        registration `status` becomes `VERIFIED`.
+
+        If you exceed the allowed attempts, the verification becomes `FAILED`.
+        Request a new verification code to try again.
+      parameters:
+        - name: registration_id
+          in: path
+          required: true
+          description: Unique identifier of the sender registration.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerificationConfirmRequest'
+            example:
+              code: '123456'
+      responses:
+        '200':
+          $ref: '#/components/responses/VerificationConfirmationSuccessResponse'
+        '400':
+          $ref: '#/components/responses/InputValidationResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '409':
+          $ref: '#/components/responses/ConflictErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
 components:
   schemas:
     WhatsappContentType:
