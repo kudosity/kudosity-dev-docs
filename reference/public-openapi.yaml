@@ -880,52 +880,7 @@ paths:
           $ref: '#/components/responses/ConflictErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
-  /v2/senders/registrations/{registration_id}/verifications/confirmation:
-    post:
-      tags:
-        - Senders
-      summary: Confirm a verification code.
-      security:
-        - ApiKeyAuth: []
-      description: >
-        Confirms a sender registration by submitting the verification code.
-
-        On success, the verification `status` becomes `CONFIRMED` and the sender
-        registration `status` becomes `VERIFIED`.
-
-        If you exceed the allowed attempts, the verification becomes `FAILED`.
-        Request a new verification code to try again.
-      parameters:
-        - name: registration_id
-          in: path
-          required: true
-          description: Unique identifier of the sender registration.
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/VerificationConfirmRequest'
-            example:
-              code: '123456'
-      responses:
-        '200':
-          $ref: '#/components/responses/VerificationConfirmationSuccessResponse'
-        '400':
-          $ref: '#/components/responses/InputValidationResponse'
-        '401':
-          $ref: '#/components/responses/UnauthorizedErrorResponse'
-        '404':
-          $ref: '#/components/responses/NotFoundErrorResponse'
-        '409':
-          $ref: '#/components/responses/ConflictErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequestsErrorResponse'
-        '500':
-          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/senders/registrations/{registration_id}/verifications/confirmation: {}
 components:
   schemas:
     WhatsappContentType:
