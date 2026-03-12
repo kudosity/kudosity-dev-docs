@@ -1,5 +1,5 @@
 ---
-title: Delete a sender by phone number.
+title: Delete a sender by phone number
 excerpt: |
   Deletes a sender phone number from the account.
 
