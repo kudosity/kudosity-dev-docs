@@ -1,5 +1,5 @@
 ---
-title: Request a verification code.
+title: Request a verification code
 excerpt: >
   Requests a verification code for a sender registration. This endpoint supports
   registrations with `type` = `PERSONAL_MOBILE_NUMBER` only.
