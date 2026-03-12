@@ -1,5 +1,5 @@
 ---
-title: Create a sender registration.
+title: Create a sender registration
 excerpt: |
   Creates a sender registration and sets `status` to `PENDING_APPROVAL`.
 
