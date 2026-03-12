@@ -1,5 +1,5 @@
 ---
-title: Confirm a verification code.
+title: Confirm a verification code
 excerpt: >
   Confirms a sender registration by submitting the verification code.
 
