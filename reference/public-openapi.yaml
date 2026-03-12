@@ -310,7 +310,7 @@ paths:
     post:
       tags:
         - WhatsApp
-      summary: Send WhatsApp message.
+      summary: Send WhatsApp message
       description: >-
         Sends a single templated message to a single recipient. Templates need
         to be registered and pre-approved by WhatsApp.
@@ -335,7 +335,7 @@ paths:
     get:
       tags:
         - WhatsApp
-      summary: Get WhatsApp message.
+      summary: Get WhatsApp message
       description: >
         Retrieves details of a previously sent WhatsApp message by its unique
         identifier.
@@ -763,7 +763,7 @@ paths:
     post:
       tags:
         - Senders
-      summary: Create a sender registration.
+      summary: Create a sender registration
       security:
         - ApiKeyAuth: []
       description: |
@@ -796,7 +796,7 @@ paths:
     delete:
       tags:
         - Senders
-      summary: Delete a sender by phone number.
+      summary: Delete a sender by phone number
       security:
         - ApiKeyAuth: []
       description: |
@@ -840,7 +840,7 @@ paths:
     post:
       tags:
         - Senders
-      summary: Request a verification code.
+      summary: Request a verification code
       security:
         - ApiKeyAuth: []
       description: >
@@ -884,7 +884,7 @@ paths:
     post:
       tags:
         - Senders
-      summary: Confirm a verification code.
+      summary: Confirm a verification code
       security:
         - ApiKeyAuth: []
       description: >
@@ -1015,8 +1015,9 @@ components:
         sender:
           type: string
           description: >-
-            The sender number to use for SMS fallback, which can be in E.164
-            international format or an alphanumeric sender ID.
+            The sender number to use for SMS fallback, which can be in
+            [E.164](http://en.wikipedia.org/wiki/E.164) international format or
+            an alphanumeric sender ID.
           x-go-type-skip-optional-pointer: true
         message:
           type: string
@@ -1028,11 +1029,14 @@ components:
       properties:
         sender:
           type: string
-          description: |
-            Registered WhastApp sender number.
+          description: >
+            Registered WhatsApp sender number.
 
-             - Must be in **international format** <a href="http://en.wikipedia.org/wiki/E.164">E.164 format</a> (e.g., +14155238886).
-             - Number must be registered with the WhatsApp Business API.
+
+            - Must be in **international format** following the [E.164
+            standard](http://en.wikipedia.org/wiki/E.164) (e.g., +14155238886).
+
+            - Number must be registered with the WhatsApp Business API.
         recipient:
           type: string
           format: phone
@@ -1175,8 +1179,8 @@ components:
           type: string
           format: date-time
           description: >-
-            Timestamp in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) when the message was
-            created on the server.
+            Timestamp in RFC3339 format (e.g., 2025-08-26T10:30:00Z) when the
+            message was created on the server.
       required:
         - id
         - sender
@@ -1222,7 +1226,9 @@ components:
         created_at:
           type: string
           format: date-time
-          description: Timestamp in ISO 8601 when the event occurred.
+          description: >-
+            Timestamp in RFC3339 format (e.g., 2025-08-26T10:30:00Z) when the
+            event occurred.
         details:
           type: string
           description: Description of the event.
@@ -1270,8 +1276,8 @@ components:
           type: string
           format: date-time
           description: >-
-            Timestamp in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) when the message was
-            created on the server.
+            Timestamp in RFC3339 format (e.g., 2025-08-26T10:30:00Z) when the
+            message was created on the server.
         status:
           $ref: '#/components/schemas/WhatsappMessageStatus'
         events:
@@ -1321,12 +1327,14 @@ components:
           type: string
           format: date-time
           description: >-
-            Start date for statistics period in ISO 8601
-            (`YYYY-MM-DDTHH:MM:SSZ`).
+            Start date for statistics period in RFC3339 format (e.g.,
+            2025-08-26T10:30:00Z).
         end_at:
           type: string
           format: date-time
-          description: End date for statistics period in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
+          description: >-
+            End date for statistics period in RFC3339 format (e.g.,
+            2025-08-26T23:59:59Z).
         totals:
           type: object
           description: Aggregated totals for WhatsApp messages.
@@ -1387,7 +1395,7 @@ components:
           type: string
           format: date-time
           description: >-
-            Timestamp in ISO 8601 format (`YYYY-MM-DDTHH:MM:SSZ`) when the
+            Timestamp in RFC3339 format (e.g., 2025-08-26T10:30:00Z) when the
             message was created on the server.
       required:
         - id
@@ -1689,8 +1697,9 @@ components:
         sender:
           type: string
           description: >-
-            The sender number to use for SMS fallback, which can be in E.164
-            international format or an alphanumeric sender ID.
+            The sender number to use for SMS fallback, which can be in
+            [E.164](http://en.wikipedia.org/wiki/E.164) international format or
+            an alphanumeric sender ID.
           x-go-type-skip-optional-pointer: true
         message:
           type: string
@@ -1715,7 +1724,9 @@ components:
         created_at:
           type: string
           format: date-time
-          description: Timestamp (ISO 8601) when the event occurred.
+          description: >-
+            Timestamp in RFC3339 format (e.g., 2025-08-26T10:30:00Z) when the
+            event occurred.
         details:
           type: string
           description: Description of the event.
@@ -1755,15 +1766,15 @@ components:
 
             Can be either in local format or in international format.
 
-            For international format, it should follow E.164 standard.
+            For international format, it should follow the [E.164
+            standard](http://en.wikipedia.org/wiki/E.164).
 
-            [http://en.wikipedia.org/wiki/E.164](http://en.wikipedia.org/wiki/E.164)
 
             Examples of conversions to E.164 format:
 
-            Australia 0438 333 061 => 61438333061
+            - Australia: 0438 333 061 → 61438333061
 
-            UK 07123 456 789 => 447123456789
+            - UK: 07123 456 789 → 447123456789
         content_type:
           type: string
           description: Type of the message content (currently only text supported).
@@ -1845,8 +1856,8 @@ components:
           type: string
           format: date-time
           description: >-
-            Timestamp in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) when the message was
-            created on the server.
+            Timestamp in RFC3339 format (e.g., 2025-08-26T10:30:00Z) when the
+            message was created on the server.
       required:
         - id
         - sender
@@ -1902,8 +1913,8 @@ components:
           type: string
           format: date-time
           description: >-
-            Timestamp in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) when the message was
-            created on the server.
+            Timestamp in RFC3339 format (e.g., 2025-08-26T10:30:00Z) when the
+            message was created on the server.
         status:
           type: string
           description: >-
@@ -1961,12 +1972,14 @@ components:
           type: string
           format: date-time
           description: >-
-            Start date for statistics period in ISO 8601
-            (`YYYY-MM-DDTHH:MM:SSZ`).
+            Start date for statistics period in RFC3339 format (e.g.,
+            2025-08-26T10:30:00Z).
         end_at:
           type: string
           format: date-time
-          description: End date for statistics period in ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).
+          description: >-
+            End date for statistics period in RFC3339 format (e.g.,
+            2025-08-26T23:59:59Z).
         totals:
           type: object
           description: Aggregated totals for RCS messages.
@@ -3379,11 +3392,15 @@ components:
         created_at:
           type: string
           format: date-time
-          description: Timestamp when the registration was created.
+          description: >-
+            Timestamp in RFC3339 format (e.g., 2025-08-26T10:30:00Z) when the
+            registration was created.
         updated_at:
           type: string
           format: date-time
-          description: Timestamp when the registration was last updated.
+          description: >-
+            Timestamp in RFC3339 format (e.g., 2025-08-26T10:32:00Z) when the
+            registration was last updated.
       required:
         - registration_id
         - sender
@@ -3437,7 +3454,9 @@ components:
         expires_at:
           type: string
           format: date-time
-          description: When the verification code expires.
+          description: >-
+            Timestamp in RFC3339 format (e.g., 2025-08-26T10:35:00Z) when the
+            verification code expires.
         attempts_remaining:
           type: integer
           description: Number of remaining attempts to submit the verification code.
@@ -3473,7 +3492,9 @@ components:
         verified_at:
           type: string
           format: date-time
-          description: Timestamp when the verification was confirmed.
+          description: >-
+            Timestamp in RFC3339 format (e.g., 2025-08-26T10:32:00Z) when the
+            verification was confirmed.
       required:
         - registration_id
         - status
