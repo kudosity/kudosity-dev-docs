@@ -1389,6 +1389,13 @@ components:
           description: WhatsApp recipient phone number in international format.
         content_type:
           $ref: '#/components/schemas/WhatsappContentType'
+        content:
+          type: object
+          description: Content details for the message.
+          oneOf:
+            - $ref: '#/components/schemas/TextContent'
+            - $ref: '#/components/schemas/TemplateContent'
+            - $ref: '#/components/schemas/CustomContent'
         status:
           $ref: '#/components/schemas/WhatsappMessageStatus'
         created_at:
@@ -1402,6 +1409,7 @@ components:
         - sender
         - recipient
         - content_type
+        - content
         - status
         - created_at
       example:
@@ -1410,6 +1418,11 @@ components:
         sender: '14155238886'
         recipient: '61411122211'
         content_type: template
+        content:
+          template:
+            name: welcome_new_customer
+            parameters:
+              - Joe
         status: DELIVERED
         created_at: '2021-01-01T00:00:00Z'
     WhatsappListMessagesData:
@@ -3333,6 +3346,17 @@ components:
       required:
         - name
         - content
+    ListSenderRegistrationsResponse:
+      type: object
+      description: Paginated list of sender registrations.
+      properties:
+        registrations:
+          type: array
+          description: Array of sender registrations.
+          items:
+            $ref: '#/components/schemas/SenderRegistration'
+      required:
+        - registrations
     SenderRegistrationType:
       type: string
       description: Type of sender registration.
@@ -3395,6 +3419,13 @@ components:
           description: >-
             Timestamp in RFC3339 format (e.g., 2025-08-26T10:30:00Z) when the
             registration was created.
+        child_account_id:
+          type: string
+          description: >-
+            Child account ID the sender is registered for. Only present for
+            registrations created under a child account.
+          x-oapi-codegen-extra-tags:
+            json: child_account_id,omitempty
         updated_at:
           type: string
           format: date-time
@@ -3509,6 +3540,46 @@ components:
           example: Sender deleted successfully
       required:
         - message
+    PagePaginationMeta:
+      title: Page Pagination Metadata
+      description: >
+        Pagination metadata for page-based pagination.
+
+        Reusable across all paginated API endpoints that use page/limit
+        pagination.
+      type: object
+      required:
+        - type
+        - page
+        - limit
+        - total_count
+      properties:
+        type:
+          type: string
+          description: The pagination strategy being used.
+          enum:
+            - page
+          example: page
+          x-oapi-codegen-extra-tags:
+            valid: required
+        page:
+          type: integer
+          description: The current page number (1-based).
+          example: 1
+          x-oapi-codegen-extra-tags:
+            valid: required
+        limit:
+          type: integer
+          description: The maximum number of results per page.
+          example: 25
+          x-oapi-codegen-extra-tags:
+            valid: required
+        total_count:
+          type: integer
+          description: The total number of results across all pages.
+          example: 123
+          x-oapi-codegen-extra-tags:
+            valid: required
     ConflictProblem:
       description: >
         HTTP 409 Conflict - The request conflicts with the current state of the
