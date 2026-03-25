@@ -1855,6 +1855,20 @@ components:
         title: Not Found
         detail: The requested resource was not found
         status: 404
+    RcsContentType:
+      type: string
+      description: Type of the message content.
+      enum:
+        - text
+    RcsMessageStatus:
+      type: string
+      description: Current status of an RCS message.
+      enum:
+        - QUEUED
+        - SENT
+        - DELIVERED
+        - READ
+        - FAILED
     RCSText:
       type: object
       description: Text content for the message.
@@ -2160,6 +2174,77 @@ components:
           - event_type: DELIVERED
             created_at: '2021-01-01T00:01:15Z'
             details: Message delivered to recipient device
+    RcsListMessageItem:
+      type: object
+      description: Summary representation of an RCS message for list responses.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the message.
+        message_ref:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Optional reference ID set by the user for the message.
+        sender:
+          type: string
+          description: Registered RCS Agent ID.
+        recipient:
+          type: string
+          format: phone
+          description: RCS recipient phone number in international format.
+        content_type:
+          $ref: '#/components/schemas/RcsContentType'
+        content:
+          type: object
+          description: Content details for the message.
+          oneOf:
+            - $ref: '#/components/schemas/RCSTextContent'
+        status:
+          $ref: '#/components/schemas/RcsMessageStatus'
+        created_at:
+          type: string
+          format: date-time
+          description: >-
+            Timestamp in RFC3339 format (e.g., 2025-08-26T10:30:00Z) when the
+            message was created on the server.
+      required:
+        - id
+        - sender
+        - recipient
+        - content_type
+        - content
+        - status
+        - created_at
+      example:
+        id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+        message_ref: optional-ref-123
+        sender: DemoSender
+        recipient: '61411122211'
+        content_type: text
+        content:
+          text:
+            message: Hi Michael, just a quick reminder. You are amazing!
+        status: DELIVERED
+        created_at: '2021-01-01T00:00:00Z'
+    RcsListMessagesData:
+      type: object
+      description: Container for the list of RCS messages.
+      properties:
+        messages:
+          type: array
+          description: Array of RCS messages.
+          items:
+            $ref: '#/components/schemas/RcsListMessageItem'
+      required:
+        - messages
+    RcsListMessagesMeta:
+      type: object
+      description: Metadata for the list messages response including pagination details.
+      properties:
+        pagination:
+          $ref: '#/components/schemas/PaginationMeta'
+      required:
+        - pagination
     RcsStatsResponse:
       type: object
       properties:
