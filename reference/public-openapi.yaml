@@ -2124,16 +2124,7 @@ components:
             Timestamp in RFC3339 format (e.g., 2025-08-26T10:30:00Z) when the
             message was created on the server.
         status:
-          type: string
-          description: >-
-            Current message status: one of `QUEUED`, `SENT`, `DELIVERED`,
-            `READ`, `FAILED`.
-          enum:
-            - QUEUED
-            - SENT
-            - DELIVERED
-            - READ
-            - FAILED
+          $ref: '#/components/schemas/RcsMessageStatus'
         events:
           type: array
           x-go-type-skip-optional-pointer: true
