@@ -1,5 +1,5 @@
 ---
-title: Claude Plugin
+title: Claude Code Plugin
 deprecated: false
 hidden: false
 metadata:
