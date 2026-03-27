@@ -41,15 +41,15 @@ You can interact with the plugin using natural language inside Claude.
 
 ### Send a message
 
->  Send an SMS to +61400000000 saying "Your order has been shipped"
+> Send an SMS to +61400000000 saying "Your order has been shipped"
 
-Create a contact list
+### Create a contact list
 
-Create a contact list called "Customers" with these phone numbers
+>  Create a contact list called "Customers" with these phone numbers
 
-Configure a webhook
+### Configure a webhook
 
-Set up a webhook for incoming messages to [https://example.com/webhook](https://example.com/webhook)
+>  Set up a webhook for incoming messages to [https://example.com/webhook](https://example.com/webhook)
 
 When to use
 
