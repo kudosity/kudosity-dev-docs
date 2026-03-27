@@ -1059,7 +1059,26 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundErrorResponse'
         '409':
-          $ref: '#/components/responses/ConflictErrorResponse'
+          description: >-
+            A verification already exists for this registration. Create a new
+            sender registration to request a new code.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonErrorResponse'
+                  - type: object
+                    properties:
+                      error:
+                        $ref: '#/components/schemas/ConflictProblem'
+              example:
+                error:
+                  detail: >-
+                    verification already exists for this registration; create a
+                    new sender registration to request a new code
+                  status: 409
+                  title: Conflict
+                  type: https://developers.kudosity.com/reference/errors#conflict
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
   /v2/senders/registrations/{registration_id}/verifications/confirmation:
