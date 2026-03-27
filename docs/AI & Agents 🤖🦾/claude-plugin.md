@@ -19,11 +19,7 @@ With the Claude Plugin, you can:
 * Manage webhooks for inbound messages and delivery tracking
   Installation
 
-Install the plugin from the Claude plugin marketplace:
-
-`/plugin install kudosity-sms@claude-plugins-official`
-
-Or install directly from GitHub:
+Install directly from GitHub:
 
 `/plugin install kudosity-sms@github:kudosity/kudosity-claude-sms-plugin`
 
