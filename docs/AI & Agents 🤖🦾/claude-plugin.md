@@ -45,11 +45,11 @@ You can interact with the plugin using natural language inside Claude.
 
 ### Create a contact list
 
->  Create a contact list called "Customers" with these phone numbers
+> Create a contact list called "Customers" with these phone numbers
 
 ### Configure a webhook
 
->  Set up a webhook for incoming messages to [https://example.com/webhook](https://example.com/webhook)
+> Set up a webhook for incoming messages to [https://example.com/webhook](https://example.com/webhook)
 
 ## When to use
 
