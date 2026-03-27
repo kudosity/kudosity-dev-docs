@@ -23,6 +23,10 @@ Install directly from GitHub:
 
 `/plugin install kudosity-sms@github:kudosity/kudosity-claude-sms-plugin`
 
+`/plugin install kudosity-sms`
+
+Select "Install for you (user scope)".
+
 ## Authentication
 
 To use the plugin, you will need a Kudosity API key.
