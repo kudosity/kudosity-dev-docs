@@ -51,16 +51,17 @@ You can interact with the plugin using natural language inside Claude.
 
 >  Set up a webhook for incoming messages to [https://example.com/webhook](https://example.com/webhook)
 
-When to use
+## When to use
 
 Use the Claude Plugin when you want to:
 
-Quickly send messages without writing code
-Prototype messaging workflows
-Automate communication tasks
-Build internal tools powered by AI
-Experiment with messaging using natural language
-How it works
+* Quickly send messages without writing code
+* Prototype messaging workflows
+* Automate communication tasks
+* Build internal tools powered by AI
+* Experiment with messaging using natural language
+
+## How it works
 
 The Claude Plugin uses the Model Context Protocol (MCP) to connect Claude to the Kudosity API.
 
