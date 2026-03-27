@@ -67,8 +67,8 @@ The Claude Plugin uses the Model Context Protocol (MCP) to connect Claude to the
 
 This allows Claude to:
 
-Discover available messaging capabilities
-Execute actions on your behalf
-Interact with structured data and workflows
+* Discover available messaging capabilities
+* Execute actions on your behalf
+* Interact with structured data and workflows
 
 All actions are performed securely using your API credentials.
