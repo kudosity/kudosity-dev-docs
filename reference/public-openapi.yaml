@@ -1072,6 +1072,24 @@ paths:
             default: 25
             x-go-type-skip-optional-pointer: true
           example: 25
+        - name: child_account_id
+          in: query
+          required: false
+          description: >-
+            Filter registrations by child account ID. Returns only registrations
+            belonging to the specified child account.
+          schema:
+            type: string
+          example: '1234'
+        - name: sender
+          in: query
+          required: false
+          description: >-
+            Filter registrations by sender phone number in E.164 format (e.g.,
+            61412312312).
+          schema:
+            type: string
+          example: '61412312312'
       responses:
         '200':
           $ref: '#/components/responses/ListSenderRegistrationsSuccessResponse'
