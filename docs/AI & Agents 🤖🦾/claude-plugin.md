@@ -5,7 +5,7 @@ hidden: false
 metadata:
   robots: index
 ---
-The Kudosity Claude Plugin allows you to send messages, manage contacts, and build messaging workflows directly from Claude using natural language.
+The Kudosity Claude Code Plugin is available on the official Claude Code marketplace. Send messages, manage contacts, and build messaging workflows directly from Claude Code using natural language.
 
 It provides an AI-powered interface to the Kudosity messaging platform, enabling rapid development, automation, and experimentation without writing code.
 
@@ -17,13 +17,14 @@ With the Claude Plugin, you can:
 * Create and manage contact lists
 * Configure messaging workflows
 * Manage webhooks for inbound messages and delivery tracking
-  Installation
 
-Install directly from GitHub:
+## Installation
 
-`/plugin install kudosity-sms@github:kudosity/kudosity-claude-sms-plugin`
+Install from the official Claude Code marketplace:
 
-`/plugin install kudosity-sms`
+```
+/plugin install kudosity-sms
+```
 
 Select "Install for you (user scope)".
 
@@ -63,7 +64,7 @@ Use the Claude Plugin when you want to:
 
 ## How it works
 
-The Claude Plugin uses the Model Context Protocol (MCP) to connect Claude to the Kudosity API.
+The Claude Code Plugin uses the Model Context Protocol (MCP) to connect Claude to the Kudosity API.
 
 This allows Claude to:
 

@@ -5,7 +5,7 @@ hidden: false
 metadata:
   robots: index
 ---
-Kudosity provides an AI-native interface to messaging infrastructure, allowing you to interact with messaging APIs using AI agents such as Claude, Cursor, and other MCP-compatible tools.
+Kudosity provides an AI-native interface to messaging infrastructure, allowing you to interact with messaging APIs using AI agents such as Claude, Gemini CLI, Cursor, and other MCP-compatible tools.
 
 Instead of building direct API integrations, you can use natural language to send messages, manage contacts, and automate communication workflows.
 
@@ -47,6 +47,7 @@ This enables a single integration to work across multiple AI platforms without n
 Kudosity can be used with any MCP-compatible AI agent, including:
 
 * Claude (via Claude Code plugins)
+* Gemini CLI (via Gemini CLI extensions)
 * Cursor and other AI-powered development environments
 * Custom AI agents using MCP
 
