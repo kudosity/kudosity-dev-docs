@@ -1092,6 +1092,17 @@ paths:
             type: string
             x-go-type-skip-optional-pointer: true
           example: '61412312312'
+        - name: status
+          in: query
+          required: false
+          description: >
+            Filter registrations by status. Accepts one or more comma-separated
+            values. Valid values: PENDING_APPROVAL, VERIFIED, REJECTED,
+            CANCELLED.
+          schema:
+            type: string
+            x-go-type-skip-optional-pointer: true
+          example: VERIFIED
       responses:
         '200':
           $ref: '#/components/responses/ListSenderRegistrationsSuccessResponse'
