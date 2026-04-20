@@ -1293,7 +1293,8 @@ paths:
         '200':
           $ref: '#/components/responses/VerificationConfirmationSuccessResponse'
         '400':
-          $ref: '#/components/responses/InputValidationResponse'
+          $ref: >-
+            #/components/responses/VerificationConfirmationInputValidationResponse
         '401':
           $ref: '#/components/responses/UnauthorizedErrorResponse'
         '404':
@@ -3799,6 +3800,47 @@ components:
       required:
         - name
         - content
+    VerificationConfirmationInputValidationProblem:
+      description: >
+        Input-validation problem (RFC 9457) specific to the verification
+        confirmation endpoint.
+
+        Extends the standard `InputValidationProblem` with a structured
+        `attempts_remaining` field,
+
+        so clients can display the remaining attempt count without string
+        parsing.
+      type: object
+      properties:
+        type:
+          type: string
+          description: A URI that identifies the problem type.
+        title:
+          type: string
+          description: A short summary of the problem type.
+        detail:
+          type: string
+          description: >-
+            A human-readable explanation specific to this occurrence of the
+            problem.
+        status:
+          type: integer
+          description: The HTTP status code.
+        issues:
+          type: array
+          description: An array of issues detected during input validation.
+          x-go-type-skip-optional-pointer: true
+          items:
+            $ref: '#/components/schemas/InputValidationIssue'
+        attempts_remaining:
+          type: integer
+          description: Number of remaining attempts after this failed attempt.
+      required:
+        - type
+        - title
+        - detail
+        - status
+        - attempts_remaining
     ListSenderRegistrationsResponse:
       type: object
       description: Paginated list of sender registrations.
@@ -4268,6 +4310,35 @@ components:
                 total_count: 2
     SenderDeleteNoContentResponse:
       description: Sender deleted successfully. No content is returned.
+    VerificationConfirmationInputValidationResponse:
+      description: >
+        400 response specific to the verification confirmation endpoint. The
+        response includes
+
+        `attempts_remaining` as a structured integer field alongside the
+        standard `detail` and
+
+        `issues` fields, so clients can display the remaining attempt count
+        without string parsing.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: >-
+                  #/components/schemas/VerificationConfirmationInputValidationProblem
+          example:
+            error:
+              type: >-
+                https://developers.kudosity.com/reference/errors#input-validation
+              title: Invalid Request
+              detail: Request validation failed
+              status: 400
+              issues:
+                - name: code
+                  message: invalid verification code, you have 4 attempts remaining
+              attempts_remaining: 4
     ConflictErrorResponse:
       description: Conflict
       content:
