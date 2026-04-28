@@ -5,7 +5,7 @@ hidden: false
 metadata:
   robots: index
 ---
-Kudosity provides an AI-native interface to messaging infrastructure, allowing you to interact with messaging APIs using AI agents such as Claude, Gemini CLI, Cursor, and other MCP-compatible tools.
+Kudosity provides an AI-native interface to messaging infrastructure, allowing you to interact with messaging APIs using AI agents and plugin platforms such as Claude, Gemini CLI, Cursor, and OpenClaw.
 
 Instead of building direct API integrations, you can use natural language to send messages, manage contacts, and automate communication workflows.
 
@@ -26,32 +26,26 @@ This enables developers and teams to interact with messaging systems using natur
 
 ***
 
-## Model Context Protocol (MCP)
+## Plugin integrations
 
-Kudosity’s AI integrations are powered by the Model Context Protocol (MCP).
+Install Kudosity directly inside the host platform’s plugin system. Each plugin runs locally on your machine and uses your own Kudosity API credentials.
 
-MCP is an open standard that allows AI models to connect to external tools and APIs in a consistent and secure way.
-
-By exposing the Kudosity API through MCP, AI agents can:
-
-* Discover available messaging capabilities
-* Execute actions like sending messages or managing contacts
-* Access structured data and workflows
-
-This enables a single integration to work across multiple AI platforms without needing separate implementations.
+* [Claude Code Plugin](/docs/claude-plugin) — installed from the Claude Code marketplace
+* [Gemini CLI Extension](/docs/gemini-extension) — installed from the Gemini CLI Extension Gallery
+* [OpenClaw Plugin](/docs/openclaw-plugin) — installed from ClawHub or npm
 
 ***
 
-## Supported AI tools
+## Model Context Protocol (MCP)
 
-Kudosity can be used with any MCP-compatible AI agent, including:
+The [Kudosity MCP server](/docs/mcp) lets any MCP-compatible AI client connect directly to the Kudosity API, including:
 
-* Claude (via Claude Code plugins)
-* Gemini CLI (via Gemini CLI extensions)
 * Cursor and other AI-powered development environments
 * Custom AI agents using MCP
 
-These tools allow you to integrate messaging directly into development workflows, automation systems, and internal tools.
+MCP is an open standard that allows AI models to connect to external tools and APIs in a consistent and secure way. By exposing the Kudosity API through MCP, AI agents can discover available messaging capabilities, execute actions like sending messages or managing contacts, and access structured data and workflows.
+
+A single MCP integration works across multiple AI platforms without needing separate implementations.
 
 ***
 
