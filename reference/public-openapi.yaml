@@ -60,13 +60,13 @@ tags:
       - SMS_STATUS
 
       - RCS_STATUS
-          
+
 
       For status events, the nested `status` field is an enum with these values:
 
 
       - FAILED: Failed because of an error from the carrier or handset.
-          
+
       - SENT: Submitted to the carrier.
 
       - ACCEPTED: Accepted by the carrier and delivery may have been attempted
@@ -80,7 +80,7 @@ tags:
       - HARD_BOUNCE: Handset was disconnected.
 
       - OTHER: Any other status from the carrier.
-          
+
 
       ## Link Hit
 
@@ -145,7 +145,7 @@ tags:
 
       The source field will be set according to the method a recipient has used
       to opt-out and contain a value of either link or SMS.
-        
+
 
       ###### Example Payloads
 
@@ -161,7 +161,7 @@ tags:
             "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh",
             "message_ref": "ncc5009d",
             "recipient": "61435790000",
-            "sender": "61481074190"  
+            "sender": "61481074190"
           }
         }
       } ``` ```json Opt out via message {
@@ -231,7 +231,7 @@ tags:
           "sender": "447507222200",
           "last_message": {
             "type":"SMS",
-            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",     
+            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
             "message": "Hey, check this out!",
             "message_ref": "ncc5009d",
             "recipient": "447507222200",
@@ -783,7 +783,7 @@ paths:
       summary: Send MMS
       description: >-
         The Send MMS endpoint allows you to send multimedia messages (MMS) to
-        recipients. 
+        recipients.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -1569,17 +1569,15 @@ components:
         - created_at
       example:
         id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
-        message_ref: nda1982d
-        content:
-          text:
-            message: test
+        message_ref: optional-ref-123
         sender: '14155238886'
         recipient: '61411122211'
         content_type: template
-        template:
-          name: welcome_new_customer
-          parameters:
-            - Joe
+        content:
+          template:
+            name: welcome_new_customer
+            parameters:
+              - Joe
         created_at: '2021-01-01T00:00:00Z'
     WhatsappMessageStatus:
       type: string
@@ -2957,7 +2955,7 @@ components:
             type: string
           description: >
             Specify a list of URLs of the media file(s) that you are trying to
-            send. 
+            send.
 
             Supported file formats include jpg, gif, png, MP3, and video MP4.
             Only one image up to 400 KB can be attached at a time.
@@ -4094,6 +4092,21 @@ components:
                 properties:
                   data:
                     $ref: '#/components/schemas/WhatsappResponse'
+          example:
+            data:
+              id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+              message_ref: optional-ref-123
+              sender: '14155238886'
+              recipient: '61411122211'
+              content_type: template
+              content:
+                template:
+                  name: welcome_new_customer
+                  parameters:
+                    - Joe
+              created_at: '2021-01-01T00:00:00Z'
+            request: {}
+            meta: {}
     GetWhatsappSuccessResponse:
       description: OK
       content:
@@ -4105,6 +4118,32 @@ components:
                 properties:
                   data:
                     $ref: '#/components/schemas/WhatsappGetResponse'
+          example:
+            data:
+              id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+              account_id: '123123'
+              message_ref: optional-ref-123
+              sender: '14155238886'
+              recipient: '61411122211'
+              content_type: template
+              content:
+                template:
+                  name: welcome_new_customer
+                  parameters:
+                    - Joe
+              sms_fallback:
+                message: Welcome Joe! Your account is now active.
+              created_at: '2021-01-01T00:00:00Z'
+              status: DELIVERED
+              events:
+                - event_type: SENT
+                  created_at: '2021-01-01T00:00:30Z'
+                  details: Message sent to WhatsApp gateway
+                - event_type: DELIVERED
+                  created_at: '2021-01-01T00:01:15Z'
+                  details: Message delivered to recipient device
+            request: {}
+            meta: {}
     ListWhatsappMessagesSuccessResponse:
       description: OK
       content:
@@ -4118,6 +4157,29 @@ components:
                     $ref: '#/components/schemas/WhatsappListMessagesData'
                   meta:
                     $ref: '#/components/schemas/WhatsappListMessagesMeta'
+          example:
+            data:
+              messages:
+                - id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+                  message_ref: optional-ref-123
+                  sender: '14155238886'
+                  recipient: '61411122211'
+                  content_type: template
+                  content:
+                    template:
+                      name: welcome_new_customer
+                      parameters:
+                        - Joe
+                  status: DELIVERED
+                  created_at: '2021-01-01T00:00:00Z'
+            request: {}
+            meta:
+              pagination:
+                type: cursor
+                next_cursor: MTIzNDU2
+                prev_cursor: null
+                has_next: true
+                has_prev: false
     InputValidationResponse:
       description: Input Validation Error
       content:
@@ -4184,6 +4246,22 @@ components:
                 properties:
                   data:
                     $ref: '#/components/schemas/RcsResponse'
+          example:
+            data:
+              id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+              message_ref: order-12345
+              sender: DemoSender
+              recipient: '447903749662'
+              content_type: text
+              content:
+                text:
+                  message: |-
+                    Hi Michael,
+                    Just a quick reminder. You are amazing!!
+                    Reply STOP to opt out.
+              created_at: '2021-01-01T00:00:00Z'
+            request: {}
+            meta: {}
     GetSuccessResponse:
       description: OK
       content:
@@ -4195,6 +4273,31 @@ components:
                 properties:
                   data:
                     $ref: '#/components/schemas/RcsGetResponse'
+          example:
+            data:
+              id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+              account_id: '123123'
+              message_ref: order-12345
+              sender: DemoSender
+              recipient: '447903749662'
+              content_type: text
+              content:
+                text:
+                  message: |-
+                    Hi Michael,
+                    Just a quick reminder. You are amazing!!
+                    Reply STOP to opt out.
+              created_at: '2021-01-01T00:00:00Z'
+              status: DELIVERED
+              events:
+                - event_type: SENT
+                  created_at: '2021-01-01T00:00:30Z'
+                  details: Message sent to Google RCS gateway
+                - event_type: DELIVERED
+                  created_at: '2021-01-01T00:01:15Z'
+                  details: Message delivered to recipient device
+            request: {}
+            meta: {}
     ListRcsMessagesSuccessResponse:
       description: OK
       content:
@@ -4208,6 +4311,27 @@ components:
                     $ref: '#/components/schemas/RcsListMessagesData'
                   meta:
                     $ref: '#/components/schemas/RcsListMessagesMeta'
+          example:
+            data:
+              messages:
+                - id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+                  message_ref: optional-ref-123
+                  sender: DemoSender
+                  recipient: '61411122211'
+                  content_type: text
+                  content:
+                    text:
+                      message: Hi Michael, just a quick reminder. You are amazing!
+                  status: DELIVERED
+                  created_at: '2021-01-01T00:00:00Z'
+            request: {}
+            meta:
+              pagination:
+                type: cursor
+                next_cursor: MTIzNDU2
+                prev_cursor: null
+                has_next: true
+                has_prev: false
     SenderRegistrationSuccessResponse:
       description: Successful response containing the new sender registration details.
       content:
