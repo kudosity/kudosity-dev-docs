@@ -1,5 +1,5 @@
 ---
-title: Getting Started to Salesforce Integration
+title: Installation Guide
 deprecated: false
 hidden: false
 metadata:
@@ -10,9 +10,11 @@ next:
       title: Install the Package
       type: basic
 ---
+# Getting Started
+
 Setting up the Kudosity Salesforce integration is a straightforward installation process.
 
-<Callout icon="⚠️">
+<Callout icon="⚠️" theme="warn">
   You will need an **active, funded** Kudosity account with a **verified** Sender ID to get started.
 </Callout>
 
@@ -39,13 +41,13 @@ Setting up the Kudosity Salesforce integration is a straightforward installation
 * Send SMS in Flows triggered by record updates or schedules
 * SMS activity objects & feeds customisable to your reporting needs
 
-<Callout icon="⚠️">
+<Callout icon="⚠️" theme="warn">
   **Supported clouds:** Sales Cloud and Service Cloud only. Marketing Cloud is not supported.
 </Callout>
 
 <br />
 
-# Prerequisites 
+# Prerequisites
 
 Before installing, confirm you have the right Salesforce edition:
 
@@ -55,13 +57,13 @@ Before installing, confirm you have the right Salesforce edition:
 * Developer
 * Performance
 
-<Callout icon="⚠️">
+<Callout icon="⚠️" theme="warn">
   You will need administrative access to install the integration.
 </Callout>
 
 <br />
 
-# Network Access / IP Whitelisting 
+# Network Access / IP Whitelisting
 
 If your Salesforce instance uses IP whitelisting, add the following to your **Network Access Trusted IP Ranges** before installing:
 
