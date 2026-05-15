@@ -4,6 +4,11 @@ deprecated: false
 hidden: false
 metadata:
   robots: index
+next:
+  pages:
+    - slug: set-up-live-responses-reporting-eca-setup
+      title: Set Up Live Responses / Reporting (ECA Setup)
+      type: basic
 ---
 Administrators can assign specific default Sender IDs and Country settings to individual Salesforce users. This ensures users only have access to the Sender IDs appropriate for their role and prevents users from accessing Sender IDs assigned to other team members.
 
