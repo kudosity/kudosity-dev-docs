@@ -4,6 +4,11 @@ deprecated: false
 hidden: false
 metadata:
   robots: index
+next:
+  pages:
+    - slug: set-default-country-and-sender-id
+      title: Set Default Country and Sender ID
+      type: basic
 ---
 1. Open the App Launcher (9-dot grid icon, top-left navigation bar) and search for Kudosity.
 2. Click the Kudosity app result — you will be taken to the setup screen.
