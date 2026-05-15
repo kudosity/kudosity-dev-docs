@@ -4,6 +4,11 @@ deprecated: false
 hidden: false
 metadata:
   robots: index
+next:
+  pages:
+    - slug: connect-salesforce-to-your-kudosity-account
+      title: Connect Salesforce to Your Kudosity Account
+      type: basic
 ---
 <Cards>
   <Card title="Install in Production" href="https://kudosity.com/integrations/salesforce/installation-guide#install" icon="fa-rocket" target="_blank" />
