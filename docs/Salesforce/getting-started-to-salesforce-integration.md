@@ -6,8 +6,8 @@ metadata:
   robots: index
 next:
   pages:
-    - slug: getting-started-to-salesforce-integration
-      title: Getting Started to Salesforce Integration
+    - slug: install-the-package
+      title: Install the Package
       type: basic
 ---
 Setting up the Kudosity Salesforce integration is a straightforward installation process.
