@@ -6,9 +6,9 @@ metadata:
   robots: index
 ---
 <Cards>
-  <Card title="Install in Production" href="https://kudosity.com/integrations/salesforce/installation-guide#install" icon="fa-rocket" />
+  <Card title="Install in Production" href="https://kudosity.com/integrations/salesforce/installation-guide#install" icon="fa-rocket" target="_blank" />
 
-  <Card title="Test in Sandbox" href="https://kudosity.com/integrations/salesforce/install-sandbox" icon="fa-server" />
+  <Card title="Test in Sandbox" href="https://kudosity.com/integrations/salesforce/install-sandbox" icon="fa-server" target="_blank" />
 </Cards>
 
 1. Log in and navigate to the installation URL.
