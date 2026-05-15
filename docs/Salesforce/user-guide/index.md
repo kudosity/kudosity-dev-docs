@@ -6,7 +6,7 @@ metadata:
   robots: index
 ---
 <Cards>
-  <Card title="Universal Messaging App" href="/docs/universal-messaging-app" icon="fa-salesforce" />
+  <Card title="Universal Messaging App" href="/docs/universal-messaging-app" icon="fa-comments" />
 
   <Card title="Recipient Contacts" href="/docs/recipient-contacts" icon="fa-address-book" />
 
