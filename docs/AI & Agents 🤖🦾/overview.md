@@ -31,8 +31,15 @@ This enables developers and teams to interact with messaging systems using natur
 Install Kudosity directly inside the host platform’s plugin system. Each plugin runs locally on your machine and uses your own Kudosity API credentials.
 
 * [Claude Code Plugin](/docs/claude-plugin) — installed from the Claude Code marketplace
+* [GitHub Copilot Extension](/docs/copilot-extension) — installed by opening the repository as a VS Code workspace or merging the MCP snippet into your VS Code user settings
 * [Gemini CLI Extension](/docs/gemini-extension) — installed from the Gemini CLI Extension Gallery
 * [OpenClaw Plugin](/docs/openclaw-plugin) — installed from ClawHub or npm
+
+***
+
+## Workflow automation
+
+For CI/CD pipelines that need to send an SMS as part of a workflow (deploy notifications, failure alerts, scheduled reminders), use the [Kudosity SMS GitHub Action](/docs/sms-action). It drops into any GitHub Actions workflow as a single step and posts directly to the V2 SMS API.
 
 ***
 
