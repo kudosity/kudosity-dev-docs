@@ -60,13 +60,13 @@ tags:
       - SMS_STATUS
 
       - RCS_STATUS
-          
+
 
       For status events, the nested `status` field is an enum with these values:
 
 
       - FAILED: Failed because of an error from the carrier or handset.
-          
+
       - SENT: Submitted to the carrier.
 
       - ACCEPTED: Accepted by the carrier and delivery may have been attempted
@@ -80,7 +80,7 @@ tags:
       - HARD_BOUNCE: Handset was disconnected.
 
       - OTHER: Any other status from the carrier.
-          
+
 
       ## Link Hit
 
@@ -145,7 +145,7 @@ tags:
 
       The source field will be set according to the method a recipient has used
       to opt-out and contain a value of either link or SMS.
-        
+
 
       ###### Example Payloads
 
@@ -161,7 +161,7 @@ tags:
             "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh",
             "message_ref": "ncc5009d",
             "recipient": "61435790000",
-            "sender": "61481074190"  
+            "sender": "61481074190"
           }
         }
       } ``` ```json Opt out via message {
@@ -231,7 +231,7 @@ tags:
           "sender": "447507222200",
           "last_message": {
             "type":"SMS",
-            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",     
+            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
             "message": "Hey, check this out!",
             "message_ref": "ncc5009d",
             "recipient": "447507222200",
@@ -664,6 +664,45 @@ paths:
           $ref: '#/components/responses/UnauthorizedErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
+  /v2/rcs/capabilities:
+    post:
+      tags:
+        - RCS
+      summary: Check RCS capability for phone numbers
+      description: >
+        Synchronously checks whether a list of phone numbers can receive RCS
+        from your sender.
+
+
+        Use this **before** sending to decide between RCS and SMS fallback.
+        Designed for routing-time lookups: small batches (1–10 numbers
+        recommended for best latency), immediate response.
+
+
+        Results are best-effort and reflect capability at the moment of the
+        lookup. **Do not use this as a hard gate** on sending — treat `UNKNOWN`
+        as reachable and rely on SMS fallback for hard delivery guarantees.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RcsCapabilityCheckRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/RcsCapabilityCheckSuccessResponse'
+        '400':
+          $ref: '#/components/responses/InputValidationResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
   /v2/rcs/messages/{id}:
     get:
       tags:
@@ -783,7 +822,7 @@ paths:
       summary: Send MMS
       description: >-
         The Send MMS endpoint allows you to send multimedia messages (MMS) to
-        recipients. 
+        recipients.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -2478,6 +2517,98 @@ components:
           delivered: 9
           failed: 1
           read: 8
+    RcsCapabilityCheckRequest:
+      type: object
+      description: Request payload for the synchronous RCS capability check.
+      properties:
+        sender:
+          type: string
+          description: |
+            The RCS sender assigned to your account.
+
+            - Example: `DemoSender`
+        phone_numbers:
+          type: array
+          description: >
+            Phone numbers to check, in
+            [E.164](http://en.wikipedia.org/wiki/E.164) format without the
+            leading `+`.
+
+
+            For best latency we recommend batches of 1–10. The endpoint accepts
+            up to 100 numbers per request.
+          minItems: 1
+          maxItems: 100
+          items:
+            type: string
+            format: phone
+            example: '61400000000'
+      required:
+        - sender
+        - phone_numbers
+      example:
+        sender: DemoSender
+        phone_numbers:
+          - '61400000000'
+          - '61400000001'
+    RcsCapabilityResult:
+      type: object
+      description: RCS capability result for a single phone number.
+      properties:
+        phone_number:
+          type: string
+          description: >-
+            The phone number that was checked, in E.164 format without the
+            leading `+`.
+        code:
+          type: string
+          enum:
+            - ENABLED
+            - UNREACHABLE
+            - UNKNOWN
+          description: >
+            RCS capability for the number.
+
+
+            - `ENABLED` — the device has RCS and it is enabled for this sender.
+
+            - `UNREACHABLE` — the device cannot receive RCS from this sender.
+
+            - `UNKNOWN` — capability could not be determined (for example, a
+            carrier timeout). Treat as reachable and rely on SMS fallback for
+            hard delivery guarantees.
+      required:
+        - phone_number
+        - code
+      example:
+        phone_number: '61400000000'
+        code: ENABLED
+    RcsCapabilityCheckData:
+      type: object
+      description: Capability check results for the requested phone numbers.
+      properties:
+        results:
+          type: array
+          description: One entry per phone number from the request, in the same order.
+          items:
+            $ref: '#/components/schemas/RcsCapabilityResult'
+      required:
+        - results
+    ForbiddenProblem:
+      description: >
+        HTTP 403 Forbidden - Access to the requested resource is forbidden.
+
+
+        Your client application is authenticated but does not have permission to
+        access this resource.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/reference/errors#forbidden
+        title: Forbidden
+        detail: Access to this resource is forbidden
+        status: 403
     ListSMSRequest:
       type: object
       properties:
@@ -2955,7 +3086,7 @@ components:
             type: string
           description: >
             Specify a list of URLs of the media file(s) that you are trying to
-            send. 
+            send.
 
             Supported file formats include jpg, gif, png, MP3, and video MP4.
             Only one image up to 400 KB can be attached at a time.
@@ -4332,6 +4463,37 @@ components:
                 prev_cursor: null
                 has_next: true
                 has_prev: false
+    RcsCapabilityCheckSuccessResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RcsCapabilityCheckData'
+          example:
+            data:
+              results:
+                - phone_number: '61400000000'
+                  code: ENABLED
+                - phone_number: '61400000001'
+                  code: UNREACHABLE
+            request: {}
+            meta: {}
+    ForbiddenErrorResponse:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/ForbiddenProblem'
     SenderRegistrationSuccessResponse:
       description: Successful response containing the new sender registration details.
       content:
