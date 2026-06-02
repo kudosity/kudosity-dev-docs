@@ -23,6 +23,7 @@ Kudosity’s Webhooks API enables you to subscribe to key messaging events in re
 | `SMS_INBOUND`      | Triggered when an inbound SMS is received                                                |
 | `SMS_STATUS`       | Delivery status updates for SMS messages                                                 |
 | `RCS_STATUS`       | Delivery status updates for RCS messages (includes extra RCS-specific info)              |
+| `RCS_INBOUND`      | Triggered when an inbound RCS message is received (supports rich content)                 |
 | `WHATSAPP_STATUS`  | Delivery status updates for WhatsApp messages (submitted, delivered, read, failed, etc.) |
 | `WHATSAPP_INBOUND` | Triggered when an inbound WhatsApp message is received (supports rich content)           |
 
@@ -396,6 +397,35 @@ Example Payloads
     "sender": "DemoAgent",
     "recipient": "61400000000",
     "status": "READ"
+  }
+}
+```
+
+## RCS Inbound
+
+The `RCS_INBOUND` event is posted to you when a recipient replies in an RCS conversation. This includes free-text replies, which are not opt-out keywords, as well as rich replies such as images and shared locations. The reply is delivered as a mobile-originated (`mo`) message.
+
+The `mo.sender` field is the recipient who sent the reply, and the `mo.recipient` field is the RCS agent that received it. The `mo.content_type` field identifies the type of reply, and the matching content is nested under `mo.content`. Supported RCS content types are `TEXT`, `IMAGE`, `VIDEO`, `AUDIO`, `FILE`, `LOCATION`, and `CONTACT`.
+
+Example Payloads
+
+```json
+{
+  "event_type": "RCS_INBOUND",
+  "timestamp": "2025-07-01T09:34:51.246802Z",
+  "webhook_id": "fd0e6485-b905-44c1-bd55-fee1d0d6d864",
+  "webhook_name": "RCS Inbound Webhook",
+  "mo": {
+    "type": "RCS",
+    "id": "bc2e0a4a-7e21-49de-9912-20cb4148c21f",
+    "sender": "61400000000",
+    "recipient": "DemoAgent",
+    "content_type": "TEXT",
+    "content": {
+      "text": {
+        "message": "Yes, that time works for me."
+      }
+    }
   }
 }
 ```
