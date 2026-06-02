@@ -82,6 +82,12 @@ The RCS_STATUS event is triggered when the status of an RCS message changes. The
 | `DELIVERED` | The message has been delivered to the recipient’s device.                 |
 | `FAILED`    | Delivery failed due to a carrier or handset error.                        |
 | `READ`      | The message was read by the recipient (when supported by device/carrier). |
+| `REJECTED`      | The carrier or gateway rejected the message (for example, a non-RCS-capable handset).     |
+| `UNDELIVERABLE` | The message reached the carrier but couldn’t be delivered (handset unreachable or expired). |
+| `OTHER`         | A status that doesn’t map to a known value; passed through as-is from the carrier.        |
+
+> 📘 Polling vs. webhooks
+> The `GET /v2/rcs/messages` and `GET /v2/rcs/messages/{id}` endpoints collapse `REJECTED`, `UNDELIVERABLE`, and expiry into `FAILED`. A message that reads `FAILED` when polled may have reported the more specific `REJECTED` or `UNDELIVERABLE` over the webhook.
 
 ### WhatsApp Status Events
 
