@@ -2565,18 +2565,36 @@ components:
           enum:
             - ENABLED
             - UNREACHABLE
+            - REJECTED_NETWORK
+            - REJECTED_ROUTE_NOT_AVAILABLE
+            - REQUEST_FAILED
+            - PROCESSING_ERROR
+            - INVALID_DESTINATION_ADDRESS
             - UNKNOWN
           description: >
             RCS capability for the number.
 
 
-            - `ENABLED` — the device has RCS and it is enabled for this sender.
+            - `ENABLED` — the number can receive RCS messages from the specified
+            sender.
 
-            - `UNREACHABLE` — the device cannot receive RCS from this sender.
+            - `UNREACHABLE` — the number cannot receive RCS messages from the
+            specified sender.
 
-            - `UNKNOWN` — capability could not be determined (for example, a
-            carrier timeout). Treat as reachable and rely on SMS fallback for
-            hard delivery guarantees.
+            - `REJECTED_NETWORK` — message not sent, network not allowed.
+
+            - `REJECTED_ROUTE_NOT_AVAILABLE` — route not available for that
+            sender.
+
+            - `REQUEST_FAILED` — external problems during capability check.
+
+            - `PROCESSING_ERROR` — the results for the number couldn't be
+            processed; the caller should retry.
+
+            - `INVALID_DESTINATION_ADDRESS` — number provided in wrong format.
+
+            - `UNKNOWN` — unknown error from upstream, or any value the API did
+            not otherwise recognise; contact support if it persists.
       required:
         - phone_number
         - code
