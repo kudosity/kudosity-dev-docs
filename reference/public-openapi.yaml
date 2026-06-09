@@ -60,13 +60,13 @@ tags:
       - SMS_STATUS
 
       - RCS_STATUS
-
+          
 
       For status events, the nested `status` field is an enum with these values:
 
 
       - FAILED: Failed because of an error from the carrier or handset.
-
+          
       - SENT: Submitted to the carrier.
 
       - ACCEPTED: Accepted by the carrier and delivery may have been attempted
@@ -80,7 +80,7 @@ tags:
       - HARD_BOUNCE: Handset was disconnected.
 
       - OTHER: Any other status from the carrier.
-
+          
 
       ## Link Hit
 
@@ -145,7 +145,7 @@ tags:
 
       The source field will be set according to the method a recipient has used
       to opt-out and contain a value of either link or SMS.
-
+        
 
       ###### Example Payloads
 
@@ -161,7 +161,7 @@ tags:
             "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh",
             "message_ref": "ncc5009d",
             "recipient": "61435790000",
-            "sender": "61481074190"
+            "sender": "61481074190"  
           }
         }
       } ``` ```json Opt out via message {
@@ -231,7 +231,7 @@ tags:
           "sender": "447507222200",
           "last_message": {
             "type":"SMS",
-            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
+            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",     
             "message": "Hey, check this out!",
             "message_ref": "ncc5009d",
             "recipient": "447507222200",
@@ -822,7 +822,7 @@ paths:
       summary: Send MMS
       description: >-
         The Send MMS endpoint allows you to send multimedia messages (MMS) to
-        recipients.
+        recipients. 
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -1669,6 +1669,12 @@ components:
           type: string
           x-go-type-skip-optional-pointer: true
           description: Optional reference ID set by the user for the message.
+        campaign_id:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: |
+            UUID of the campaign that produced this message.
+            Omitted when the message is not associated with a campaign.
         sender:
           type: string
           format: phone
@@ -1717,6 +1723,7 @@ components:
         id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
         account_id: '123123'
         message_ref: optional-ref-123
+        campaign_id: 9b2e4c1a-7f3d-4a8b-9c5e-2d1f6a8b3c4d
         sender: '14155238886'
         recipient: '61411122211'
         content_type: template
@@ -1795,6 +1802,12 @@ components:
           type: string
           x-go-type-skip-optional-pointer: true
           description: Optional reference ID set by the user for the message.
+        campaign_id:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: |
+            UUID of the campaign that produced this message.
+            Omitted when the message is not associated with a campaign.
         sender:
           type: string
           format: phone
@@ -1841,6 +1854,7 @@ components:
               - Joe
         status: DELIVERED
         created_at: '2021-01-01T00:00:00Z'
+        campaign_id: 9b2e4c1a-7f3d-4a8b-9c5e-2d1f6a8b3c4d
     WhatsappListMessagesData:
       type: object
       description: Container for the list of WhatsApp messages.
@@ -3104,7 +3118,7 @@ components:
             type: string
           description: >
             Specify a list of URLs of the media file(s) that you are trying to
-            send.
+            send. 
 
             Supported file formats include jpg, gif, png, MP3, and video MP4.
             Only one image up to 400 KB can be attached at a time.
