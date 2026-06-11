@@ -4015,17 +4015,63 @@ components:
         - registrations
     SenderRegistrationType:
       type: string
-      description: Type of sender registration.
+      description: >
+        Type of sender registration.
+
+        - `PERSONAL_MOBILE_NUMBER` — a personal mobile number registered as a
+        sender.
+
+        - `ALPHANUMERIC` — an alphanumeric (alpha) sender ID. Type-specific
+        fields are
+          returned under `details.alphanumeric`.
       enum:
         - PERSONAL_MOBILE_NUMBER
+        - ALPHANUMERIC
     SenderRegistrationStatus:
       type: string
-      description: Status of a sender registration.
+      description: >
+        Status of a sender registration. The same coarse set of statuses applies
+        to every
+
+        registration `type`:
+
+        - `PERSONAL_MOBILE_NUMBER` — `PENDING_APPROVAL`, `VERIFIED`, `REJECTED`,
+        `CANCELLED`.
+
+        - `ALPHANUMERIC` — `PENDING_APPROVAL`, `VERIFIED`, `REJECTED`. The finer
+        alpha
+          registry lifecycle is surfaced separately and is not part of this coarse enum.
       enum:
         - PENDING_APPROVAL
         - VERIFIED
         - REJECTED
         - CANCELLED
+    Registry:
+      type: string
+      description: |
+        The registry body an alphanumeric sender registration is submitted to.
+        - `ACMA` — Australian Communications and Media Authority.
+      enum:
+        - ACMA
+    AlphanumericDetails:
+      type: object
+      description: Details specific to an alphanumeric (alpha) sender registration.
+      properties:
+        registry:
+          $ref: '#/components/schemas/Registry'
+      required:
+        - registry
+    SenderRegistrationDetails:
+      type: object
+      description: >
+        Type-specific details for a sender registration. The populated
+        sub-object matches the
+
+        registration `type` — for an `ALPHANUMERIC` registration, `alphanumeric`
+        is present.
+      properties:
+        alphanumeric:
+          $ref: '#/components/schemas/AlphanumericDetails'
     SenderRegistrationRequest:
       type: object
       description: Request body for creating a sender registration.
@@ -4088,6 +4134,19 @@ components:
           description: >-
             Timestamp in RFC3339 format (e.g., 2025-08-26T10:32:00Z) when the
             registration was last updated.
+        details:
+          allOf:
+            - $ref: '#/components/schemas/SenderRegistrationDetails'
+          description: >
+            Type-specific details for the registration. Present only for
+            registration types
+
+            that carry extra fields — for an `ALPHANUMERIC` registration,
+            `details.alphanumeric`
+
+            is populated. Omitted for `PERSONAL_MOBILE_NUMBER`.
+          x-oapi-codegen-extra-tags:
+            json: details,omitempty
       required:
         - registration_id
         - sender
