@@ -4016,17 +4016,31 @@ components:
     SenderRegistrationType:
       type: string
       description: >
-        Type of sender registration.
+        Type of a sender registration record (as returned by the API).
 
         - `PERSONAL_MOBILE_NUMBER` — a personal mobile number registered as a
         sender.
 
         - `ALPHANUMERIC` — an alphanumeric (alpha) sender ID. Type-specific
         fields are
-          returned under `details.alphanumeric`.
+          returned under `details.alphanumeric`. Alpha registrations are created through
+          the registration backoffice, not this public API.
       enum:
         - PERSONAL_MOBILE_NUMBER
         - ALPHANUMERIC
+    SenderRegistrationRequestType:
+      type: string
+      description: >
+        Type of sender registration that can be created through the public API.
+        Only
+
+        `PERSONAL_MOBILE_NUMBER` is supported here; alpha (`ALPHANUMERIC`)
+        registrations are
+
+        created through the registration backoffice and are read-only on this
+        API.
+      enum:
+        - PERSONAL_MOBILE_NUMBER
     SenderRegistrationStatus:
       type: string
       description: >
@@ -4086,7 +4100,7 @@ components:
           maxLength: 2
           pattern: ^[A-Z]{2}$
         type:
-          $ref: '#/components/schemas/SenderRegistrationType'
+          $ref: '#/components/schemas/SenderRegistrationRequestType'
         child_account_id:
           type: string
           description: >
