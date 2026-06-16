@@ -1346,6 +1346,387 @@ paths:
           $ref: '#/components/responses/InternalServerErrorResponse'
 components:
   schemas:
+    CampaignAudienceSourceType:
+      type: string
+      description: |
+        The type of audience source.
+        - `contact_list` — an audience sourced from a saved contact list
+      enum:
+        - contact_list
+    CampaignContactListSource:
+      type: object
+      description: An audience source backed by a saved contact list.
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the contact list.
+          example: '123456'
+          x-oapi-codegen-extra-tags:
+            valid: required
+    CampaignAudienceSource:
+      type: object
+      description: A single source contributing contacts to the campaign audience.
+      required:
+        - source_type
+        - source
+      properties:
+        source_type:
+          $ref: '#/components/schemas/CampaignAudienceSourceType'
+        source:
+          type: object
+          description: >
+            The audience source details. Populate the field matching
+            `source_type`:
+
+            - `contact_list` when `source_type` is `contact_list`
+          properties:
+            contact_list:
+              $ref: '#/components/schemas/CampaignContactListSource'
+    CampaignAudience:
+      type: object
+      description: Defines the set of contacts who will receive campaign messages.
+      required:
+        - include
+      properties:
+        include:
+          type: array
+          description: >
+            Exactly one audience source whose contacts are included in the
+            campaign.
+
+            Only a single contact list is supported in v1; requests with
+            multiple sources will be rejected.
+          minItems: 1
+          maxItems: 1
+          items:
+            $ref: '#/components/schemas/CampaignAudienceSource'
+    CampaignWhatsappTemplateContent:
+      type: object
+      description: A pre-approved WhatsApp message template.
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: >
+            The name of the WhatsApp message template configured in your
+            Kudosity account.
+
+            The template must be registered and approved in your account before
+            sending.
+          example: june_sale_2026
+          x-oapi-codegen-extra-tags:
+            valid: required
+    CampaignWhatsAppChannelType:
+      type: string
+      description: The WhatsApp messaging channel identifier.
+      enum:
+        - WHATSAPP
+    CampaignWhatsAppChannelContentType:
+      type: string
+      description: >
+        The type of content to send via WhatsApp.
+
+        - `template` — a WhatsApp message template configured in your Kudosity
+        account
+      enum:
+        - template
+    CampaignChannelBase:
+      type: object
+      description: Common properties shared by all channel configurations.
+      required:
+        - channel
+        - sender
+        - content_type
+        - content
+      properties:
+        channel:
+          type: string
+          description: The messaging channel (e.g. `WHATSAPP`).
+        sender:
+          type: string
+          description: The sender ID or phone number registered on the channel.
+          x-oapi-codegen-extra-tags:
+            valid: required
+        content_type:
+          type: string
+          description: >-
+            The type of content being sent. Determines which field inside
+            `content` is used.
+        content:
+          type: object
+          description: >-
+            The message content. The relevant field is determined by
+            `content_type`.
+    CampaignChannel:
+      description: |
+        Configuration for a single messaging channel used in the campaign.
+        The `channel` field determines which schema applies:
+        - `channel: WHATSAPP` — WhatsApp template message
+      oneOf:
+        - $ref: '#/components/schemas/CampaignWhatsAppChannel'
+      discriminator:
+        propertyName: channel
+        mapping:
+          WHATSAPP: '#/components/schemas/CampaignWhatsAppChannel'
+    CampaignWhatsAppChannel:
+      allOf:
+        - $ref: '#/components/schemas/CampaignChannelBase'
+        - type: object
+          description: >-
+            A WhatsApp channel. Sends template messages configured in your
+            Kudosity account.
+          properties:
+            channel:
+              $ref: '#/components/schemas/CampaignWhatsAppChannelType'
+            sender:
+              type: string
+              description: >
+                The phone number registered as a sender in your Kudosity
+                account.
+
+                Use E.164 international format (e.g. `61438000000` for an
+                Australian number).
+              example: '61438000000'
+            content_type:
+              $ref: '#/components/schemas/CampaignWhatsAppChannelContentType'
+            content:
+              type: object
+              description: |
+                The message content. Populate the field matching `content_type`:
+                - `template` when `content_type` is `template`
+              properties:
+                template:
+                  $ref: '#/components/schemas/CampaignWhatsappTemplateContent'
+    CampaignSendMethod:
+      type: string
+      description: |
+        Controls when campaign messages are sent.
+        - `IMMEDIATE` — messages are sent as soon as the campaign is accepted
+      enum:
+        - IMMEDIATE
+    CampaignSendStrategy:
+      type: object
+      description: Defines when and how campaign messages are sent.
+      required:
+        - method_type
+      properties:
+        method_type:
+          $ref: '#/components/schemas/CampaignSendMethod'
+    CampaignStatus:
+      type: string
+      description: |
+        Current lifecycle status of the campaign.
+        - `PENDING` — received and awaiting processing
+        - `RUNNING` — actively sending messages to recipients
+        - `COMPLETED` — all messages have been dispatched
+        - `FAILED` — the campaign could not be sent
+        - `CANCELLED` — the campaign was cancelled before sending
+      enum:
+        - PENDING
+        - RUNNING
+        - COMPLETED
+        - FAILED
+        - CANCELLED
+    CampaignResponse:
+      type: object
+      description: A campaign resource returned after creation.
+      required:
+        - id
+        - name
+        - status
+        - audience
+        - channels
+        - send_strategy
+        - created_at
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the campaign.
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        name:
+          type: string
+          description: The name of the campaign.
+          example: June Sale
+        status:
+          $ref: '#/components/schemas/CampaignStatus'
+        audience:
+          $ref: '#/components/schemas/CampaignAudience'
+        channels:
+          type: array
+          description: Channel configurations for the campaign.
+          items:
+            $ref: '#/components/schemas/CampaignChannel'
+        send_strategy:
+          $ref: '#/components/schemas/CampaignSendStrategy'
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp in RFC3339 format when the campaign was created.
+          example: '2026-06-16T10:00:00Z'
+    CommonResponseMeta:
+      type: object
+      properties:
+        request:
+          type: object
+          description: Optional metadata (e.g. requestId, traceId)
+        meta:
+          type: object
+          description: Optional pagination, feature flags, etc.
+    CommonSuccessResponse:
+      allOf:
+        - type: object
+          properties:
+            data:
+              type: object
+              description: Success response payload
+          required:
+            - data
+        - $ref: '#/components/schemas/CommonResponseMeta'
+    Uri:
+      type: string
+      description: string providing an URI formatted according to IETF RFC 3986.
+      format: uri
+    ProblemDetails:
+      description: |
+        A Problem Details object (RFC 9457).
+
+        Additional properties specific to the problem type may be present.
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/Uri'
+        title:
+          type: string
+          description: >-
+            A short summary of the problem type. Written in English and readable
+            for engineers (usually not suited for non technical stakeholders and
+            not localized).
+        detail:
+          type: string
+          description: >-
+            A human-readable explanation specific to this occurrence of the
+            problem
+        status:
+          type: integer
+          description: The HTTP status code corresponding to this error.
+      required:
+        - type
+        - title
+        - detail
+        - status
+      example:
+        type: https://developers.kudosity.com/reference/errors
+        title: Description of the type of problem that occurred
+        detail: Description of specific occurrence of the problem
+        status: 400
+    CommonErrorResponse:
+      allOf:
+        - type: object
+          properties:
+            error:
+              $ref: '#/components/schemas/ProblemDetails'
+          required:
+            - error
+        - $ref: '#/components/schemas/CommonResponseMeta'
+    InputValidationIssue:
+      type: object
+      description: |
+        An issue detected during input validation.
+      properties:
+        name:
+          type: string
+          description: The name of the param or field that failed validation.
+          x-go-type-skip-optional-pointer: true
+        code:
+          type: integer
+          description: The internal api specific error code.
+          x-go-type-skip-optional-pointer: true
+        message:
+          description: The error message
+          type: string
+          x-go-type-skip-optional-pointer: true
+    InputValidationProblem:
+      description: >
+        This problem occurs when the request is deemed unprocessable.
+
+
+        Your client issued a request that failed validation. Certain validation
+        libraries return multi-errors and cannot be easily parsed into discreet
+        types. This problem type, afforded the provider with the ability to
+        surface all validation errors and negate the need for a trial and error
+        workflow on your side.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+        - properties:
+            issues:
+              description: An array of issues detected during input validation.
+              type: array
+              x-go-type-skip-optional-pointer: true
+              items:
+                $ref: '#/components/schemas/InputValidationIssue'
+      example:
+        type: https://developers.kudosity.com/reference/errors#input-validation
+        title: Invalid Request
+        detail: Request validation failed
+        status: 400
+        issues:
+          - name: field_name
+            message: field_name is required
+    UnauthorizedProblem:
+      description: >
+        HTTP 401 Unauthorized - API authentication failed.
+
+
+        The request was rejected because the API key is missing, invalid,
+        expired, or lacks sufficient permissions for this resource. Check your
+        Authorization header and API key configuration.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/reference/errors#unauthorized
+        title: API Authentication Failed
+        detail: >-
+          Missing or invalid API key in Authorization header. Verify your API
+          key is correct and has the required permissions
+        status: 401
+    ConflictProblem:
+      description: >
+        HTTP 409 Conflict - The request conflicts with the current state of the
+        resource.
+
+
+        Your client application attempted an operation that conflicts with an
+        existing resource or an operation already in progress. Review the
+        current state of the resource before retrying.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/reference/errors#conflict
+        title: Conflict
+        detail: The request conflicts with the current state of the resource
+        status: 409
+    InternalServerErrorProblem:
+      description: >
+        This problem occurs when the server encounters an unexpected condition
+        that prevents it from fulfilling the request.
+
+
+        Your client application did everything correct. Unfortunately our API
+        encountered a condition that resulted in this problem.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/reference/errors#server-error
+        title: Server Error
+        detail: The server encountered an unexpected error
+        status: 500
     WhatsappContentType:
       type: string
       description: Type of the message content.
@@ -1874,25 +2255,6 @@ components:
           $ref: '#/components/schemas/PaginationMeta'
       required:
         - pagination
-    CommonResponseMeta:
-      type: object
-      properties:
-        request:
-          type: object
-          description: Optional metadata (e.g. requestId, traceId)
-        meta:
-          type: object
-          description: Optional pagination, feature flags, etc.
-    CommonSuccessResponse:
-      allOf:
-        - type: object
-          properties:
-            data:
-              type: object
-              description: Success response payload
-          required:
-            - data
-        - $ref: '#/components/schemas/CommonResponseMeta'
     PaginationMeta:
       title: Pagination Metadata
       description: |
@@ -1946,131 +2308,6 @@ components:
           example: false
           x-oapi-codegen-extra-tags:
             valid: required
-    Uri:
-      type: string
-      description: string providing an URI formatted according to IETF RFC 3986.
-      format: uri
-    ProblemDetails:
-      description: |
-        A Problem Details object (RFC 9457).
-
-        Additional properties specific to the problem type may be present.
-      type: object
-      properties:
-        type:
-          $ref: '#/components/schemas/Uri'
-        title:
-          type: string
-          description: >-
-            A short summary of the problem type. Written in English and readable
-            for engineers (usually not suited for non technical stakeholders and
-            not localized).
-        detail:
-          type: string
-          description: >-
-            A human-readable explanation specific to this occurrence of the
-            problem
-        status:
-          type: integer
-          description: The HTTP status code corresponding to this error.
-      required:
-        - type
-        - title
-        - detail
-        - status
-      example:
-        type: https://developers.kudosity.com/reference/errors
-        title: Description of the type of problem that occurred
-        detail: Description of specific occurrence of the problem
-        status: 400
-    CommonErrorResponse:
-      allOf:
-        - type: object
-          properties:
-            error:
-              $ref: '#/components/schemas/ProblemDetails'
-          required:
-            - error
-        - $ref: '#/components/schemas/CommonResponseMeta'
-    InputValidationIssue:
-      type: object
-      description: |
-        An issue detected during input validation.
-      properties:
-        name:
-          type: string
-          description: The name of the param or field that failed validation.
-          x-go-type-skip-optional-pointer: true
-        code:
-          type: integer
-          description: The internal api specific error code.
-          x-go-type-skip-optional-pointer: true
-        message:
-          description: The error message
-          type: string
-          x-go-type-skip-optional-pointer: true
-    InputValidationProblem:
-      description: >
-        This problem occurs when the request is deemed unprocessable.
-
-
-        Your client issued a request that failed validation. Certain validation
-        libraries return multi-errors and cannot be easily parsed into discreet
-        types. This problem type, afforded the provider with the ability to
-        surface all validation errors and negate the need for a trial and error
-        workflow on your side.
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/ProblemDetails'
-        - properties:
-            issues:
-              description: An array of issues detected during input validation.
-              type: array
-              x-go-type-skip-optional-pointer: true
-              items:
-                $ref: '#/components/schemas/InputValidationIssue'
-      example:
-        type: https://developers.kudosity.com/reference/errors#input-validation
-        title: Invalid Request
-        detail: Request validation failed
-        status: 400
-        issues:
-          - name: field_name
-            message: field_name is required
-    UnauthorizedProblem:
-      description: >
-        HTTP 401 Unauthorized - API authentication failed.
-
-
-        The request was rejected because the API key is missing, invalid,
-        expired, or lacks sufficient permissions for this resource. Check your
-        Authorization header and API key configuration.
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/ProblemDetails'
-      example:
-        type: https://developers.kudosity.com/reference/errors#unauthorized
-        title: API Authentication Failed
-        detail: >-
-          Missing or invalid API key in Authorization header. Verify your API
-          key is correct and has the required permissions
-        status: 401
-    InternalServerErrorProblem:
-      description: >
-        This problem occurs when the server encounters an unexpected condition
-        that prevents it from fulfilling the request.
-
-
-        Your client application did everything correct. Unfortunately our API
-        encountered a condition that resulted in this problem.
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/ProblemDetails'
-      example:
-        type: https://developers.kudosity.com/reference/errors#server-error
-        title: Server Error
-        detail: The server encountered an unexpected error
-        status: 500
     TooManyRequestsProblem:
       description: >
         HTTP 429 Too Many Requests - Rate limit exceeded.
@@ -4299,24 +4536,51 @@ components:
           example: 123
           x-oapi-codegen-extra-tags:
             valid: required
-    ConflictProblem:
-      description: >
-        HTTP 409 Conflict - The request conflicts with the current state of the
-        resource.
-
-
-        Your client application attempted an operation that conflicts with an
-        existing resource or an operation already in progress. Review the
-        current state of the resource before retrying.
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/ProblemDetails'
-      example:
-        type: https://developers.kudosity.com/reference/errors#conflict
-        title: Conflict
-        detail: The request conflicts with the current state of the resource
-        status: 409
   responses:
+    InputValidationResponse:
+      description: Input Validation Error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/InputValidationProblem'
+    UnauthorizedErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/UnauthorizedProblem'
+    ConflictErrorResponse:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/ConflictProblem'
+    InternalServerErrorResponse:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/InternalServerErrorProblem'
     SuccessResponse:
       description: OK
       content:
@@ -4416,39 +4680,6 @@ components:
                 prev_cursor: null
                 has_next: true
                 has_prev: false
-    InputValidationResponse:
-      description: Input Validation Error
-      content:
-        application/json:
-          schema:
-            allOf:
-              - $ref: '#/components/schemas/CommonErrorResponse'
-              - type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/InputValidationProblem'
-    UnauthorizedErrorResponse:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            allOf:
-              - $ref: '#/components/schemas/CommonErrorResponse'
-              - type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/UnauthorizedProblem'
-    InternalServerErrorResponse:
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            allOf:
-              - $ref: '#/components/schemas/CommonErrorResponse'
-              - type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/InternalServerErrorProblem'
     TooManyRequestsErrorResponse:
       description: Too Many Requests
       content:
@@ -4730,17 +4961,6 @@ components:
                 - name: code
                   message: invalid verification code, you have 4 attempts remaining
               attempts_remaining: 4
-    ConflictErrorResponse:
-      description: Conflict
-      content:
-        application/json:
-          schema:
-            allOf:
-              - $ref: '#/components/schemas/CommonErrorResponse'
-              - type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/ConflictProblem'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
