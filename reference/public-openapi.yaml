@@ -4304,12 +4304,73 @@ components:
         - `ACMA` — Australian Communications and Media Authority.
       enum:
         - ACMA
+    AlphanumericStatus:
+      type: string
+      description: >
+        Fine-grained registry lifecycle status for an alphanumeric registration
+        — the state the
+
+        customer sees on screen, distinct from the coarse root `status`.
+
+
+        This enum is **expected to grow** as a registry (e.g. ACMA) introduces
+        new states. The
+
+        server only ever returns a value it has explicitly mapped, and new
+        values are added here
+
+        additively — so **clients must render a graceful fallback for any value
+        they don't yet
+
+        recognise** rather than treating the set as fixed.
+
+
+        Value → display label:
+
+        - `NEW` — Initial Review
+
+        - `SUBMITTED_TO_REGISTRY` — Submitted
+
+        - `PENDING_CUSTOMER` — Awaiting Confirmation
+
+        - `PENDING_APPROVAL` — In ACMA Review
+
+        - `VERIFIED` — Provisioning
+
+        - `READY_TO_USE` — Ready to Use
+
+        - `FAILED` — Failed
+
+        - `REVOKED` — Revoked
+
+        - `CANCELLED` — Cancelled
+      enum:
+        - NEW
+        - SUBMITTED_TO_REGISTRY
+        - PENDING_CUSTOMER
+        - PENDING_APPROVAL
+        - VERIFIED
+        - READY_TO_USE
+        - FAILED
+        - REVOKED
+        - CANCELLED
+      example: PENDING_CUSTOMER
     AlphanumericDetails:
       type: object
       description: Details specific to an alphanumeric (alpha) sender registration.
       properties:
         registry:
           $ref: '#/components/schemas/Registry'
+        status:
+          $ref: '#/components/schemas/AlphanumericStatus'
+        status_reason:
+          type: string
+          description: >
+            Optional human-readable reason for the current `status` (verbatim
+            registry status
+
+            description), suitable for tooltips. May be absent or blank.
+          example: Customer has not taken any actions
       required:
         - registry
     SenderRegistrationDetails:
