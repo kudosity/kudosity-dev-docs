@@ -4,13 +4,17 @@ excerpt: ''
 deprecated: false
 hidden: false
 metadata:
-  title: ''
+  title: RCS/RBM Agents
   description: >-
     In RCS Business Messaging, an agent is the branded, verified identity that
     customers see when they receive messages, while the sender or number is the
     mechanism through which messages are delivered; agents serve as digital
     storefronts for brands, offering various functionalities like customer
     support, marketing, and transactional interactions.
+  keywords:
+    - RCS
+    - RBM
+    - Agents
   robots: index
 next:
   description: ''
