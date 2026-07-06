@@ -1353,6 +1353,8 @@ components:
         - `contact_list` — an audience sourced from a saved contact list
       enum:
         - contact_list
+      x-enum-varnames:
+        - ContactList
     CampaignContactListSource:
       type: object
       description: An audience source backed by a saved contact list.
@@ -1419,6 +1421,79 @@ components:
           example: june_sale_2026
           x-oapi-codegen-extra-tags:
             valid: required
+        variable_mappings:
+          type: array
+          description: >
+            Maps the template's dynamic BODY variables to contact fields.
+            Required when the
+
+            template's BODY component has variables (must match them exactly, no
+            extras or
+
+            missing); omit for fully static templates. Variables in the header,
+            buttons, or
+
+            carousel are not supported and are rejected.
+          items:
+            $ref: '#/components/schemas/CampaignWhatsAppTemplateVariableMapping'
+    CampaignWhatsAppTemplateVariableMapping:
+      type: object
+      description: >
+        Maps a single template variable placeholder to a contact field. Only
+
+        `component: "body"` is supported currently; header/button/carousel
+        variables are
+
+        rejected.
+      required:
+        - component
+        - parameter
+        - source
+      properties:
+        component:
+          type: string
+          description: >
+            The template component the variable belongs to. Only `"body"` is
+            supported
+
+            for this ticket.
+          enum:
+            - body
+          example: body
+        parameter:
+          type: string
+          description: >
+            The variable placeholder identifier as written in the template's own
+            body
+
+            text: `"1"` for `{{1}}` (positional), or `"name"` for `{{name}}`
+            (named).
+          example: '1'
+        source:
+          $ref: '#/components/schemas/CampaignWhatsAppTemplateVariableSource'
+    CampaignWhatsAppTemplateVariableSource:
+      type: object
+      description: Where the substituted value comes from.
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          description: Only `"contact_list"` is supported currently.
+          enum:
+            - contact_list
+          x-enum-varnames:
+            - ContactListSource
+          example: contact_list
+        value:
+          type: string
+          description: >
+            A system contact field key (`first_name`, `last_name`, `mobile`) or
+            a
+
+            custom field key.
+          example: first_name
     CampaignWhatsAppChannelType:
       type: string
       description: The WhatsApp messaging channel identifier.
