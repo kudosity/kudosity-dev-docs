@@ -1,6 +1,5 @@
 ---
 title: Numbers
-excerpt: ''
 deprecated: false
 hidden: false
 metadata:

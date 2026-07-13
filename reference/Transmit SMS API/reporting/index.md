@@ -1,6 +1,5 @@
 ---
 title: Reporting
-excerpt: ''
 deprecated: false
 hidden: false
 metadata:

@@ -1,6 +1,5 @@
 ---
 title: Email SMS
-excerpt: ''
 deprecated: false
 hidden: false
 metadata:

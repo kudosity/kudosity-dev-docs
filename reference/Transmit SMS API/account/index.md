@@ -1,6 +1,5 @@
 ---
 title: Account
-excerpt: ''
 deprecated: false
 hidden: false
 metadata:

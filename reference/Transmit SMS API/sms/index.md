@@ -1,6 +1,5 @@
 ---
 title: SMS
-excerpt: ''
 deprecated: false
 hidden: false
 metadata:
