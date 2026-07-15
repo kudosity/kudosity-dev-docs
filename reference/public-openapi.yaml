@@ -4718,6 +4718,104 @@ components:
       required:
         - payment_id
         - status
+    PaymentMethodList:
+      type: object
+      description: The account's saved payment methods.
+      properties:
+        payment_methods:
+          type: array
+          description: >-
+            Saved payment methods for the account. Empty when none have been
+            added.
+          items:
+            $ref: '#/components/schemas/StoredPaymentMethod'
+      required:
+        - payment_methods
+    StoredPaymentMethod:
+      type: object
+      description: A saved payment method on the account.
+      properties:
+        id:
+          type: string
+          description: >-
+            Unique identifier for the payment method. Pass this as
+            `payment_method_id` when adding credit to charge this payment
+            method.
+          example: pm_1234567890abcdef
+        type:
+          type: string
+          description: >-
+            The type of payment method (e.g. card, link). Other types may appear
+            as new payment options become available. Card details are only
+            included when the type is `card`, and Link details when the type is
+            `link`.
+          example: card
+        is_default:
+          type: boolean
+          description: >-
+            Whether this is the account's default payment method. The default is
+            charged when adding credit without a `payment_method_id`.
+          example: true
+        card:
+          $ref: '#/components/schemas/PaymentMethodCard'
+          x-go-type-skip-optional-pointer: true
+          description: Card details. Only present when `type` is `card`.
+        link:
+          $ref: '#/components/schemas/PaymentMethodLink'
+          x-go-type-skip-optional-pointer: true
+          description: Link account details. Only present when `type` is `link`.
+      required:
+        - id
+        - type
+        - is_default
+    PaymentMethodCard:
+      type: object
+      description: Details of a saved card.
+      properties:
+        brand:
+          type: string
+          description: Card brand (e.g. visa, mastercard, amex).
+          example: visa
+        last4:
+          type: string
+          description: Last four digits of the card number.
+          example: '4242'
+        exp_month:
+          type: integer
+          format: int64
+          description: Two-digit number representing the card's expiration month.
+          example: 12
+        exp_year:
+          type: integer
+          format: int64
+          description: Four-digit number representing the card's expiration year.
+          example: 2028
+        funding:
+          type: string
+          description: How the card is funded — credit, debit, prepaid, or unknown.
+          example: credit
+        name:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Cardholder name, when available.
+          example: John Smith
+      required:
+        - brand
+        - last4
+        - exp_month
+        - exp_year
+    PaymentMethodLink:
+      type: object
+      description: Details of a saved Link payment method.
+      properties:
+        email:
+          type: string
+          description: >-
+            Partially masked email address of the Link account, for identifying
+            which Link account is attached without exposing the full address.
+          example: j***@example.com
+      required:
+        - email
   responses:
     InputValidationResponse:
       description: Input Validation Error
