@@ -18,12 +18,12 @@ Meet the two ways to send messages on Kudosity. Both run on the same platform an
 ## Quick Recommendation
 
 <Cards columns="2">
-  <Card title="TransmitMessage (V2)" href="#transmitmessage-v2" icon="rocket">
+  <Card title="TransmitMessage (V2)" href="#transmitmessage-v2" icon="fa-rocket">
     **Recommended for new builds**
     
     Modern API with MMS, WhatsApp, RCS support and API-managed webhooks.
   </Card>
-  <Card title="TransmitSMS (V1)" href="#transmitsms-v1" icon="cog">
+  <Card title="TransmitSMS (V1)" href="#transmitsms-v1" icon="fa-gears">
     **For classic integrations**
     
     Fully supported with multi-recipient sends.
@@ -57,18 +57,18 @@ Meet the two ways to send messages on Kudosity. Both run on the same platform an
 
 ## Feature Comparison
 
-<Accordion title="Account & Authentication" icon="key">
+<Accordion title="Account & Authentication" icon="fa-key">
 - **Unified account & UI**: Same login, senders, reporting, and billing across both APIs
 - **Auth**: V2 uses API-key auth; V1 uses Basic Auth (key + secret)
 </Accordion>
 
-<Accordion title="Webhooks & Delivery" icon="webhook">
+<Accordion title="Webhooks & Delivery" icon="fa-plug">
 - **Webhooks**: V2 webhooks are managed via API (create/list/update/delete). V1 webhooks are configured in the UI
 - **Delivery reports**: V2 via webhook; V1 via webhook or email
 - **Retries**: Both retry failed webhook deliveries; V2 has a more granular schedule
 </Accordion>
 
-<Accordion title="Message Features" icon="message">
+<Accordion title="Message Features" icon="fa-message">
 - **Message Types**: V2 supports SMS, MMS, WhatsApp, RCS; V1 supports SMS only
 - **Link Tracking**: V2 auto-detects and tracks multiple links per message; V1 tracks a single link per message
 - **Multi-recipient**: V1 supports batch sends; V2 requires individual requests
