@@ -60,13 +60,13 @@ tags:
       - SMS_STATUS
 
       - RCS_STATUS
-          
+
 
       For status events, the nested `status` field is an enum with these values:
 
 
       - FAILED: Failed because of an error from the carrier or handset.
-          
+
       - SENT: Submitted to the carrier.
 
       - ACCEPTED: Accepted by the carrier and delivery may have been attempted
@@ -80,7 +80,7 @@ tags:
       - HARD_BOUNCE: Handset was disconnected.
 
       - OTHER: Any other status from the carrier.
-          
+
 
       ## Link Hit
 
@@ -145,7 +145,7 @@ tags:
 
       The source field will be set according to the method a recipient has used
       to opt-out and contain a value of either link or SMS.
-        
+
 
       ###### Example Payloads
 
@@ -161,7 +161,7 @@ tags:
             "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh",
             "message_ref": "ncc5009d",
             "recipient": "61435790000",
-            "sender": "61481074190"  
+            "sender": "61481074190"
           }
         }
       } ``` ```json Opt out via message {
@@ -231,7 +231,7 @@ tags:
           "sender": "447507222200",
           "last_message": {
             "type":"SMS",
-            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",     
+            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
             "message": "Hey, check this out!",
             "message_ref": "ncc5009d",
             "recipient": "447507222200",
@@ -834,7 +834,7 @@ paths:
       summary: Send MMS
       description: >-
         The Send MMS endpoint allows you to send multimedia messages (MMS) to
-        recipients. 
+        recipients.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -3445,7 +3445,7 @@ components:
             type: string
           description: >
             Specify a list of URLs of the media file(s) that you are trying to
-            send. 
+            send.
 
             Supported file formats include jpg, gif, png, MP3, and video MP4.
             Only one image up to 400 KB can be attached at a time.
@@ -3792,8 +3792,9 @@ components:
 
         - OTHER: Any other DLR status from the provider
 
-        - REJECTED: Message pending approval was rejected by the Kudosity
-        support team
+        - REJECTED: Message was rejected, either by a carrier or by the Kudosity
+        support team when pending approval. See reason_code for the specific
+        cause
 
         - PENDING_APPROVAL: Message is pending approval by the Kudosity support
         team
@@ -3987,6 +3988,62 @@ components:
           type: string
           x-go-type-skip-optional-pointer: true
           description: Campaign ID
+        reason_code:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Machine-readable delivery reason, suitable for branching on. Set for
+            both successful and failed deliveries, and omitted for read receipts
+            and when no reason was reported.
+
+
+            - `DELIVERED_TO_HANDSET` — delivered to the handset
+
+            - `DELIVERED_TO_NETWORK` — reached the mobile network, handset
+            delivery unconfirmed
+
+            - `HANDSET_UNREACHABLE` — the handset could not be reached; retrying
+            may succeed
+
+            - `NOT_RCS_CAPABLE` — the recipient cannot receive RCS messages
+
+            - `RECIPIENT_BLOCKED` — the recipient has blocked messages from this
+            sender
+
+            - `INVALID_RECIPIENT` — the recipient number is not valid
+
+            - `INVALID_SENDER` — the sender is not valid or not permitted to
+            send this message
+
+            - `MESSAGE_REJECTED` — the message content was rejected
+
+            - `ACCOUNT_LIMIT` — your account cannot send this message; check
+            your balance or plan
+
+            - `RATE_LIMITED` — sending was throttled; retry later
+
+            - `EXPIRED` — the message expired before it could be delivered
+
+            - `INTERNAL_ERROR` — delivery failed because of an internal error
+
+            - `OTHER` — the delivery reason could not be classified
+
+
+            The set of values may grow over time, so treat an unrecognised code
+            as unclassified.
+        reason:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Human-readable explanation of the delivery outcome, more specific
+            than reason_code where available. Omitted when no explanation was
+            reported.
+        permanent:
+          type: boolean
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Whether retrying is likely to fail. Only present when true, so its
+            absence does not mean the failure is transient.
       required:
         - id
         - type
