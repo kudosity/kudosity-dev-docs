@@ -18,15 +18,15 @@ Meet the two ways to send messages on Kudosity. Both run on the same platform an
 ## Quick Recommendation
 
 <Cards columns="2">
-  <Card title="TransmitMessage (V2)" href="#transmitmessage-v2" icon="rocket">
+  <Card title="TransmitMessage (V2)" href="#transmitmessage-v2" icon="fa-rocket">
     **Recommended for new builds**
     
     Modern API with MMS, WhatsApp, RCS support and API-managed webhooks.
   </Card>
-  <Card title="TransmitSMS (V1)" href="#transmitsms-v1" icon="cog">
+  <Card title="TransmitSMS (V1)" href="#transmitsms-v1" icon="fa-gears">
     **For classic integrations**
     
-    Fully supported with multi-recipient sends and custom tracked links.
+    Fully supported with multi-recipient sends.
   </Card>
 </Cards>
 
@@ -49,29 +49,28 @@ Meet the two ways to send messages on Kudosity. Both run on the same platform an
     
     - **Classic integration staying put** - Fully supported; shares your senders, reporting, and UI
     - **Single-request multi-recipient sends** - V1 supports multi-recipient (one call, many numbers)
-    - **Custom tracked link format/domain** - Custom tracked links are available on V1 (V2 roadmap)
     - **XML response format** - V1 supports XML or JSON; V2 is JSON-only
   </Tab>
 </Tabs>
 
-> **💡 Recommendation:** Start on V2. Keep V1 if you rely on multi-recipient requests or custom tracked links. You can use both under the same account and senders.
+> **💡 Recommendation:** Start on V2. Keep V1 if you rely on multi-recipient requests. You can use both under the same account and senders.
 
 ## Feature Comparison
 
-<Accordion title="Account & Authentication" icon="key">
+<Accordion title="Account & Authentication" icon="fa-key">
 - **Unified account & UI**: Same login, senders, reporting, and billing across both APIs
 - **Auth**: V2 uses API-key auth; V1 uses Basic Auth (key + secret)
 </Accordion>
 
-<Accordion title="Webhooks & Delivery" icon="webhook">
+<Accordion title="Webhooks & Delivery" icon="fa-plug">
 - **Webhooks**: V2 webhooks are managed via API (create/list/update/delete). V1 webhooks are configured in the UI
 - **Delivery reports**: V2 via webhook; V1 via webhook or email
 - **Retries**: Both retry failed webhook deliveries; V2 has a more granular schedule
 </Accordion>
 
-<Accordion title="Message Features" icon="message">
+<Accordion title="Message Features" icon="fa-message">
 - **Message Types**: V2 supports SMS, MMS, WhatsApp, RCS; V1 supports SMS only
-- **Link Tracking**: V2 auto-detects multiple links; V1 supports custom domains
+- **Link Tracking**: V2 auto-detects and tracks multiple links per message; V1 tracks a single link per message
 - **Multi-recipient**: V1 supports batch sends; V2 requires individual requests
 - **Response Format**: V2 is JSON-only; V1 supports both JSON and XML
 </Accordion>
