@@ -13,7 +13,7 @@ metadata:
 
 Meet the two ways to send messages on Kudosity. Both run on the same platform and share your account, API keys, senders, reporting, and billing — so you can pick what fits your build today and evolve later.
 
-<Image align="center" src="https://files.readme.io/2e548b11a0ecaa5dec79b3a7994a3696abddddc7d252958a709d5f2caea81e25-kudosity-apis-compare-cards-brand-template-classic.png" />
+<Image align="center" src="https://files.readme.io/1cefe19046a739730f16adef586462cd0e55b57e0397c60d19e6cb2f7ceb0eec-kudosity-apis-compare-cards-updated.png" />
 
 ## Quick Recommendation
 
