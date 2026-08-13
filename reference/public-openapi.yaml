@@ -1436,27 +1436,31 @@ components:
         variable_mappings:
           type: array
           description: >
-            Maps the template's dynamic BODY variables to contact fields.
-            Required when the
+            Maps the template's dynamic BODY and TEXT HEADER variables to
+            contact fields.
 
-            template's BODY component has variables (must match them exactly, no
-            extras or
+            Required when the template has variables in either component (must
+            match them
 
-            missing); omit for fully static templates. Variables in the header,
-            buttons, or
+            exactly, no extras or missing); omit for fully static templates. A
+            TEXT header
 
-            carousel are not supported and are rejected.
+            supports at most one variable. Variables in a media header, buttons,
+            or carousel
+
+            are not supported and are rejected.
           items:
             $ref: '#/components/schemas/CampaignWhatsAppTemplateVariableMapping'
     CampaignWhatsAppTemplateVariableMapping:
       type: object
       description: >
-        Maps a single template variable placeholder to a contact field. Only
+        Maps a single template variable placeholder to a contact field.
+        Supported for
 
-        `component: "body"` is supported currently; header/button/carousel
-        variables are
+        `component: "body"` and `component: "header"` (TEXT headers only, at
+        most one
 
-        rejected.
+        variable); media header, button and carousel variables are rejected.
       required:
         - component
         - parameter
@@ -1465,21 +1469,28 @@ components:
         component:
           type: string
           description: >
-            The template component the variable belongs to. Only `"body"` is
-            supported
+            The template component the variable belongs to. `"header"` is only
+            valid for a
 
-            for this ticket.
+            template whose header format is TEXT, and at most one header mapping
+            is allowed.
           enum:
             - body
+            - header
+          x-enum-varnames:
+            - Body
+            - Header
           example: body
         parameter:
           type: string
           description: >
             The variable placeholder identifier as written in the template's own
-            body
+            body or
 
-            text: `"1"` for `{{1}}` (positional), or `"name"` for `{{name}}`
-            (named).
+            header text: `"1"` for `{{1}}` (positional), or `"name"` for
+            `{{name}}` (named).
+
+            Both forms are supported in both components.
           example: '1'
         source:
           $ref: '#/components/schemas/CampaignWhatsAppTemplateVariableSource'
