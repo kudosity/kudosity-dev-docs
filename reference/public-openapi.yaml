@@ -808,7 +808,7 @@ paths:
     post:
       tags:
         - SMS
-      summary: Send SMS
+      summary: Send an SMS Message with the v2 API
       description: >-
         Send a message from sender to recipient using the values shown in the
         parameters section.
