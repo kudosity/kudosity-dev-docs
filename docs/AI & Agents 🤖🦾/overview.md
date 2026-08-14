@@ -1,8 +1,12 @@
 ---
-title: Overview
+title: AI-Native Messaging Infrastructure Overview
 deprecated: false
 hidden: false
 metadata:
+  title: AI-Native Messaging API Overview | Kudosity Docs
+  description: >-
+    Kudosity gives AI agents and plugin platforms like Claude and Gemini CLI
+    direct access to messaging infrastructure. See what is supported.
   robots: index
 ---
 Kudosity provides an AI-native interface to messaging infrastructure, allowing you to interact with messaging APIs using AI agents and plugin platforms such as Claude, Gemini CLI, Cursor, and OpenClaw.
