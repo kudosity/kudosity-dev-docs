@@ -808,7 +808,7 @@ paths:
     post:
       tags:
         - SMS
-      summary: Send an SMS Message with the v2 API
+      summary: Send SMS
       description: >-
         Send a message from sender to recipient using the values shown in the
         parameters section.
@@ -1517,6 +1517,25 @@ components:
 
             custom field key.
           example: first_name
+    CampaignSMSTextContent:
+      type: object
+      description: A plain text SMS message.
+      required:
+        - body
+      properties:
+        body:
+          type: string
+          description: |
+            The message text. Personalisation fields are written inline as
+            `{{field_name}}` (e.g. `{{first_name}}`) and are substituted per
+            recipient from the contact list. Use the same field keys as
+            `variable_mappings` — a system field (`first_name`, `last_name`,
+            `mobile`) or a custom field key.
+          example: >-
+            Hi {{first_name}}, our June sale starts today. Reply STOP to opt
+            out.
+          x-oapi-codegen-extra-tags:
+            valid: required
     CampaignWhatsAppChannelType:
       type: string
       description: The WhatsApp messaging channel identifier.
@@ -1531,6 +1550,18 @@ components:
         account
       enum:
         - template
+    CampaignSMSChannelType:
+      type: string
+      description: The SMS messaging channel identifier.
+      enum:
+        - SMS
+    CampaignSMSChannelContentType:
+      type: string
+      description: |
+        The type of content to send via SMS.
+        - `text` — a plain text message
+      enum:
+        - text
     CampaignChannelBase:
       type: object
       description: Common properties shared by all channel configurations.
@@ -1559,16 +1590,24 @@ components:
             The message content. The relevant field is determined by
             `content_type`.
     CampaignChannel:
-      description: |
+      description: >
         Configuration for a single messaging channel used in the campaign.
+
         The `channel` field determines which schema applies:
+
         - `channel: WHATSAPP` — WhatsApp template message
+
+        - `channel: SMS` — SMS text message. Only valid as a fallback after
+        `WHATSAPP`,
+          never on its own.
       oneOf:
         - $ref: '#/components/schemas/CampaignWhatsAppChannel'
+        - $ref: '#/components/schemas/CampaignSMSChannel'
       discriminator:
         propertyName: channel
         mapping:
           WHATSAPP: '#/components/schemas/CampaignWhatsAppChannel'
+          SMS: '#/components/schemas/CampaignSMSChannel'
     CampaignWhatsAppChannel:
       allOf:
         - $ref: '#/components/schemas/CampaignChannelBase'
@@ -1598,6 +1637,39 @@ components:
               properties:
                 template:
                   $ref: '#/components/schemas/CampaignWhatsappTemplateContent'
+    CampaignSMSChannel:
+      allOf:
+        - $ref: '#/components/schemas/CampaignChannelBase'
+        - type: object
+          description: An SMS channel. Sends a plain text message.
+          properties:
+            channel:
+              $ref: '#/components/schemas/CampaignSMSChannelType'
+            sender:
+              type: string
+              description: >
+                The number or alphanumeric sender ID registered as a sender in
+                your
+
+                Kudosity account. Use E.164 international format for a number
+
+                (e.g. `61438000000` for an Australian number). Required — SMS
+                has no
+
+                sender fallback.
+              example: '61438000000'
+            content_type:
+              $ref: '#/components/schemas/CampaignSMSChannelContentType'
+            content:
+              type: object
+              description: |
+                The message content. Populate the field matching `content_type`:
+                - `text` when `content_type` is `text`
+              required:
+                - text
+              properties:
+                text:
+                  $ref: '#/components/schemas/CampaignSMSTextContent'
     CampaignSendMethod:
       type: string
       description: |
@@ -1654,7 +1726,7 @@ components:
           $ref: '#/components/schemas/CampaignAudience'
         channels:
           type: array
-          description: Channel configurations for the campaign.
+          description: Channel configurations for the campaign, in priority order.
           items:
             $ref: '#/components/schemas/CampaignChannel'
         send_strategy:
