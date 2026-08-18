@@ -2130,7 +2130,6 @@ components:
           description: Optional reference ID set by the user for the message.
         sender:
           type: string
-          format: phone
           description: Registered WhatsApp sender number in international format.
         recipient:
           type: string
@@ -2231,7 +2230,6 @@ components:
             Omitted when the message is not associated with a campaign.
         sender:
           type: string
-          format: phone
           description: Registered WhatsApp sender number in international format.
         recipient:
           type: string
@@ -2364,7 +2362,6 @@ components:
             Omitted when the message is not associated with a campaign.
         sender:
           type: string
-          format: phone
           description: Registered WhatsApp sender number in international format.
         recipient:
           type: string
