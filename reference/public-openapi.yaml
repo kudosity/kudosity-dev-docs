@@ -1275,7 +1275,7 @@ paths:
               $ref: '#/components/schemas/VerificationRequest'
             example:
               method: SMS
-              originating_sender: '61400000000'
+              originating_sender: '61491570156'
       responses:
         '201':
           $ref: '#/components/responses/VerificationSuccessResponse'
@@ -2963,14 +2963,14 @@ components:
           items:
             type: string
             format: phone
-            example: '61400000000'
+            example: '61491570156'
       required:
         - sender
         - phone_numbers
       example:
         sender: DemoSender
         phone_numbers:
-          - '61400000000'
+          - '61491570156'
           - '61400000001'
     RcsCapabilityResult:
       type: object
@@ -3020,7 +3020,7 @@ components:
         - phone_number
         - code
       example:
-        phone_number: '61400000000'
+        phone_number: '61491570156'
         code: ENABLED
     RcsCapabilityCheckData:
       type: object
@@ -5242,7 +5242,7 @@ components:
           example:
             data:
               results:
-                - phone_number: '61400000000'
+                - phone_number: '61491570156'
                   code: ENABLED
                 - phone_number: '61400000001'
                   code: UNREACHABLE
@@ -5294,7 +5294,7 @@ components:
             data:
               registration_id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
               method: SMS
-              originating_sender: '61400000000'
+              originating_sender: '61491570156'
               status: SENT
               expires_at: '2025-08-26T10:35:00Z'
               attempts_remaining: 5
