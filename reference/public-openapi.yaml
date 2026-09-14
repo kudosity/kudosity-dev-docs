@@ -478,6 +478,8 @@ paths:
           $ref: '#/components/responses/SuccessResponse'
         '400':
           $ref: '#/components/responses/InputValidationResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
         '429':
           $ref: '#/components/responses/TooManyRequestsErrorResponse'
         '500':
