@@ -35,7 +35,7 @@ AI agent / workflow decision  →  send<Channel>()  →  Kudosity API
 ```
 
 Expose that `send<Channel>()` function to your model as a tool (OpenAI function calling, an MCP
-tool, a LangChain tool, etc.) and the agent can reach customers whenever its logic says to.
+tool, or our ready-made [LangChain tools](/docs/langchain)) and the agent can reach customers whenever its logic says to.
 
 ## Send an SMS from an AI agent
 

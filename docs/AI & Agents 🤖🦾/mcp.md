@@ -5,111 +5,101 @@ hidden: false
 metadata:
   robots: index
 ---
-The Kudosity Model Context Protocol (MCP) server allows AI-powered editors (like Cursor and Windsurf) and assistants (like Claude Desktop) to directly explore and execute Kudosity APIs. With MCP, your AI can search API specs, generate code snippets, and run live requests — all without leaving your development environment.
+The Kudosity Model Context Protocol (MCP) server gives AI assistants and agents native tools for messaging — send SMS, MMS, and WhatsApp, manage contacts and webhooks, and check your balance — plus live discovery of the Kudosity API specs.
+
+There are two ways to use it:
+
+|  | Best for | Install |
+| --- | --- | --- |
+| **Installable server** (`kudosity-mcp` on npm) | Day-to-day use: 19 native tools your agent calls directly, with your API key | `npx -y kudosity-mcp` |
+| **Hosted server** (`developers.kudosity.com/mcp`) | Zero-install API exploration: search specs, generate code snippets, run ad-hoc requests | Point your client at the URL |
 
 ## What is MCP?
 
-Model Context Protocol (MCP) is an open standard that allows AI applications to securely access external data sources and tools. The Kudosity MCP server provides AI agents with:
+Model Context Protocol is an open standard that lets AI applications securely access external tools and data. One MCP integration works across Claude Desktop, Claude Code, Cursor, Windsurf, and any other MCP-compatible client — no per-platform implementation.
 
-* **Direct API access** to Kudosity functionality — send messages, update contact lists, etc.
-* **Documentation search** — have your AI intelligently search API specs and tutorials to provide on-point answers.
-* **Real-time data** from your Kudosity account — query and execute live operations directly from chat.
-* **Code generation** for Kudosity integrations
-* **Live API execution** — beyond static examples, run real requests
-* **Always up-to-date** — powered by Swagger API source definitions
+## Installable server (recommended)
 
-## MCP Server Capabilities
+The open-source [`kudosity-mcp`](https://github.com/kudosity/mcp) package is published on npm and listed on the [official MCP registry](https://registry.modelcontextprotocol.io/v0/servers?search=com.kudosity/mcp) as `com.kudosity/mcp` with DNS-verified domain ownership. It runs locally, with your credentials staying on your machine.
 
-The Kudosity MCP server offers comprehensive tools for API discovery, documentation, code generation, and live execution:
+### Tools
 
-### 🔍 API Discovery & Exploration
+| Area | Tools |
+| --- | --- |
+| Messaging (5) | `send_sms`, `send_mms`, `send_whatsapp`, `get_message`, `list_messages` |
+| Contacts & lists (6) | `create_list`, `get_lists`, `get_list`, `add_contact_to_list`, `remove_contact_from_list`, `delete_list` |
+| Webhooks (3) | `create_webhook`, `list_webhooks`, `delete_webhook` |
+| Account (1) | `get_balance` |
+| API discovery (4) | `list_specs`, `list_endpoints`, `search_endpoints`, `get_endpoint` |
 
-* **list-specs** — discover available messaging APIs (SMS, RCS, WhatsApp, etc.)
-* **list-endpoints** — list all API paths and methods for a service
-* **get-endpoint** — inspect supported methods and parameters for any path
-* **search-specs** — search across specs for keywords or patterns
+The discovery tools read the live Kudosity OpenAPI specs at runtime, so the tools never drift from the documentation.
 
-### 📋 API Schema & Documentation
+### Setup
 
-* **get-request-body** — retrieve request body schema for any endpoint
-* **get-response-schema** — view response schema for specific endpoints and status codes
-* **list-security-schemes** — check authentication methods and requirements
-* **search-documentation** — search API documentation content
+Add to your MCP client configuration (`claude_desktop_config.json`, `~/.cursor/mcp.json`, or equivalent):
 
-### ⚡ Code Generation
+```json
+{
+  "mcpServers": {
+    "kudosity": {
+      "command": "npx",
+      "args": ["-y", "kudosity-mcp"],
+      "env": {
+        "KUDOSITY_API_KEY": "your-api-key",
+        "KUDOSITY_API_SECRET": "your-api-secret"
+      }
+    }
+  }
+}
+```
 
-* **get-code-snippet** — generate ready-to-run examples in curl, JavaScript, Python, etc.
-* Provides proper authentication and parameters automatically
+Or with Claude Code:
 
-### 🚀 Live API Execution
+```bash
+claude mcp add kudosity -e KUDOSITY_API_KEY=your-api-key -- npx -y kudosity-mcp
+```
 
-* **execute-request** — run real API calls using HAR format
-* Send test SMS messages
-* Validate any Kudosity endpoint with live credentials
-* Returns actual responses and errors
+`KUDOSITY_API_KEY` covers messaging, webhooks, and discovery. Add `KUDOSITY_API_SECRET` for the contact-list and balance tools, which use the V1 API. Both are in the dashboard under **Developers** > **API Settings**.
 
-## Available APIs
+> 📘 Pair it with Agent Skills
+> The MCP server gives your agent tools it can call; [Agent Skills](https://developers.kudosity.com/docs/agent-skills) give it knowledge of how the API behaves. Together, your agent calls the right tool with the right arguments the first time.
 
-The MCP server provides access to these Kudosity APIs:
+## Hosted server
 
-* **Transmit Message API** — v2 messaging service supporting SMS, RCS, MMS, WhatsApp, and webhooks
-* **Transmit SMS API** — full-featured SMS with advanced contact lists, keywords, and reporting
+Kudosity also hosts a remote MCP server at `https://developers.kudosity.com/mcp` for zero-install API exploration:
 
-## Kudosity MCP Server Setup
+* **API discovery** — `list-specs`, `list-endpoints`, `get-endpoint`, `search-specs`
+* **Schema & documentation** — `get-request-body`, `get-response-schema`, `list-security-schemes`, `search-documentation`
+* **Code generation** — `get-code-snippet` in curl, JavaScript, Python, and more
+* **Live execution** — `execute-request` runs real API calls
 
-Kudosity hosts a remote MCP server at `https://developers.kudosity.com/mcp`. Configure your AI development tools to connect to this server.
+### Authentication for live execution
 
-### Authentication Configuration
-
-For APIs that require authentication, you'll need to configure your API credentials. Depending on the endpoints, the methods differ:
-
-* **api.transmitsms.com (v1 endpoints)** — **Basic Authentication** with Base64-encoded API Key and Secret
-* **api.transmitmessage.com (v2 endpoints)** — **API Key Authentication** with your key in the `x-api-key` header
-
-#### For v1 endpoints (api.transmitsms.com) - Basic Authentication:
-
-1. **Get your credentials** from Kudosity dashboard → Developers → API Settings
-2. **Combine** as: `API_KEY:API_SECRET`
-3. **Base64 encode**:
-   * Terminal: `echo -n "API_KEY:API_SECRET" | base64`
-   * Browser console: `btoa("API_KEY:API_SECRET")`
-   * Online tool: base64encode.org
-
-#### For v2 endpoints (api.transmitmessage.com) - API Key Authentication:
-
-Use your API Key directly in the `x-api-key` header (no Base64 encoding required).
+* **api.transmitmessage.com (V2 endpoints)** — your API key in the `x-api-key` header
+* **api.transmitsms.com (V1 endpoints)** — HTTP Basic with Base64-encoded `API_KEY:API_SECRET` (`echo -n "API_KEY:API_SECRET" | base64`)
 
 <Tabs>
-  <Tab title="Claude Desktop (v1 Basic Auth)">
-    **For v1 endpoints (api.transmitsms.com) - Add to`claude_desktop_config.json`:**
+  <Tab title="Cursor">
+    **Add to `~/.cursor/mcp.json`:**
 
     ```json
     {
       "mcpServers": {
-        "kudosity": {
-          "command": "npx",
-          "args": [
-            "mcp-remote",
-            "https://developers.kudosity.com/mcp",
-            "--header",
-            "Authorization: Basic ${KUDOSITY_AUTH_HEADER}"
-          ],
-          "env": {
-            "KUDOSITY_AUTH_HEADER": "YOUR_BASE64_ENCODED_CREDENTIALS"
-          }
+        "kudosity-docs": {
+          "url": "https://developers.kudosity.com/mcp"
         }
       }
     }
     ```
   </Tab>
 
-  <Tab title="Claude Desktop (v2 API Key)">
-    **For v2 endpoints (api.transmitmessage.com) - Add to`claude_desktop_config.json`:**
+  <Tab title="Claude Desktop (v2 API key)">
+    **Add to `claude_desktop_config.json`:**
 
     ```json
     {
       "mcpServers": {
-        "kudosity": {
+        "kudosity-docs": {
           "command": "npx",
           "args": [
             "mcp-remote",
@@ -126,14 +116,23 @@ Use your API Key directly in the `x-api-key` header (no Base64 encoding required
     ```
   </Tab>
 
-  <Tab title="Cursor">
-    **Add to`~/.cursor/mcp.json`:**
+  <Tab title="Claude Desktop (v1 Basic auth)">
+    **Add to `claude_desktop_config.json`:**
 
     ```json
     {
       "mcpServers": {
-        "kudosity": {
-          "url": "https://developers.kudosity.com/mcp"
+        "kudosity-docs": {
+          "command": "npx",
+          "args": [
+            "mcp-remote",
+            "https://developers.kudosity.com/mcp",
+            "--header",
+            "Authorization: Basic ${KUDOSITY_AUTH_HEADER}"
+          ],
+          "env": {
+            "KUDOSITY_AUTH_HEADER": "YOUR_BASE64_ENCODED_CREDENTIALS"
+          }
         }
       }
     }
@@ -141,12 +140,12 @@ Use your API Key directly in the `x-api-key` header (no Base64 encoding required
   </Tab>
 
   <Tab title="Windsurf">
-    **Add to`~/.codeium/windsurf/mcp_config.json`:**
+    **Add to `~/.codeium/windsurf/mcp_config.json`:**
 
     ```json
     {
       "mcpServers": {
-        "kudosity": {
+        "kudosity-docs": {
           "url": "https://developers.kudosity.com/mcp"
         }
       }
@@ -157,22 +156,14 @@ Use your API Key directly in the `x-api-key` header (no Base64 encoding required
 
 **Important**: Restart your AI tool after saving the configuration file.
 
-You can also install the Claude MCP integration for this project using:
-
-```bash
-claude mcp add kudosity --scope project -- npx mcp-remote https://developers.kudosity.com/mcp
-```
-
-## Testing Your MCP Setup
-
-Once configured, you can test your MCP server connection:
+## Test your setup
 
 1. **Restart your AI tool** (Claude Desktop, Cursor, etc.)
 2. **Start a new chat** with the AI assistant
-3. **Ask about Kudosity** — try questions like:
-   * "What APIs does Kudosity offer?"
-   * "Show me an example of sending an SMS"
-   * "Create a curl command to send my first SMS through Kudosity"
-   * "How do I get started sending SMS with Kudosity"
+3. **Try it** — for the installable server: "Check my Kudosity balance" or "Send a test SMS to my number". For the hosted server: "What APIs does Kudosity offer?" or "Create a curl command to send my first SMS through Kudosity"
 
-If successful, the AI will respond with Kudosity API details and sample code pulled directly from your account and documentation.
+## Next steps
+
+* [Agent Skills](https://developers.kudosity.com/docs/agent-skills) — API knowledge for coding agents, pairs with these tools
+* [LangChain tools](https://developers.kudosity.com/docs/langchain) — the same capability for LangChain.js agents
+* [Send messages from AI agents](https://developers.kudosity.com/docs/send-messages-from-ai-agents) — runnable examples for every channel

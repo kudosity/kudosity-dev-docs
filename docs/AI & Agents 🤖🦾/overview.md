@@ -21,12 +21,24 @@ AI agents are systems that can understand intent and take actions using external
 
 With Kudosity, AI agents can:
 
-* Send SMS and MMS messages
+* Send SMS, MMS, WhatsApp, and RCS messages
 * Manage contacts and messaging lists
 * Configure messaging workflows and webhooks
 * Automate communication tasks
 
 This enables developers and teams to interact with messaging systems using natural language instead of writing code.
+
+***
+
+## Agent Skills
+
+[Agent Skills](/docs/agent-skills) teach your AI coding agent how the Kudosity APIs actually work — which of the two APIs to use, how each authenticates, and the payload shapes for every channel. One command installs all eight skills across more than 70 coding agents:
+
+```bash
+npx skills add kudosity/skills
+```
+
+Skills pair with the MCP server below: the server gives your agent tools it can call, and skills give it the knowledge to call them correctly.
 
 ***
 
@@ -38,6 +50,12 @@ Install Kudosity directly inside the host platform’s plugin system. Each plugi
 * [GitHub Copilot Extension](/docs/copilot-extension) — installed by opening the repository as a VS Code workspace or merging the MCP snippet into your VS Code user settings
 * [Gemini CLI Extension](/docs/gemini-extension) — installed from the Gemini CLI Extension Gallery
 * [OpenClaw Plugin](/docs/openclaw-plugin) — installed from ClawHub or npm
+
+***
+
+## Framework integrations
+
+Building an agent in code rather than a chat tool? [LangChain tools](/docs/langchain) (`langchain-kudosity` on npm) give LangChain.js agents ready-made tools to send SMS, MMS, and RCS — including SMS fallback for RCS sends.
 
 ***
 
@@ -53,6 +71,8 @@ The [Kudosity MCP server](/docs/mcp) lets any MCP-compatible AI client connect d
 
 * Cursor and other AI-powered development environments
 * Custom AI agents using MCP
+
+Install it locally with `npx -y kudosity-mcp` for 19 native messaging tools, or point your client at the hosted server at `developers.kudosity.com/mcp` for zero-install API exploration.
 
 MCP is an open standard that allows AI models to connect to external tools and APIs in a consistent and secure way. By exposing the Kudosity API through MCP, AI agents can discover available messaging capabilities, execute actions like sending messages or managing contacts, and access structured data and workflows.
 
