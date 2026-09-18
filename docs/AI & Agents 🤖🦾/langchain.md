@@ -43,7 +43,7 @@ export KUDOSITY_API_KEY="your_api_key"
 | `kudosity_send_mms` | `KudositySendMms` | Send an image, GIF, video, or audio attachment, passed as public URLs |
 | `kudosity_send_rcs` | `KudositySendRcs` | Send a rich, branded RCS message, with optional SMS fallback for devices that cannot receive RCS |
 
-Each tool returns the message `id` and status as JSON, so your agent can match the send against [delivery webhooks](https://developers.kudosity.com/docs/validating-webhook-signatures-from-kudosity). When a call fails, the tool returns the API's validation detail — every failed field at once — as JSON instead of throwing, so the agent can correct its input and retry.
+Each tool returns the message `id` and status as JSON, so your agent can match the send against [delivery webhooks](https://developers.kudosity.com/reference/about-webhooks). When a call fails, the tool returns the API's validation detail — every failed field at once — as JSON instead of throwing, so the agent can correct its input and retry.
 
 ## Use a tool directly
 

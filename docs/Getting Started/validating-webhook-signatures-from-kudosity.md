@@ -2,7 +2,7 @@
 title: Validating Webhook Signatures from Kudosity
 excerpt: ''
 deprecated: false
-hidden: false
+hidden: true
 metadata:
   title: ''
   description: >-
