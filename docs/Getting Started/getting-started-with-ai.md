@@ -47,9 +47,7 @@ The result should distinguish between **access to documentation**, **verified ac
 
 ## Next: Get your first message working
 
-Continue to **Get your first message working with your AI assistant** to prepare a test message, approve the send and check the result.
-
-<!-- Add the link to the first-message guide when it is published. -->
+Continue to [Get your first message working with your AI assistant](https://developers.kudosity.com/docs/first-message-with-ai) to prepare a test message, approve the send and check the result.
 
 ## Optional resources
 
