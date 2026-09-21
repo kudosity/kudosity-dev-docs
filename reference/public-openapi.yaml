@@ -2480,21 +2480,6 @@ components:
           example: false
           x-oapi-codegen-extra-tags:
             valid: required
-    TooManyRequestsProblem:
-      description: >
-        HTTP 429 Too Many Requests - Rate limit exceeded.
-
-
-        Your client application has sent too many requests in a given amount of
-        time and should retry later.
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/ProblemDetails'
-      example:
-        type: https://developers.kudosity.com/reference/errors#too-many-requests
-        title: Too Many Requests
-        detail: Rate limit exceeded
-        status: 429
     NotFoundProblem:
       description: >
         This problem occurs when the requested resource could not be found.
@@ -2511,6 +2496,21 @@ components:
         title: Not Found
         detail: The requested resource was not found
         status: 404
+    TooManyRequestsProblem:
+      description: >
+        HTTP 429 Too Many Requests - Rate limit exceeded.
+
+
+        Your client application has sent too many requests in a given amount of
+        time and should retry later.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/reference/errors#too-many-requests
+        title: Too Many Requests
+        detail: Rate limit exceeded
+        status: 429
     RcsContentType:
       type: string
       description: Type of the message content.
@@ -4860,8 +4860,9 @@ components:
           type: string
           description: >-
             Identifier for the resulting payment, for reconciliation and
-            support.
-          example: pay_1a2b3c4d5e6f
+            support. This is the same identifier as a receipt's `id`, so it can
+            be passed straight to `GET /v2/payment/receipts/{id}`.
+          example: pi_3PabcdEfGhIjKlMn0oPqRsTu
         status:
           type: string
           description: Outcome of the charge (e.g. succeeded, processing).
@@ -4883,42 +4884,26 @@ components:
       required:
         - payment_methods
     StoredPaymentMethod:
-      type: object
-      description: A saved payment method on the account.
-      properties:
-        id:
-          type: string
-          description: >-
-            Unique identifier for the payment method. Pass this as
-            `payment_method_id` when adding credit to charge this payment
-            method.
-          example: pm_1234567890abcdef
-        type:
-          type: string
-          description: >-
-            The type of payment method (e.g. card, link). Other types may appear
-            as new payment options become available. Card details are only
-            included when the type is `card`, and Link details when the type is
-            `link`.
-          example: card
-        is_default:
-          type: boolean
-          description: >-
-            Whether this is the account's default payment method. The default is
-            charged when adding credit without a `payment_method_id`.
-          example: true
-        card:
-          $ref: '#/components/schemas/PaymentMethodCard'
-          x-go-type-skip-optional-pointer: true
-          description: Card details. Only present when `type` is `card`.
-        link:
-          $ref: '#/components/schemas/PaymentMethodLink'
-          x-go-type-skip-optional-pointer: true
-          description: Link account details. Only present when `type` is `link`.
-      required:
-        - id
-        - type
-        - is_default
+      description: >-
+        A saved payment method on the account — the shared payment method fields
+        plus whether it is the default and, for Link, the account it belongs to.
+      allOf:
+        - $ref: '#/components/schemas/PaymentMethod'
+        - type: object
+          properties:
+            is_default:
+              type: boolean
+              description: >-
+                Whether this is the account's default payment method. The
+                default is charged when adding credit without a
+                `payment_method_id`.
+              example: true
+            link:
+              $ref: '#/components/schemas/PaymentMethodLink'
+              description: Link account details. Only present when `type` is `link`.
+          required:
+            - id
+            - is_default
     PaymentMethodCard:
       type: object
       description: Details of a saved card.
@@ -4967,6 +4952,142 @@ components:
           example: j***@example.com
       required:
         - email
+    Receipt:
+      type: object
+      description: >-
+        A receipt for a payment successfully charged to the account, whatever
+        the payment was for — a credit top-up, a subscription invoice, or any
+        other charge. Declined and pending attempts do not produce a receipt.
+      properties:
+        id:
+          type: string
+          description: >-
+            Unique identifier for the receipt, which is also the identifier of
+            the payment it belongs to. Pass this to `GET
+            /v2/payment/receipts/{id}` to fetch the receipt on its own.
+          example: pi_3PabcdEfGhIjKlMn0oPqRsTu
+        amount:
+          type: integer
+          format: int64
+          description: >-
+            Amount charged, in micro-dollars of `currency` — 1,000,000
+            micro-dollars is one dollar. For example, 50000000 means $50.00.
+          example: 50000000
+        currency:
+          type: string
+          pattern: ^[A-Z]{3}$
+          description: Three-letter ISO currency code of the charge, in uppercase.
+          example: AUD
+        description:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Human-readable description of what the payment was for.
+          example: Credit Top Up - $50.00
+        receipt_number:
+          type: string
+          description: >-
+            Receipt and tax invoice number, derived from the account and payment
+            intent ids. Stable for the life of the payment.
+          example: 2094-5678
+        tax:
+          $ref: '#/components/schemas/ReceiptTax'
+          description: >-
+            Tax included in `amount`. Absent when no tax applies to the charge —
+            for example UK accounts, where VAT is accounted for separately. An
+            absent object means no tax applied, not zero tax.
+        payment_method:
+          $ref: '#/components/schemas/PaymentMethod'
+          description: The payment method the charge was made against.
+        created_at:
+          type: string
+          format: date-time
+          description: >-
+            Timestamp in RFC3339 format (e.g. 2026-06-11T10:30:00Z) when the
+            payment was made.
+          example: '2026-06-11T10:30:00Z'
+      required:
+        - id
+        - amount
+        - currency
+        - receipt_number
+        - payment_method
+        - created_at
+    ReceiptTax:
+      type: object
+      description: Tax already included in a receipt's amount.
+      properties:
+        type:
+          type: string
+          enum:
+            - GST
+          description: |-
+            The kind of tax included in the charge.
+            * `GST` — Australian Goods and Services Tax, 10% and included in the
+              amount charged.
+          example: GST
+        amount:
+          type: integer
+          format: int64
+          description: >-
+            Tax included in the charge, in micro-dollars of the receipt's
+            `currency` — 1,000,000 micro-dollars is one dollar. For example,
+            4550000 means $4.55. Always a whole number of cents, so it can be
+            stated on a tax invoice.
+          example: 4550000
+      required:
+        - type
+        - amount
+    PaymentMethod:
+      type: object
+      description: >-
+        A payment method belonging to the account, as the payment processor
+        describes it. Shared by the account's saved payment methods and by the
+        payment method a receipt was charged against.
+      properties:
+        id:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Identifier of the payment method. Pass it as `payment_method_id` on
+            `POST /v2/payment/add-credits`, or as `{id}` on the payment-methods
+            endpoints. Absent on a receipt for an older payment charged to a
+            card saved before payment method ids existed.
+          example: pm_1234567890abcdef
+        type:
+          type: string
+          description: >-
+            The type of payment method. This is an open set — new values appear
+            as new payment options become available, so treat an unrecognised
+            value as "some other payment method" rather than an error. Today
+            this is `card` or `link`. Card details are only present when the
+            type is `card`.
+          example: card
+        card:
+          $ref: '#/components/schemas/PaymentMethodCard'
+          description: Details of the card, when `type` is `card`.
+      required:
+        - type
+    ReceiptList:
+      type: object
+      description: A page of the account's receipts.
+      properties:
+        receipts:
+          type: array
+          description: >-
+            Receipts for the account, most recent first. Empty when the account
+            has none.
+          items:
+            $ref: '#/components/schemas/Receipt'
+      required:
+        - receipts
+    ReceiptListMeta:
+      type: object
+      description: Pagination metadata for a page of receipts.
+      properties:
+        pagination:
+          $ref: '#/components/schemas/PaginationMeta'
+      required:
+        - pagination
   responses:
     InputValidationResponse:
       description: Input Validation Error
@@ -5111,17 +5232,6 @@ components:
                 prev_cursor: null
                 has_next: true
                 has_prev: false
-    TooManyRequestsErrorResponse:
-      description: Too Many Requests
-      content:
-        application/json:
-          schema:
-            allOf:
-              - $ref: '#/components/schemas/CommonErrorResponse'
-              - type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/TooManyRequestsProblem'
     NotFoundErrorResponse:
       description: Not Found
       content:
@@ -5133,6 +5243,17 @@ components:
                 properties:
                   error:
                     $ref: '#/components/schemas/NotFoundProblem'
+    TooManyRequestsErrorResponse:
+      description: Too Many Requests
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/TooManyRequestsProblem'
     RCSSuccessResponse:
       description: OK
       content:
