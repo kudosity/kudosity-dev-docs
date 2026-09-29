@@ -4864,12 +4864,36 @@ components:
             be passed straight to `GET /v2/payment/receipts/{id}`.
           example: pi_3PabcdEfGhIjKlMn0oPqRsTu
         status:
-          type: string
-          description: Outcome of the charge (e.g. succeeded, processing).
-          example: succeeded
+          $ref: '#/components/schemas/AddCreditStatus'
       required:
         - payment_id
         - status
+    AddCreditStatus:
+      type: string
+      enum:
+        - SUCCEEDED
+        - PROCESSING
+        - REQUIRES_ACTION
+      x-enum-varnames:
+        - AddCreditStatusSucceeded
+        - AddCreditStatusProcessing
+        - AddCreditStatusRequiresAction
+      description: >
+        Outcome of the charge.
+
+        - `SUCCEEDED` — the card was charged. The credit is applied to the
+        account's balance moments later, once the payment event is processed;
+        the receipt at `GET /v2/payment/receipts/{payment_id}` confirms it.
+
+        - `PROCESSING` — the payment was accepted and is completing in the
+        background. Check `GET /v2/payment/receipts/{payment_id}` later; a
+        receipt exists once the charge succeeds.
+
+        - `REQUIRES_ACTION` — the card's issuer demands additional
+        authentication that this API cannot perform, so the account was not
+        charged. Retry with another saved card, or complete the top-up from the
+        dashboard.
+      example: SUCCEEDED
     PaymentMethodList:
       type: object
       description: The account's saved payment methods.
