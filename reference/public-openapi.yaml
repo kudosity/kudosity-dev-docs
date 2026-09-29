@@ -60,13 +60,13 @@ tags:
       - SMS_STATUS
 
       - RCS_STATUS
-          
+
 
       For status events, the nested `status` field is an enum with these values:
 
 
       - FAILED: Failed because of an error from the carrier or handset.
-          
+
       - SENT: Submitted to the carrier.
 
       - ACCEPTED: Accepted by the carrier and delivery may have been attempted
@@ -80,7 +80,7 @@ tags:
       - HARD_BOUNCE: Handset was disconnected.
 
       - OTHER: Any other status from the carrier.
-          
+
 
       ## Link Hit
 
@@ -145,7 +145,7 @@ tags:
 
       The source field will be set according to the method a recipient has used
       to opt-out and contain a value of either link or SMS.
-        
+
 
       ###### Example Payloads
 
@@ -161,7 +161,7 @@ tags:
             "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh",
             "message_ref": "ncc5009d",
             "recipient": "61435790000",
-            "sender": "61481074190"  
+            "sender": "61481074190"
           }
         }
       } ``` ```json Opt out via message {
@@ -231,7 +231,7 @@ tags:
           "sender": "447507222200",
           "last_message": {
             "type":"SMS",
-            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",     
+            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
             "message": "Hey, check this out!",
             "message_ref": "ncc5009d",
             "recipient": "447507222200",
@@ -658,9 +658,25 @@ paths:
       tags:
         - RCS
       summary: Send RCS message
-      description: |
+      description: >
         This endpoint is in beta and may change in future versions.
+
         Sends an RCS message to a single recipient.
+
+
+        The message can be text (`content_type: text`) or a single image or
+        video (`content_type: media`).
+
+        For media, we fetch the start of the file when you send the request,
+        which can add up to 10 seconds.
+
+        The request fails with `400` if the file isn't publicly reachable over
+        `https`, redirects, doesn't
+
+        respond in time, or has an unsupported, mismatched or oversized file
+        type. Each problem is reported
+
+        against `content.media.url`.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -669,6 +685,34 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RcsRequest'
+            examples:
+              text:
+                summary: Text message
+                value:
+                  sender: DemoSender
+                  recipient: '447903749662'
+                  content_type: text
+                  content:
+                    text:
+                      message: |-
+                        Hi Michael,
+                        Just a quick reminder. You are amazing!!
+                        Reply STOP to opt out.
+                  message_ref: order-12345
+              media:
+                summary: Image or video message
+                value:
+                  sender: DemoSender
+                  recipient: '447903749662'
+                  content_type: media
+                  content:
+                    media:
+                      url: https://cdn.example.com/promo/spring-sale.jpg
+                  sms_fallback:
+                    message: >-
+                      Our spring sale is on!
+                      https://cdn.example.com/promo/spring-sale.jpg
+                  message_ref: order-12346
       responses:
         '200':
           $ref: '#/components/responses/RCSSuccessResponse'
@@ -836,7 +880,7 @@ paths:
       summary: Send MMS
       description: >-
         The Send MMS endpoint allows you to send multimedia messages (MMS) to
-        recipients. 
+        recipients.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -2513,9 +2557,13 @@ components:
         status: 429
     RcsContentType:
       type: string
-      description: Type of the message content.
+      description: |
+        Type of the message content.
+        - `text` — a text message
+        - `media` — a single image or video
       enum:
         - text
+        - media
     RcsMessageStatus:
       type: string
       description: Current status of an RCS message.
@@ -2552,6 +2600,49 @@ components:
           $ref: '#/components/schemas/RCSText'
       required:
         - text
+    RcsMedia:
+      type: object
+      description: |
+        A single image or video, delivered as an RCS file message.
+
+        Media messages don't currently support a caption.
+      properties:
+        url:
+          type: string
+          format: uri
+          description: >
+            Public URL of the image or video to send.
+
+
+            - Must be an absolute `https://` URL of up to 2,048 characters, on
+            the default port (443), without credentials.
+
+            - Spaces and non-ASCII characters must be percent-encoded.
+
+            - Must be publicly reachable, return the file directly and respond
+            within 10 seconds. Redirects are not followed.
+
+            - Your server must return a `Content-Type` header matching one of
+            the supported types, and the file content must match it:
+              - Images: `image/jpeg`, `image/png`, `image/gif`
+              - Videos: `video/mp4`, `video/mpeg`, `video/mpeg4`, `video/m4v`, `video/webm`, `video/h263`
+            - Maximum file size is 100 MB. Return a `Content-Length` or
+            `Content-Range` header so the size can be checked.
+
+
+            RCS providers cache files by URL for up to 60 days. To change a
+            file, host it at a new URL.
+      required:
+        - url
+      example:
+        url: https://cdn.example.com/promo/spring-sale.jpg
+    RcsMediaContent:
+      type: object
+      properties:
+        media:
+          $ref: '#/components/schemas/RcsMedia'
+      required:
+        - media
     RCSSMSFallback:
       type: object
       description: >
@@ -2642,21 +2733,26 @@ components:
             - UK: 07123 456 789 → 447123456789
         content_type:
           type: string
-          description: Type of the message content (currently only text supported).
+          description: |
+            Type of the message content. Must match the key used in `content`.
+            - `text` — a text message, sent in `content.text`
+            - `media` — a single image or video, sent in `content.media`
           enum:
             - text
+            - media
         content:
           type: object
           description: >
             The message content to be sent.
 
 
-            - Supports both Basic RCS messages (160 characters) and Simple RCS
-            messages (3072 characters)
+            - `text`: supports both Basic RCS messages (160 characters) and
+            Simple RCS messages (3072 characters), with UTF-8 and emoji support.
 
-            - UTF-8 and emoji support included
+            - `media`: one image or video by public URL, without a caption.
           oneOf:
             - $ref: '#/components/schemas/RCSTextContent'
+            - $ref: '#/components/schemas/RcsMediaContent'
         sms_fallback:
           $ref: '#/components/schemas/RCSSMSFallback'
         message_ref:
@@ -2707,14 +2803,22 @@ components:
           description: Recipient phone number in international format.
         content_type:
           type: string
-          description: Type of the message content.
+          description: >
+            Type of the message content. More content types may be added; ignore
+            values you don't recognise.
+
+            - `text` — a text message
+
+            - `media` — a single image or video
           enum:
             - text
+            - media
         content:
           type: object
           description: Content of the message.
           oneOf:
             - $ref: '#/components/schemas/RCSTextContent'
+            - $ref: '#/components/schemas/RcsMediaContent'
         sms_fallback:
           $ref: '#/components/schemas/RCSSMSFallback'
         created_at:
@@ -2764,14 +2868,22 @@ components:
           description: Recipient phone number in international format.
         content_type:
           type: string
-          description: Type of the message content.
+          description: >
+            Type of the message content. More content types may be added; ignore
+            values you don't recognise.
+
+            - `text` — a text message
+
+            - `media` — a single image or video
           enum:
             - text
+            - media
         content:
           type: object
           description: Content of the message.
           oneOf:
             - $ref: '#/components/schemas/RCSTextContent'
+            - $ref: '#/components/schemas/RcsMediaContent'
         sms_fallback:
           $ref: '#/components/schemas/RCSSMSFallback'
         created_at:
@@ -2846,6 +2958,7 @@ components:
           description: Content details for the message.
           oneOf:
             - $ref: '#/components/schemas/RCSTextContent'
+            - $ref: '#/components/schemas/RcsMediaContent'
         status:
           $ref: '#/components/schemas/RcsMessageStatus'
         created_at:
@@ -3527,7 +3640,7 @@ components:
             type: string
           description: >
             Specify a list of URLs of the media file(s) that you are trying to
-            send. 
+            send.
 
             Supported file formats include jpg, gif, png, MP3, and video MP4.
             Only one image up to 400 KB can be attached at a time.
