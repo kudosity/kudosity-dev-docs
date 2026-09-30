@@ -2,6 +2,7 @@
 - mcp
 - agent-skills
 - langchain
+- ai-sdk
 - claude-plugin
 - copilot-extension
 - gemini-extension
