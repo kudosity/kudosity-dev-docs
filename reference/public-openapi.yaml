@@ -1206,9 +1206,11 @@ paths:
         '400':
           $ref: '#/components/responses/InputValidationResponse'
         '401':
-          $ref: '#/components/responses/UnauthorizedErrorResponse'
+          $ref: '#/components/responses/GatewayUnauthorizedResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/GatewayUnavailableResponse'
     post:
       tags:
         - Senders
@@ -1240,13 +1242,15 @@ paths:
         '400':
           $ref: '#/components/responses/InputValidationResponse'
         '401':
-          $ref: '#/components/responses/UnauthorizedErrorResponse'
+          $ref: '#/components/responses/GatewayUnauthorizedResponse'
         '409':
           $ref: '#/components/responses/ConflictErrorResponse'
         '429':
           $ref: '#/components/responses/TooManyRequestsErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/GatewayUnavailableResponse'
   /v2/senders/phone-numbers/{phone_number}:
     delete:
       tags:
@@ -1286,11 +1290,13 @@ paths:
         '400':
           $ref: '#/components/responses/InputValidationResponse'
         '401':
-          $ref: '#/components/responses/UnauthorizedErrorResponse'
+          $ref: '#/components/responses/GatewayUnauthorizedResponse'
         '404':
           $ref: '#/components/responses/NotFoundErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/GatewayUnavailableResponse'
   /v2/senders/registrations/{registration_id}/verifications:
     post:
       tags:
@@ -1328,7 +1334,7 @@ paths:
         '400':
           $ref: '#/components/responses/InputValidationResponse'
         '401':
-          $ref: '#/components/responses/UnauthorizedErrorResponse'
+          $ref: '#/components/responses/GatewayUnauthorizedResponse'
         '404':
           $ref: '#/components/responses/NotFoundErrorResponse'
         '409':
@@ -1355,6 +1361,8 @@ paths:
                   type: https://developers.kudosity.com/reference/errors#conflict
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/GatewayUnavailableResponse'
   /v2/senders/registrations/{registration_id}/verifications/confirmation:
     post:
       tags:
@@ -1393,7 +1401,7 @@ paths:
           $ref: >-
             #/components/responses/VerificationConfirmationInputValidationResponse
         '401':
-          $ref: '#/components/responses/UnauthorizedErrorResponse'
+          $ref: '#/components/responses/GatewayUnauthorizedResponse'
         '404':
           $ref: '#/components/responses/NotFoundErrorResponse'
         '409':
@@ -1402,6 +1410,8 @@ paths:
           $ref: '#/components/responses/TooManyRequestsErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/GatewayUnavailableResponse'
 components:
   schemas:
     CampaignAudienceSourceType:
@@ -4939,6 +4949,20 @@ components:
           example: 123
           x-oapi-codegen-extra-tags:
             valid: required
+    GatewayAuthStatus:
+      type: object
+      description: >-
+        Body returned by the API gateway's authentication check when a request
+        is rejected before it reaches the endpoint. Not an RFC 9457 problem. If
+        the authentication check itself fails, the gateway returns 500 with this
+        body (status "Unauthorized"), not the endpoint's 500 problem response.
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          description: Reason the request was rejected.
+          example: Unauthorized
     CardAddSession:
       type: object
       description: A short-lived hosted session where the customer can add a card.
@@ -5650,6 +5674,34 @@ components:
                 - name: code
                   message: invalid verification code, you have 4 attempts remaining
               attempts_remaining: 4
+    GatewayUnauthorizedResponse:
+      description: >-
+        Unauthorized. The credential is missing or was rejected by the
+        authentication check. For API keys, other 4xx codes from the key check
+        are returned with the same body, and a failure inside the authentication
+        check returns 500 with it.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GatewayAuthStatus'
+          examples:
+            unauthorized:
+              value:
+                status: Unauthorized
+            invalid_api_key:
+              value:
+                status: Invalid api key
+    GatewayUnavailableResponse:
+      description: >-
+        Service Unavailable. The authentication check could not be reached. If
+        it is reached but fails internally, the gateway returns 500 with the
+        same body.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GatewayAuthStatus'
+          example:
+            status: Authentication service unavailable
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
