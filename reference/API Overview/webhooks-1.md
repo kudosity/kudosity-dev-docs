@@ -113,7 +113,7 @@ Parameters we include in our delivery callback request:
 Example
 
 ```http
-https://www.myserver.com/processdlr.php?myparameter=myvalue&message_id=331694668&mobile=61438333061&datetime=2020-05-16 12:10:00&status=delivered&user_id=123456
+https://www.myserver.com/processdlr.php?myparameter=myvalue&message_id=331694668&mobile=61400000001&datetime=2020-05-16 12:10:00&status=delivered&user_id=123456
 ```
 
 ## Reply Callback
@@ -139,7 +139,7 @@ Parameters we include in our reply callback request:
 Example
 
 ```http
-https://www.myserver.com/processreply.php?myparameter=myvalue&user_id=54911&message_id=331695745&&response=This is my reply&response_id=35566670&mobile=61438333061&longcode=61429997672&datetime_entry=2020-05-16 12:10:00&is_optout=no
+https://www.myserver.com/processreply.php?myparameter=myvalue&user_id=54911&message_id=331695745&&response=This is my reply&response_id=35566670&mobile=61400000001&longcode=61429997672&datetime_entry=2020-05-16 12:10:00&is_optout=no
 ```
 
 ## Link Hits Callbacks
@@ -164,9 +164,9 @@ Parameters we include in our link hits callback request:
 Example
 
 ```http
-https://www.myserver.com/processlinkhit.php?datetime=2020-05-16 13:23:46&firstname=Brad&lastname=Down&link_hits=1&list_id=3201749&longcode=TRANSMITSMS&message=This is a link hit callback test
+https://www.myserver.com/processlinkhit.php?datetime=2020-05-16 13:23:46&firstname=Brad&lastname=Citizen&link_hits=1&list_id=3201749&longcode=TRANSMITSMS&message=This is a link hit callback test
  TapTh.is/clkVMt8z 
-UnsubRep.ly/3hHm1u8u&message_id=331696764&mobile=61438333061&rate=10&user_id=54911
+UnsubRep.ly/3hHm1u8u&message_id=331696764&mobile=61400000001&rate=10&user_id=54911
 ```
 
 ## List Action Callback
@@ -188,5 +188,5 @@ Parameters we include in our list action callback request:
 Example
 
 ```http
-https://www.myserver.com/processdlr.php?Carrier=Telstra&Email=harrisondown06@gmail.com&Handset=iPhone 7&datetime_entry=2020-05-16 13:13:20&firstname=Harrison&lastname=Down&list_id=4026600&mobile=61447775960&type=delete
+https://www.myserver.com/processdlr.php?Carrier=Telstra&Email=jane.citizen@example.com&Handset=iPhone 7&datetime_entry=2020-05-16 13:13:20&firstname=Jane&lastname=Citizen&list_id=4026600&mobile=61400000000&type=delete
 ```
