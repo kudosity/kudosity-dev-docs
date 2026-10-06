@@ -79,7 +79,7 @@ API specifications exist as JSON files in the `reference/` directory for referen
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/burstsms/kudosity-dev-docs.git
+   git clone https://github.com/kudosity/kudosity-dev-docs.git
    cd kudosity-dev-docs
    ```
 
