@@ -5711,3 +5711,4 @@ components:
         All API requests require your API credentials, you will find them once
         logged into your account on the SETTINGS page. Scroll down to API
         Settings to find your API key.
+  parameters: {}
