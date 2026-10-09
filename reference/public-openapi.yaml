@@ -4909,6 +4909,422 @@ components:
         - registration_id
         - status
         - verified_at
+    UpstreamUnavailableProblem:
+      description: >-
+        HTTP 503 Service Unavailable: a service the sender API depends on is
+        unavailable. Safe to retry.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/reference/errors#service-unavailable
+        title: Service Unavailable
+        detail: Upstream unavailable, retry later
+        status: 503
+    UpstreamUnavailableErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/CommonErrorResponse'
+        - type: object
+          properties:
+            error:
+              $ref: '#/components/schemas/UpstreamUnavailableProblem'
+    SenderType:
+      type: string
+      description: >
+        The kind of sender. New values may be added, so handle values you don't
+        recognize.
+
+        - `VIRTUAL_NUMBER` — a dedicated phone number leased by your account. It
+        can send and
+          receive messages.
+        - `ALPHANUMERIC` — a sender ID made of letters and numbers, such as
+        `MyBrand`.
+          Recipients can't reply to it.
+        - `PERSONAL_MOBILE_NUMBER` — your own mobile number, registered and
+        verified as a sender.
+      example: VIRTUAL_NUMBER
+    SenderStatus:
+      type: string
+      description: >
+        Whether you can send from the sender. This is the field to check before
+        sending:
+
+        `compliance` describes the registration, not whether you can send. New
+        values may be
+
+        added, so handle values you don't recognize.
+
+        - `PENDING` — being set up. You can't send from it yet.
+
+        - `ACTIVE` — ready to send. A leased sender renews automatically at
+        `lease.next_charge_at`.
+
+        - `EXPIRING` — ready to send, but automatic renewal is off, so the lease
+        ends at
+          `lease.next_charge_at` unless you renew it.
+        - `CANCELLING` — ready to send until `lease.cancels_at`, when the
+        cancellation you
+          requested takes effect.
+        - `EXPIRED` — the lease has ended. You can't send from it, but you can
+        still renew it for
+          a short time.
+        - `INACTIVE` — not usable, for example because it's waiting to be
+        activated.
+      example: ACTIVE
+    SenderOwnership:
+      type: string
+      description: >
+        How your account holds the sender. New values may be added, so handle
+        values you don't
+
+        recognize.
+
+        - `OWNED` — your account leases or registered the sender directly.
+
+        - `ALLOCATED` — your parent account leases the sender and has allocated
+        it to your
+          account. You can't change its call forwarding, and your parent account manages its
+          voice settings.
+      example: OWNED
+    Capability:
+      type: string
+      description: >
+        A kind of message you can send from the sender. New values may be added,
+        so handle values
+
+        you don't recognize.
+
+        - `SMS`
+
+        - `MMS`
+
+
+        | Type | Capabilities |
+
+        |---|---|
+
+        | Virtual number | `SMS`, plus `MMS` when the number's carrier supports
+        MMS |
+
+        | Alphanumeric sender ID | `SMS` |
+
+        | Personal mobile number | `SMS` |
+
+
+        Capabilities describe the sender and apply in every country in
+        `countries`. To send MMS,
+
+        MMS must also be enabled on your account.
+      example: SMS
+    ComplianceStatus:
+      type: string
+      description: >
+        Where the sender ID stands with the registry. New values may be added,
+        so handle values
+
+        you don't recognize.
+
+        - `IN_PROGRESS` — a registration is under way. Check the sender's
+        `status` to see
+          whether you can send from it.
+        - `VERIFIED` — registered and ready to use.
+
+        - `REJECTED` — the registry rejected the registration.
+
+        - `REVOKED` — the registry revoked a registration it had approved.
+
+
+        The sender's registration (`GET /v2/senders/registrations`) reports a
+        more detailed
+
+        status in `details.alphanumeric.status`. The two relate as follows:
+
+
+        | Registration `details.alphanumeric.status` | Sender
+        `compliance.status` |
+
+        |---|---|
+
+        | `NEW`, `SUBMITTED_TO_REGISTRY`, `PENDING_CUSTOMER`, `PENDING_APPROVAL`
+        | `IN_PROGRESS` |
+
+        | `VERIFIED` (provisioning) | `IN_PROGRESS` |
+
+        | `READY_TO_USE` | `VERIFIED` |
+
+        | `FAILED` | `REJECTED` |
+
+        | `REVOKED` | `REVOKED` |
+
+
+        Note that a registration's `VERIFIED` means the sender ID is still being
+        provisioned,
+
+        while a sender's `VERIFIED` means it is ready to use.
+      example: VERIFIED
+    ComplianceRegistry:
+      type: string
+      description: >
+        The registry a sender ID is registered with. New values may be added, so
+        handle values you
+
+        don't recognize.
+
+        - `ACMA` — Australian Communications and Media Authority.
+      example: ACMA
+    Compliance:
+      type: object
+      description: The sender ID's standing with a registry.
+      required:
+        - registry
+        - status
+      properties:
+        registry:
+          $ref: '#/components/schemas/ComplianceRegistry'
+        status:
+          $ref: '#/components/schemas/ComplianceStatus'
+      example:
+        registry: ACMA
+        status: VERIFIED
+    Money:
+      type: object
+      description: An amount of money.
+      required:
+        - amount
+        - currency
+      properties:
+        amount:
+          type: string
+          description: The amount as a decimal string, so it keeps its precision.
+          example: '12.00'
+        currency:
+          type: string
+          description: ISO 4217 currency code.
+          example: AUD
+      example:
+        amount: '12.00'
+        currency: AUD
+    Lease:
+      type: object
+      description: >-
+        What the sender costs and when it renews. Returned for virtual numbers
+        and alphanumeric sender IDs; omitted for personal mobile numbers, which
+        have no lease.
+      required:
+        - auto_renew
+      properties:
+        price:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          description: >-
+            What your account pays for each lease period. Omitted when your
+            account pays nothing, for example for a number your parent account
+            leases and has allocated to you at its own cost.
+        next_charge_at:
+          type: string
+          format: date-time
+          description: >-
+            When the lease is next charged and renewed, in RFC 3339 format.
+            Omitted when no further charge is due.
+          example: '2026-11-01T00:00:00Z'
+        auto_renew:
+          type: boolean
+          description: Whether the lease renews automatically at `next_charge_at`.
+        cancels_at:
+          type: string
+          format: date-time
+          description: >-
+            When a cancellation you requested takes effect, in RFC 3339 format.
+            You can keep sending until then. Omitted unless a cancellation is
+            scheduled.
+          example: '2026-11-01T00:00:00Z'
+      example:
+        price:
+          amount: '12.00'
+          currency: AUD
+        next_charge_at: '2026-11-01T00:00:00Z'
+        auto_renew: true
+    Sender:
+      type: object
+      description: >
+        A virtual number, alphanumeric sender ID or personal mobile number your
+        account can send
+
+        from. Some fields apply only to some types, and the API omits a field
+        that doesn't apply:
+
+
+        | Field | Virtual number | Alphanumeric | Personal mobile |
+
+        |---|---|---|---|
+
+        | `lease` | Yes | Yes | No |
+
+        | `compliance` | No | When a country requires registration | No |
+
+        | `registration_id` | No | When registered | When registered |
+
+
+        Every other field is returned for every type.
+      required:
+        - id
+        - sender
+        - account_id
+        - type
+        - status
+        - countries
+        - capabilities
+        - ownership
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: >-
+            The sender's ID. It doesn't change while the sender exists. A
+            virtual number keeps its ID even after its lease ends and another
+            account leases it. If you delete an alphanumeric sender ID or
+            personal mobile number and add it again, it gets a new ID.
+          example: 0b7f3c2e-5a41-4d8e-9c6b-2f1e8a7d4c30
+        sender:
+          type: string
+          description: >-
+            What recipients see as the sender: a phone number in international
+            format without a leading `+`, such as `61480012345`, or an
+            alphanumeric sender ID, such as `MyBrand`.
+          example: '61480012345'
+        type:
+          $ref: '#/components/schemas/SenderType'
+        status:
+          $ref: '#/components/schemas/SenderStatus'
+        countries:
+          type: array
+          description: >-
+            ISO 3166-1 alpha-2 codes of the countries the sender is set up for.
+            A sender can cover more than one country, while each registration
+            covers exactly one.
+          items:
+            type: string
+            pattern: ^[A-Z]{2}$
+          example:
+            - AU
+        capabilities:
+          type: array
+          description: The kinds of message you can send from the sender.
+          items:
+            $ref: '#/components/schemas/Capability'
+          example:
+            - SMS
+            - MMS
+        registration_id:
+          type: string
+          format: uuid
+          description: >-
+            The ID of the sender's registration, which you can look up with `GET
+            /v2/senders/registrations`. Omitted when the sender has no
+            registration, which is always the case for a virtual number.
+          example: a1b2c3d4-e5f6-4890-abcd-ef1234567890
+        label:
+          type: string
+          maxLength: 64
+          description: >-
+            A name you give the sender to tell it apart from your others.
+            Recipients never see it. Omitted if you haven't set one.
+          example: Support line
+        ownership:
+          $ref: '#/components/schemas/SenderOwnership'
+        account_id:
+          type: string
+          description: >-
+            The ID of the account that owns the sender. This can differ from
+            your own account when you read a child account's senders. The
+            `account_id` query parameter filters on this field.
+          example: '201494'
+        compliance:
+          allOf:
+            - $ref: '#/components/schemas/Compliance'
+          description: >-
+            The alphanumeric sender ID's standing with the registry. Omitted for
+            phone numbers, which don't need registering, and for an alphanumeric
+            sender ID none of whose countries require registration.
+        lease:
+          $ref: '#/components/schemas/Lease'
+        created_at:
+          type: string
+          format: date-time
+          description: When the sender was added to the account, in RFC 3339 format.
+          example: '2026-03-14T02:11:09Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: >-
+            When the sender's record last changed, in RFC 3339 format. A status
+            that changes only because time has passed, such as `ACTIVE` to
+            `EXPIRED` when a lease ends, doesn't change it. Use the `ETag` from
+            `GET /v2/senders/{sender_id}` to detect any change.
+          example: '2026-10-01T05:40:22Z'
+      example:
+        id: 0b7f3c2e-5a41-4d8e-9c6b-2f1e8a7d4c30
+        sender: '61480012345'
+        account_id: '201494'
+        type: VIRTUAL_NUMBER
+        status: ACTIVE
+        countries:
+          - AU
+        capabilities:
+          - SMS
+          - MMS
+        label: Support line
+        ownership: OWNED
+        lease:
+          price:
+            amount: '12.00'
+            currency: AUD
+          next_charge_at: '2026-11-01T00:00:00Z'
+          auto_renew: true
+        created_at: '2026-03-14T02:11:09Z'
+        updated_at: '2026-10-01T05:40:22Z'
+    SortMeta:
+      type: object
+      description: The sort the API applied, which is the default when you didn't set one.
+      required:
+        - field
+        - order
+      properties:
+        field:
+          type: string
+          description: >-
+            The field the list is sorted by, one of the values the `sort`
+            parameter accepts. New values may be added, so handle values you
+            don't recognize.
+          example: created_at
+        order:
+          type: string
+          enum:
+            - asc
+            - desc
+          example: desc
+    ListSendersResponse:
+      type: object
+      description: One page of senders.
+      required:
+        - senders
+      properties:
+        senders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sender'
+    ListSendersMeta:
+      type: object
+      required:
+        - pagination
+        - sort
+      properties:
+        pagination:
+          $ref: '#/components/schemas/PagePaginationMeta'
+        sort:
+          $ref: '#/components/schemas/SortMeta'
     PagePaginationMeta:
       title: Page Pagination Metadata
       description: >
