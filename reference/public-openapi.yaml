@@ -2567,13 +2567,20 @@ components:
         status: 429
     RcsContentType:
       type: string
-      description: |
+      description: >
         Type of the message content.
+
         - `text` — a text message
+
         - `media` — a single image or video
+
+        - `rich_card` — a rich card (standalone or carousel) sent as a test
+        message from an RCS agent. Its content isn't returned, so `content` is
+        `null`.
       enum:
         - text
         - media
+        - rich_card
     RcsMessageStatus:
       type: string
       description: Current status of an RCS message.
@@ -2885,12 +2892,18 @@ components:
             - `text` — a text message
 
             - `media` — a single image or video
+
+            - `rich_card` — a rich card (standalone or carousel) sent as a test
+            message from an RCS agent. Its content isn't returned, so `content`
+            is `null`.
           enum:
             - text
             - media
+            - rich_card
         content:
           type: object
-          description: Content of the message.
+          nullable: true
+          description: Content of the message. Null when `content_type` is `rich_card`.
           oneOf:
             - $ref: '#/components/schemas/RCSTextContent'
             - $ref: '#/components/schemas/RcsMediaContent'
@@ -2965,7 +2978,10 @@ components:
           $ref: '#/components/schemas/RcsContentType'
         content:
           type: object
-          description: Content details for the message.
+          nullable: true
+          description: >-
+            Content details for the message. Null when `content_type` is
+            `rich_card`.
           oneOf:
             - $ref: '#/components/schemas/RCSTextContent'
             - $ref: '#/components/schemas/RcsMediaContent'
