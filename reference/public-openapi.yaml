@@ -5136,16 +5136,16 @@ components:
     SenderOwnership:
       type: string
       description: >
-        How your account holds the sender. New values may be added, so handle
-        values you don't
+        How the account in `account_id` holds the sender. New values may be
+        added, so handle values
 
-        recognize.
+        you don't recognize.
 
-        - `OWNED` — your account leases or registered the sender directly.
+        - `OWNED` — that account leases or registered the sender directly.
 
-        - `ALLOCATED` — your parent account leases the sender and has allocated
-        it to your
-          account. You can't change its call forwarding, and your parent account manages its
+        - `ALLOCATED` — that account's parent leases the sender and has
+        allocated it to that
+          account. The account can't change its call forwarding, and its parent manages its
           voice settings.
       example: OWNED
     Capability:
@@ -5327,7 +5327,10 @@ components:
         | `registration_id` | No | When registered | When registered |
 
 
-        Every other field is returned for every type.
+        Every other field is returned for every type, except `created_at` and
+        `updated_at`, which
+
+        are omitted for a sender that predates Kudosity recording them.
       required:
         - id
         - sender
@@ -5337,8 +5340,6 @@ components:
         - countries
         - capabilities
         - ownership
-        - created_at
-        - updated_at
       properties:
         id:
           type: string
@@ -5347,7 +5348,12 @@ components:
             The sender's ID. It doesn't change while the sender exists. A
             virtual number keeps its ID even after its lease ends and another
             account leases it. If you delete an alphanumeric sender ID or
-            personal mobile number and add it again, it gets a new ID.
+            personal mobile number and add it again, it gets a new ID. A list
+            across several accounts can contain the same `id` more than once: a
+            number one account allocated to another appears once for each
+            account, with its own `account_id`, `ownership` and `lease`. To get
+            a particular account's row, call `GET /v2/senders/{sender_id}` with
+            that account in `TransmitSMS-Account`.
           example: 0b7f3c2e-5a41-4d8e-9c6b-2f1e8a7d4c30
         sender:
           type: string
@@ -5399,9 +5405,11 @@ components:
         account_id:
           type: string
           description: >-
-            The ID of the account that owns the sender. This can differ from
-            your own account when you read a child account's senders. The
-            `account_id` query parameter filters on this field.
+            The account this row belongs to. It can differ from your own account
+            when you read a child account's senders. For a number allocated to
+            an account, this is the account it's allocated to, and `ownership`
+            is `ALLOCATED`. The `account_id` query parameter filters on this
+            field.
           example: '201494'
         compliance:
           allOf:
@@ -5415,16 +5423,25 @@ components:
         created_at:
           type: string
           format: date-time
-          description: When the sender was added to the account, in RFC 3339 format.
+          description: >-
+            When the sender was added to the account in `account_id`, in RFC
+            3339 format. For an `ALLOCATED` number, this is when it was
+            allocated to that account. Omitted for a sender added before
+            Kudosity recorded this time.
           example: '2026-03-14T02:11:09Z'
         updated_at:
           type: string
           format: date-time
           description: >-
-            When the sender's record last changed, in RFC 3339 format. A status
-            that changes only because time has passed, such as `ACTIVE` to
-            `EXPIRED` when a lease ends, doesn't change it. Use the `ETag` from
-            `GET /v2/senders/{sender_id}` to detect any change.
+            When the sender was last changed by an action, such as a new label
+            or turning off renewal, in RFC 3339 format. Each row has its own: it
+            moves when something this row shows changes, so a parent account
+            relabelling its own row doesn't move the row of a child account it
+            allocated the number to. A status that changes only because time has
+            passed, such as `ACTIVE` to `EXPIRED` when a lease ends, and the
+            monthly lease charge don't change it. Omitted for a sender that
+            hasn't changed since Kudosity started recording this time. Use the
+            `ETag` from `GET /v2/senders/{sender_id}` to detect any change.
           example: '2026-10-01T05:40:22Z'
       example:
         id: 0b7f3c2e-5a41-4d8e-9c6b-2f1e8a7d4c30
