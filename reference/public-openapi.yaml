@@ -3931,6 +3931,8 @@ components:
         - WHATSAPP_INBOUND
         - RCS_STATUS
         - RCS_INBOUND
+        - PAYMENT_SUCCEEDED
+        - PAYMENT_FAILED
       description: >
         Event type string values:
 
@@ -3959,6 +3961,19 @@ components:
         - RCS_STATUS: Status change for RCS messages
 
         - RCS_INBOUND: Inbound RCS sent from a recipient back to the sender
+
+        - PAYMENT_SUCCEEDED: A payment charged to the account succeeded, such as
+        a credit top-up
+
+        - PAYMENT_FAILED: A payment charged to the account was declined or
+        otherwise failed
+
+
+        The payment event types are only delivered to a webhook whose
+
+        `filter.event_type` names them. Leaving the filter out subscribes to
+
+        every other event type, but never to these.
     MessageType:
       type: string
       enum:
@@ -4123,7 +4138,6 @@ components:
           description: Base64-encoded MMS media
         last_message:
           $ref: '#/components/schemas/V2Message'
-          x-go-type-skip-optional-pointer: true
         content_type:
           type: string
           x-go-type-skip-optional-pointer: true
@@ -4172,6 +4186,138 @@ components:
       required:
         - source
         - source_message
+    PaymentType:
+      type: string
+      enum:
+        - CREDIT_TOPUP
+        - AUTO_TOPUP
+      description: >
+        What a payment was for:
+
+        - CREDIT_TOPUP: A top-up of the account's credit balance, started by the
+        account
+
+        - AUTO_TOPUP: An automatic top-up triggered by the account's low-balance
+        threshold
+
+
+        This is an open set — new values appear as new kinds of payment become
+
+        billable, so treat an unrecognised value as "some other payment" rather
+
+        than an error.
+    V2PaymentTax:
+      type: object
+      description: Tax already included in a payment's amount.
+      properties:
+        type:
+          type: string
+          enum:
+            - GST
+          description: |-
+            The kind of tax included in the charge.
+
+            * `GST` — Australian Goods and Services Tax, 10% and included in the
+              amount charged.
+          example: GST
+        amount:
+          type: integer
+          format: int64
+          description: >-
+            Tax included in the charge, in micro-dollars of the payment's
+            `currency` — 1,000,000 micro-dollars is one dollar. For example,
+            4550000 means $4.55.
+          example: 4550000
+      required:
+        - type
+        - amount
+    V2PaymentSucceeded:
+      type: object
+      description: >-
+        V2 payment succeeded notification, sent when a payment charged to the
+        account completes. Most often a credit top-up that settled after the
+        call that started it had already returned.
+      properties:
+        payment_id:
+          type: string
+          description: >-
+            Identifier of the payment. This is the `payment_id` returned by
+            `POST /v2/payment/add-credits` and the id of the receipt the payment
+            produced, so it can be passed straight to `GET
+            /v2/payment/receipts/{id}` for the full receipt.
+          example: pi_3PabcdEfGhIjKlMn0oPqRsTu
+        receipt_number:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Receipt and tax invoice number for the payment, the same number the
+            receipt carries. Stable for the life of the payment.
+          example: 2094-5678
+        amount:
+          type: integer
+          format: int64
+          description: >-
+            Amount charged, in micro-dollars of `currency` — 1,000,000
+            micro-dollars is one dollar. For example, 50000000 means $50.00.
+          example: 50000000
+        currency:
+          type: string
+          pattern: ^[A-Z]{3}$
+          description: Three-letter ISO currency code of the charge, in uppercase.
+          example: AUD
+        payment_type:
+          $ref: '#/components/schemas/PaymentType'
+        tax:
+          $ref: '#/components/schemas/V2PaymentTax'
+          description: >-
+            Tax included in `amount`. Absent when no tax applies to the charge —
+            for example UK accounts, where VAT is accounted for separately. An
+            absent object means no tax applied, not zero tax.
+        card_brand:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: Brand of the card charged, when the payment was made by card.
+          example: visa
+        card_last4:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Last four digits of the card charged, when the payment was made by
+            card.
+          example: '4242'
+      required:
+        - payment_id
+        - amount
+        - currency
+        - payment_type
+    V2PaymentFailed:
+      type: object
+      description: >-
+        V2 payment failed notification, sent when a payment charged to the
+        account was declined or otherwise failed. This includes a top-up that
+        was accepted as pending and failed afterwards, which is the only way to
+        learn of that outcome without polling the receipt.
+      properties:
+        payment_type:
+          $ref: '#/components/schemas/PaymentType'
+        failure_reason:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Human-readable explanation of the failure, as the card issuer gave
+            it. Meant to be shown or logged rather than branched on — the
+            wording is not stable. Omitted when no explanation was given.
+          example: Your card was declined.
+        attempt_count:
+          type: integer
+          format: int32
+          description: >-
+            Failed payment attempts recorded for the account in the recent
+            window, counting this one. Always at least 1.
+          example: 1
+      required:
+        - payment_type
+        - attempt_count
     V2Status:
       type: object
       description: V2 status update from the provider (delivery receipt)
