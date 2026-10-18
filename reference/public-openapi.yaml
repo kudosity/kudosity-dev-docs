@@ -5123,10 +5123,8 @@ components:
 
         - `EXPIRING` — ready to send, but automatic renewal is off, so the lease
         ends at
-          `lease.next_charge_at` unless you renew it.
-        - `CANCELLING` — ready to send until `lease.cancels_at`, when the
-        cancellation you
-          requested takes effect.
+          `lease.next_charge_at` unless you renew it. Stopping a lease's renewal puts the sender
+          in this state.
         - `EXPIRED` — the lease has ended. You can't send from it, but you can
         still renew it for
           a short time.
@@ -5286,20 +5284,13 @@ components:
           type: string
           format: date-time
           description: >-
-            When the lease is next charged and renewed, in RFC 3339 format.
-            Omitted when no further charge is due.
+            When the lease is next charged and renewed, in RFC 3339 format. When
+            `auto_renew` is false, this is when the lease ends unless you renew
+            it. Omitted when no further charge is due.
           example: '2026-11-01T00:00:00Z'
         auto_renew:
           type: boolean
           description: Whether the lease renews automatically at `next_charge_at`.
-        cancels_at:
-          type: string
-          format: date-time
-          description: >-
-            When a cancellation you requested takes effect, in RFC 3339 format.
-            You can keep sending until then. Omitted unless a cancellation is
-            scheduled.
-          example: '2026-11-01T00:00:00Z'
       example:
         price:
           amount: '12.00'
