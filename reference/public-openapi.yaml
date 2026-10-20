@@ -5277,7 +5277,7 @@ components:
           allOf:
             - $ref: '#/components/schemas/Money'
           description: >-
-            What your account pays for each lease period. Omitted when your
+            What your account pays each month for the lease. Omitted when your
             account pays nothing, for example for a number your parent account
             leases and has allocated to you at its own cost.
         next_charge_at:
@@ -5343,8 +5343,8 @@ components:
             across several accounts can contain the same `id` more than once: a
             number one account allocated to another appears once for each
             account, with its own `account_id`, `ownership` and `lease`. To get
-            a particular account's row, call `GET /v2/senders/{sender_id}` with
-            that account in `TransmitSMS-Account`.
+            a particular account's row, call `GET /v2/senders/{id}` with that
+            account in `TransmitSMS-Account`.
           example: 0b7f3c2e-5a41-4d8e-9c6b-2f1e8a7d4c30
         sender:
           type: string
@@ -5432,7 +5432,7 @@ components:
             passed, such as `ACTIVE` to `EXPIRED` when a lease ends, and the
             monthly lease charge don't change it. Omitted for a sender that
             hasn't changed since Kudosity started recording this time. Use the
-            `ETag` from `GET /v2/senders/{sender_id}` to detect any change.
+            `ETag` from `GET /v2/senders/{id}` to detect any change.
           example: '2026-10-01T05:40:22Z'
       example:
         id: 0b7f3c2e-5a41-4d8e-9c6b-2f1e8a7d4c30
@@ -5495,6 +5495,83 @@ components:
           $ref: '#/components/schemas/PagePaginationMeta'
         sort:
           $ref: '#/components/schemas/SortMeta'
+    UnprocessableEntityProblem:
+      description: >
+        HTTP 422 Unprocessable Entity. The `type` tells you which case applies:
+
+        - `#unprocessable-entity` — the request is well formed, but the
+        operation isn't available
+          for this type of sender, for example renewing a personal mobile number, which has no
+          lease. Don't retry it.
+        - `#idempotency-key-reused` — the `Idempotency-Key` was already used for
+        a different
+          request. Resend the original request with that key, or send this request with a new
+          key.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: >-
+          https://developers.kudosity.com/reference/errors#idempotency-key-reused
+        title: Unprocessable Entity
+        detail: This Idempotency-Key was used for a different request
+        status: 422
+    AvailableNumber:
+      type: object
+      description: A virtual number you can lease with `POST /v2/senders`.
+      required:
+        - sender
+        - country
+        - capabilities
+        - price
+      properties:
+        sender:
+          type: string
+          description: The number, in international format without a leading `+`.
+          example: '61480012345'
+        country:
+          type: string
+          pattern: ^[A-Z]{2}$
+          description: ISO 3166-1 alpha-2 code of the country the number belongs to.
+          example: AU
+        capabilities:
+          type: array
+          description: The kinds of message you can send from the number.
+          items:
+            $ref: '#/components/schemas/Capability'
+          example:
+            - SMS
+            - MMS
+        price:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          description: What your account pays each month to lease the number.
+    ListAvailableNumbersResponse:
+      type: object
+      required:
+        - available_numbers
+      properties:
+        available_numbers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AvailableNumber'
+    ListAvailableNumbersMeta:
+      type: object
+      required:
+        - pagination
+      properties:
+        pagination:
+          $ref: '#/components/schemas/PagePaginationMeta'
+    AcquireSenderType:
+      type: string
+      description: >
+        The kind of sender to lease. Only virtual numbers can be leased with
+        this endpoint.
+
+        - `VIRTUAL_NUMBER` — a dedicated phone number leased by your account.
+      enum:
+        - VIRTUAL_NUMBER
+      example: VIRTUAL_NUMBER
     PagePaginationMeta:
       title: Page Pagination Metadata
       description: >
@@ -5549,6 +5626,53 @@ components:
           type: string
           description: Reason the request was rejected.
           example: Unauthorized
+    PaymentRequiredProblem:
+      description: >
+        HTTP 402 Payment Required - Insufficient balance.
+
+
+        Your client application cannot complete this request because the account
+        does not have sufficient balance.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/reference/errors#payment-required
+        title: Payment Required
+        detail: Your account balance is insufficient to complete this request
+        status: 402
+    RequestEntityTooLargeProblem:
+      description: >
+        HTTP 413 Request Entity Too Large - The request payload is too large.
+
+
+        Your client application sent a request with a payload that exceeds the
+        maximum allowed size.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: >-
+          https://developers.kudosity.com/reference/errors#request-entity-too-large
+        title: Request Entity Too Large
+        detail: The request payload exceeds the maximum allowed size
+        status: 413
+    NotImplementedProblem:
+      description: >
+        This problem occurs when the request was understood but cannot be
+        performed for this resource.
+
+
+        Your client application did everything correctly. Retrying will not help
+        — the capability does not exist here.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+      example:
+        type: https://developers.kudosity.com/reference/errors#not-implemented
+        title: Not Implemented
+        detail: This operation is not supported for this resource
+        status: 501
     CardAddSession:
       type: object
       description: A short-lived hosted session where the customer can add a card.
