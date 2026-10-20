@@ -676,7 +676,7 @@ paths:
         respond in time, or has an unsupported, mismatched or oversized file
         type. Each problem is reported
 
-        against `content.media.url`.
+        against `content.media.file_url`.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -707,7 +707,7 @@ paths:
                   content_type: media
                   content:
                     media:
-                      url: https://cdn.example.com/promo/spring-sale.jpg
+                      file_url: https://cdn.example.com/promo/spring-sale.jpg
                   sms_fallback:
                     message: >-
                       Our spring sale is on!
@@ -2624,7 +2624,7 @@ components:
 
         Media messages don't currently support a caption.
       properties:
-        url:
+        file_url:
           type: string
           format: uri
           description: >
@@ -2650,9 +2650,9 @@ components:
             RCS providers cache files by URL for up to 60 days. To change a
             file, host it at a new URL.
       required:
-        - url
+        - file_url
       example:
-        url: https://cdn.example.com/promo/spring-sale.jpg
+        file_url: https://cdn.example.com/promo/spring-sale.jpg
     RcsMediaContent:
       type: object
       properties:
