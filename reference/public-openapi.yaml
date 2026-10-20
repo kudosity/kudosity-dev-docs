@@ -4201,11 +4201,57 @@ components:
         threshold
 
 
-        This is an open set — new values appear as new kinds of payment become
+        New values are added here as new kinds of payment become billable. A
 
-        billable, so treat an unrecognised value as "some other payment" rather
+        payment of a kind not yet listed is not delivered, so the value is never
+
+        empty; still treat an unrecognised value as "some other payment" rather
 
         than an error.
+    PaymentFailureCode:
+      type: string
+      enum:
+        - INSUFFICIENT_FUNDS
+        - CARD_EXPIRED
+        - AUTHENTICATION_REQUIRED
+        - INCORRECT_CARD_DETAILS
+        - CARD_NOT_SUPPORTED
+        - LIMIT_EXCEEDED
+        - TRY_AGAIN
+        - CARD_DECLINED
+      description: >
+        Why the payment failed, as a stable value to branch on. Each value
+
+        groups several of the raw codes the card network returns:
+
+        - INSUFFICIENT_FUNDS: The card has insufficient funds
+
+        - CARD_EXPIRED: The card has expired
+
+        - AUTHENTICATION_REQUIRED: The issuer requires the cardholder to
+        authenticate; the payment must be retried by the cardholder
+
+        - INCORRECT_CARD_DETAILS: The card number, expiry, CVC or postcode was
+        wrong
+
+        - CARD_NOT_SUPPORTED: The card cannot be used for this kind of payment
+        or currency
+
+        - LIMIT_EXCEEDED: The payment exceeds a limit on the card, such as its
+        velocity or decline-rate limit
+
+        - TRY_AGAIN: A temporary error at the issuer or network; the same
+        payment may succeed if retried
+
+        - CARD_DECLINED: The issuer declined the payment without a more specific
+        reason
+
+
+        Codes that the network reserves for suspected fraud, and lost or stolen
+
+        cards, are deliberately reported as CARD_DECLINED. New values may be
+
+        added; treat an unrecognised value as CARD_DECLINED.
     V2PaymentTax:
       type: object
       description: Tax already included in a payment's amount.
@@ -4276,7 +4322,10 @@ components:
         card_brand:
           type: string
           x-go-type-skip-optional-pointer: true
-          description: Brand of the card charged, when the payment was made by card.
+          description: >-
+            Brand of the card charged, when the payment was made by card. The
+            lowercase brand identifier (`visa`, `mastercard`, `amex`), the same
+            value the receipt and payment-method resources carry.
           example: visa
         card_last4:
           type: string
@@ -4298,8 +4347,41 @@ components:
         was accepted as pending and failed afterwards, which is the only way to
         learn of that outcome without polling the receipt.
       properties:
+        payment_id:
+          type: string
+          description: >-
+            Identifier of the payment that failed. This is the `payment_id`
+            returned by `POST /v2/payment/add-credits` for the top-up, so the
+            failure can be matched to the call that started it. The same
+            identifier a `PAYMENT_SUCCEEDED` event carries.
+          example: pi_3PabcdEfGhIjKlMn0oPqRsTu
+        amount:
+          type: integer
+          format: int64
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Amount the payment tried to charge, in micro-dollars of `currency` —
+            1,000,000 micro-dollars is one dollar. Omitted, together with
+            `currency`, for a failure recorded before the amount was kept.
+          example: 50000000
+        currency:
+          type: string
+          pattern: ^[A-Z]{3}$
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Three-letter ISO currency code of the attempted charge, in
+            uppercase. Omitted together with `amount`.
+          example: AUD
         payment_type:
           $ref: '#/components/schemas/PaymentType'
+        failure_code:
+          allOf:
+            - $ref: '#/components/schemas/PaymentFailureCode'
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            Why the payment failed, as a value to branch on. Omitted when the
+            card network gave no code, for example a failure before the card was
+            reached.
         failure_reason:
           type: string
           x-go-type-skip-optional-pointer: true
@@ -4316,6 +4398,7 @@ components:
             window, counting this one. Always at least 1.
           example: 1
       required:
+        - payment_id
         - payment_type
         - attempt_count
     V2Status:
