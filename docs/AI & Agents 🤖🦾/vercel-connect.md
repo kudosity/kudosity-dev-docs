@@ -93,7 +93,7 @@ The Kudosity [Agent Skills](/docs/agent-skills) cover every channel, authenticat
 ## Good to know
 
 * **One connector, many apps.** Link the same connector to several projects. Rotate the key in Kudosity, update it on the connector, and every linked app picks up the new key — no redeploys.
-* **Delivery results.** Every send returns an `id`; `GET /v2/sms/{id}` (and the per-channel equivalents) returns the status, or register a [webhook](/docs/webhooks-v2) to be told when it changes.
+* **Delivery results.** Every send returns an `id`; `GET /v2/sms/{id}` (and the per-channel equivalents) returns the status, or register a [webhook](/docs/what-are-webhooks) to be told when it changes.
 * **Rate limits.** Connect's `getToken` is cached in-process; the SDK refreshes it as needed. Kudosity's own [rate limits](/reference/about-our-apis) apply to the API calls.
 
 ## Next steps
