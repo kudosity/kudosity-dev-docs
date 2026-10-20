@@ -6422,3 +6422,22 @@ components:
         logged into your account on the SETTINGS page. Scroll down to API
         Settings to find your API key.
   parameters: {}
+  headers:
+    IdempotentReplayed:
+      description: >-
+        `true` when the response is a stored one, replayed for a retry with the
+        same `Idempotency-Key`. Absent on the response to the request that did
+        the work.
+      schema:
+        type: string
+        enum:
+          - 'true'
+      example: 'true'
+    RetryAfter:
+      description: >-
+        How many seconds to wait before retrying the request with the same
+        `Idempotency-Key`.
+      schema:
+        type: integer
+        minimum: 1
+      example: 5
