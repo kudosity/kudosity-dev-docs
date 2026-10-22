@@ -985,6 +985,9 @@ paths:
         HTTP request (usually a POST) to the URL you configured for the webhook.
         The request will include details of the event such as the incoming phone
         number or the body of an incoming message.
+
+        Send the request body with a `Content-Type` of `application/json`.
+        Parameters such as `charset=utf-8` are accepted.
       requestBody:
         required: true
         content:
@@ -1061,7 +1064,9 @@ paths:
       summary: Update Webhook
       description: >-
         Updates the webhook. Any fields not provided in the request body will
-        reset to their default values.
+        reset to their default values. Send the request body with a
+        `Content-Type` of `application/json`. Parameters such as `charset=utf-8`
+        are accepted.
       security:
         - ApiKeyAuth: []
       parameters:
