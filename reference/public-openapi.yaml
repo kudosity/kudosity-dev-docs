@@ -60,13 +60,13 @@ tags:
       - SMS_STATUS
 
       - RCS_STATUS
-
+          
 
       For status events, the nested `status` field is an enum with these values:
 
 
       - FAILED: Failed because of an error from the carrier or handset.
-
+          
       - SENT: Submitted to the carrier.
 
       - ACCEPTED: Accepted by the carrier and delivery may have been attempted
@@ -80,7 +80,7 @@ tags:
       - HARD_BOUNCE: Handset was disconnected.
 
       - OTHER: Any other status from the carrier.
-
+          
 
       ## Link Hit
 
@@ -145,7 +145,7 @@ tags:
 
       The source field will be set according to the method a recipient has used
       to opt-out and contain a value of either link or SMS.
-
+        
 
       ###### Example Payloads
 
@@ -161,7 +161,7 @@ tags:
             "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh",
             "message_ref": "ncc5009d",
             "recipient": "61435790000",
-            "sender": "61481074190"
+            "sender": "61481074190"  
           }
         }
       } ``` ```json Opt out via message {
@@ -231,7 +231,7 @@ tags:
           "sender": "447507222200",
           "last_message": {
             "type":"SMS",
-            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
+            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",     
             "message": "Hey, check this out!",
             "message_ref": "ncc5009d",
             "recipient": "447507222200",
@@ -880,7 +880,7 @@ paths:
       summary: Send MMS
       description: >-
         The Send MMS endpoint allows you to send multimedia messages (MMS) to
-        recipients.
+        recipients. 
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -3671,7 +3671,7 @@ components:
             type: string
           description: >
             Specify a list of URLs of the media file(s) that you are trying to
-            send.
+            send. 
 
             Supported file formats include jpg, gif, png, MP3, and video MP4.
             Only one image up to 400 KB can be attached at a time.
@@ -4800,6 +4800,150 @@ components:
       required:
         - name
         - content
+    InboundOptions:
+      type: object
+      description: >-
+        What happens to a message that arrives on a virtual number. On a change,
+        every field is optional and merged separately: send only the fields you
+        are changing. A field that has never been set is omitted.
+      properties:
+        forward_to_emails:
+          type: array
+          items:
+            type: string
+            format: email
+          description: >-
+            Email addresses that receive a copy of each inbound message. Send an
+            empty array to clear them.
+          example:
+            - ops@example.com
+        forward_to_numbers:
+          type: array
+          items:
+            type: string
+          description: >-
+            Numbers that receive a copy of each inbound message, in
+            international format without a leading `+`. Send an empty array to
+            clear them.
+          example:
+            - '61491570156'
+        forward_to_url:
+          type: string
+          format: uri
+          nullable: true
+          description: >-
+            A URL that receives each inbound message. For new integrations, use
+            the `SMS_INBOUND` webhook instead: it posts JSON, can be filtered by
+            sender, and is managed through the webhook API rather than per
+            number. Send `null` to clear it.
+          example: https://hooks.example.com/inbound
+        add_to_list_id:
+          type: integer
+          format: int32
+          minimum: 1
+          nullable: true
+          description: >-
+            The contact list that the sender of an inbound message is added to.
+            It must be one of the account's own lists, or the request returns
+            `422 Unprocessable Entity`. Send `null` to clear it.
+        auto_reply_message:
+          type: string
+          nullable: true
+          description: >-
+            A message sent back automatically when a message arrives. Send
+            `null` or an empty string to turn it off.
+        auto_reply_delay:
+          type: integer
+          minimum: 0
+          multipleOf: 60
+          description: >-
+            Seconds to wait before sending `auto_reply_message`, in whole
+            minutes: a value that isn't a multiple of 60 returns `400 Bad
+            Request`. Send `0` to reply straight away.
+          example: 300
+    CallForward:
+      type: object
+      description: >-
+        What happens to a voice call to a virtual number. Only the account that
+        owns the number can change it; for a number allocated by a parent
+        account, a change returns `403 Forbidden`.
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+          description: >-
+            Whether calls are forwarded. Turning forwarding off also clears
+            `forward_to` and `show_caller`.
+        forward_to:
+          type: string
+          description: >-
+            The number calls are forwarded to, in international format without a
+            leading `+`. Required when turning forwarding on for a number that
+            has no forwarding number yet; otherwise, left out of a change, it
+            keeps its current value. A number that isn't valid returns `400 Bad
+            Request`, and one outside the virtual number's country returns `422
+            Unprocessable Entity`. Ignored when `enabled` is false.
+          example: '61491570157'
+        show_caller:
+          type: boolean
+          description: >-
+            Show the caller's own number instead of the virtual number. Left out
+            of a change, it keeps its current value.
+    SenderAutomation:
+      type: object
+      description: The inbound options and call forwarding of one virtual number.
+      required:
+        - inbound_options
+      properties:
+        inbound_options:
+          $ref: '#/components/schemas/InboundOptions'
+        call_forward:
+          description: >-
+            Omitted for a number allocated to the account by its parent account,
+            whose call forwarding the parent account manages.
+          allOf:
+            - $ref: '#/components/schemas/CallForward'
+    Sublease:
+      type: object
+      description: >-
+        One client account's sublease of a number the account owns. It's a lease
+        in its own right, with a price, a charge date and a status.
+      required:
+        - account_id
+        - status
+        - auto_renew
+        - is_exclusive
+      properties:
+        account_id:
+          type: string
+          description: The client account. Its name comes from the accounts API.
+          example: '202'
+        status:
+          $ref: '#/components/schemas/SenderStatus'
+        price:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          description: >-
+            What the client account is charged per term. Omitted when it pays
+            nothing, for example when the owner carries the cost.
+        next_charge_at:
+          type: string
+          format: date-time
+          description: >-
+            When the client account is next charged, in RFC 3339 format. Omitted
+            when no further charge is due.
+        auto_renew:
+          type: boolean
+          description: >-
+            Whether this sublease renews at `next_charge_at`. A sublease follows
+            the number's own lease: it renews when the owner's lease is set to
+            renew. It can't be set here.
+        is_exclusive:
+          type: boolean
+          description: >-
+            True when this client account is the only one that may send from the
+            sender.
     VerificationConfirmationInputValidationProblem:
       description: >
         Input-validation problem (RFC 9457) specific to the verification
@@ -5217,7 +5361,8 @@ components:
         still renew it for
           a short time.
         - `INACTIVE` — not usable, for example because it's waiting to be
-        activated.
+        activated, or because
+          you stopped a number your parent account had allocated to you.
       example: ACTIVE
     SenderOwnership:
       type: string
@@ -5379,6 +5524,14 @@ components:
         auto_renew:
           type: boolean
           description: Whether the lease renews automatically at `next_charge_at`.
+        margin:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          description: >-
+            The markup a client account adds to the price of a virtual number it
+            leases itself, shown when the number is listed for its parent
+            account. Omitted when there is none, and for numbers allocated by
+            the parent account.
       example:
         price:
           amount: '12.00'
@@ -5479,6 +5632,17 @@ components:
             A name you give the sender to tell it apart from your others.
             Recipients never see it. Omitted if you haven't set one.
           example: Support line
+        sublease_count:
+          type: integer
+          minimum: 0
+          description: >-
+            How many client accounts the number is subleased to, counting
+            subleases that are waiting to start or have stopped, as the number's
+            subleases list shows them. Returned for a virtual number that the
+            account in `account_id` leases itself; omitted for a number
+            allocated by a parent account and for other kinds of sender, which
+            can't be subleased.
+          example: 2
         ownership:
           $ref: '#/components/schemas/SenderOwnership'
         account_id:
@@ -5859,7 +6023,7 @@ components:
               example: true
             link:
               $ref: '#/components/schemas/PaymentMethodLink'
-              description: Link account details. Only present when `type` is `link`.
+              description: Link account details. Only present when `type` is `LINK`.
           required:
             - id
             - is_default
@@ -5869,8 +6033,20 @@ components:
       properties:
         brand:
           type: string
-          description: Card brand (e.g. visa, mastercard, amex).
-          example: visa
+          enum:
+            - VISA
+            - MASTERCARD
+            - AMEX
+            - DINERS
+            - DISCOVER
+            - JCB
+            - UNIONPAY
+            - EFTPOS_AU
+            - UNKNOWN
+          description: >-
+            Card brand. `UNKNOWN` covers brands this API version does not
+            recognise yet — treat it as "some other brand" rather than an error.
+          example: VISA
         last4:
           type: string
           description: Last four digits of the card number.
@@ -5887,8 +6063,15 @@ components:
           example: 2028
         funding:
           type: string
-          description: How the card is funded — credit, debit, prepaid, or unknown.
-          example: credit
+          enum:
+            - CREDIT
+            - DEBIT
+            - PREPAID
+            - UNKNOWN
+          description: >-
+            How the card is funded. `UNKNOWN` means the funding type could not
+            be determined.
+          example: CREDIT
         name:
           type: string
           x-go-type-skip-optional-pointer: true
@@ -6014,16 +6197,22 @@ components:
           example: pm_1234567890abcdef
         type:
           type: string
-          description: >-
-            The type of payment method. This is an open set — new values appear
-            as new payment options become available, so treat an unrecognised
-            value as "some other payment method" rather than an error. Today
-            this is `card` or `link`. Card details are only present when the
-            type is `card`.
-          example: card
+          enum:
+            - CARD
+            - LINK
+            - UNKNOWN
+          description: |-
+            The type of payment method.
+            * `CARD` — a saved card; its details are in `card`.
+            * `LINK` — a Link account.
+            * `UNKNOWN` — a payment method this API version does not recognise.
+              New values appear as new payment options become available, so
+              treat `UNKNOWN` as "some other payment method" rather than an
+              error.
+          example: CARD
         card:
           $ref: '#/components/schemas/PaymentMethodCard'
-          description: Details of the card, when `type` is `card`.
+          description: Details of the card, when `type` is `CARD`.
       required:
         - type
     ReceiptList:

@@ -22,13 +22,13 @@ excerpt: >-
   - SMS_STATUS
 
   - RCS_STATUS
-
+      
 
   For status events, the nested `status` field is an enum with these values:
 
 
   - FAILED: Failed because of an error from the carrier or handset.
-
+      
   - SENT: Submitted to the carrier.
 
   - ACCEPTED: Accepted by the carrier and delivery may have been attempted (but
@@ -42,7 +42,7 @@ excerpt: >-
   - HARD_BOUNCE: Handset was disconnected.
 
   - OTHER: Any other status from the carrier.
-
+      
 
   ## Link Hit
 
@@ -105,7 +105,7 @@ excerpt: >-
 
   The source field will be set according to the method a recipient has used to
   opt-out and contain a value of either link or SMS.
-
+    
 
   ###### Example Payloads
 
@@ -121,7 +121,7 @@ excerpt: >-
         "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh",
         "message_ref": "ncc5009d",
         "recipient": "61435790000",
-        "sender": "61481074190"
+        "sender": "61481074190"  
       }
     }
   } ``` ```json Opt out via message {
@@ -191,7 +191,7 @@ excerpt: >-
       "sender": "447507222200",
       "last_message": {
         "type":"SMS",
-        "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
+        "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",     
         "message": "Hey, check this out!",
         "message_ref": "ncc5009d",
         "recipient": "447507222200",
