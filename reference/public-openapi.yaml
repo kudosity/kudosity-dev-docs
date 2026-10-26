@@ -1152,6 +1152,8 @@ paths:
 
           - If the account does not use parent/child accounts, the API returns registrations for the authenticated account.
           - If the account is a parent account, the API returns registrations for the parent account and all child accounts.
+
+        Every registration carries `account_id`, the account it belongs to.
       parameters:
         - name: page
           in: query
@@ -1178,8 +1180,11 @@ paths:
           in: query
           required: false
           description: >-
-            Filter registrations by child account ID. Returns only registrations
-            belonging to the specified child account.
+            Returns only the registrations of this account: your own account or
+            one of your child accounts. The API returns `404 Not Found` for an
+            account that isn't visible to you, and `403 Forbidden` for one
+            that's visible but you don't manage. Before these responses were
+            added, an account you couldn't use returned an empty list.
           schema:
             type: string
             x-go-type-skip-optional-pointer: true
@@ -1199,8 +1204,8 @@ paths:
           required: false
           description: >
             Filter registrations by status. Accepts one or more comma-separated
-            values. Valid values: PENDING_APPROVAL, VERIFIED, REJECTED,
-            CANCELLED.
+            values. Valid values: PENDING_APPROVAL, SUBMITTED_TO_REGISTRY,
+            VERIFIED, REJECTED, CANCELLED.
           schema:
             type: string
             x-go-type-skip-optional-pointer: true
@@ -1212,10 +1217,14 @@ paths:
           $ref: '#/components/responses/InputValidationResponse'
         '401':
           $ref: '#/components/responses/GatewayUnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
         '503':
-          $ref: '#/components/responses/GatewayUnavailableResponse'
+          $ref: '#/components/responses/SenderServiceUnavailableResponse'
     post:
       tags:
         - Senders
@@ -1225,9 +1234,10 @@ paths:
       description: |
         Creates a sender registration and sets `status` to `PENDING_APPROVAL`.
 
-          - If the account does not use parent/child accounts, the API ignores `child_account_id` and registers the sender for the authenticated account.
-          - If the account is a parent account and you omit `child_account_id`, the API registers the sender for the parent account.
-          - If you provide `child_account_id`, the API registers the sender for that child account.
+          - If you omit `account_id`, the API registers the sender for the authenticated account.
+          - If you provide `account_id`, the API registers the sender for that account: your own account or one of your child accounts. The API returns `404 Not Found` for an account that isn't visible to you, and `403 Forbidden` for one that's visible but you don't manage.
+          - `child_account_id` is a deprecated name for `account_id`. If you send both, they must name the same account, or the API returns `400 Bad Request`.
+          - An account you can't use returns `403` or `404`. Before these responses were added, a `child_account_id` you couldn't use returned `400 Bad Request`.
           - If a registration for the same sender was already created within the last 30 minutes (for the same account or child account), the API returns `429 Too Many Requests`. This prevents abuse of the verification retry limit.
           - Any existing `PENDING_APPROVAL` registration for the same sender (for the same account or child account) is automatically cancelled before the new one is created.
       requestBody:
@@ -1240,7 +1250,7 @@ paths:
               sender: '61412312312'
               country: AU
               type: PERSONAL_MOBILE_NUMBER
-              child_account_id: '1234'
+              account_id: '1234'
       responses:
         '201':
           $ref: '#/components/responses/SenderRegistrationSuccessResponse'
@@ -1248,6 +1258,10 @@ paths:
           $ref: '#/components/responses/InputValidationResponse'
         '401':
           $ref: '#/components/responses/GatewayUnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
         '409':
           $ref: '#/components/responses/ConflictErrorResponse'
         '429':
@@ -1255,7 +1269,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
         '503':
-          $ref: '#/components/responses/GatewayUnavailableResponse'
+          $ref: '#/components/responses/SenderServiceUnavailableResponse'
   /v2/senders/phone-numbers/{phone_number}:
     delete:
       tags:
@@ -1266,9 +1280,8 @@ paths:
       description: |
         Deletes a sender phone number from the account.
 
-          - If the account does not use parent/child accounts, the API ignores `child_account_id` and deletes the sender from the authenticated account.
-          - If the account is a parent account and you omit `child_account_id`, the API deletes the sender from the parent account.
-          - If you provide `child_account_id`, the API deletes the sender from that child account.
+          - If you omit `child_account_id`, the API deletes the sender from the authenticated account.
+          - If you provide `child_account_id`, the API deletes the sender from that account: your own account or one of your child accounts. The API returns `404 Not Found` for an account that isn't visible to you, and `403 Forbidden` for one that's visible but you don't manage. Before these responses were added, an account you couldn't use returned `400 Bad Request`.
       parameters:
         - name: phone_number
           in: path
@@ -1283,9 +1296,9 @@ paths:
           in: query
           required: false
           description: >-
-            Child account ID to delete the sender from. Ignored for accounts
-            without parent/child accounts. If omitted for a parent account, the
-            API deletes the sender from the parent account.
+            The account to delete the sender from, your own account or one of
+            your child accounts. If omitted, the API deletes the sender from the
+            authenticated account.
           schema:
             type: string
           example: '456'
@@ -1296,12 +1309,14 @@ paths:
           $ref: '#/components/responses/InputValidationResponse'
         '401':
           $ref: '#/components/responses/GatewayUnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
         '404':
           $ref: '#/components/responses/NotFoundErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
         '503':
-          $ref: '#/components/responses/GatewayUnavailableResponse'
+          $ref: '#/components/responses/SenderServiceUnavailableResponse'
   /v2/senders/registrations/{registration_id}/verifications:
     post:
       tags:
@@ -5035,11 +5050,13 @@ components:
         - `PERSONAL_MOBILE_NUMBER` — `PENDING_APPROVAL`, `VERIFIED`, `REJECTED`,
         `CANCELLED`.
 
-        - `ALPHANUMERIC` — `PENDING_APPROVAL`, `VERIFIED`, `REJECTED`. The finer
-        alpha
-          registry lifecycle is surfaced separately and is not part of this coarse enum.
+        - `ALPHANUMERIC` — `PENDING_APPROVAL`, `SUBMITTED_TO_REGISTRY`,
+        `VERIFIED`, `REJECTED`,
+          `CANCELLED`. `SUBMITTED_TO_REGISTRY` means the registry is reviewing the sender. The
+          finer alpha registry lifecycle is in `details.alphanumeric.status`.
       enum:
         - PENDING_APPROVAL
+        - SUBMITTED_TO_REGISTRY
         - VERIFIED
         - REJECTED
         - CANCELLED
@@ -5145,12 +5162,20 @@ components:
           pattern: ^[A-Z]{2}$
         type:
           $ref: '#/components/schemas/SenderRegistrationRequestType'
-        child_account_id:
+        account_id:
           type: string
           description: >
-            Child account ID to register the sender for. Ignored for accounts
-            without parent/child accounts. If omitted for a parent account, the
-            API registers the sender for the parent account.
+            The account to register the sender for: your own account or one of
+            your child
+
+            accounts. If omitted, the API registers the sender for the
+            authenticated account.
+          example: '1234'
+        child_account_id:
+          type: string
+          deprecated: true
+          description: |
+            Deprecated: use `account_id`, which it is another name for.
       required:
         - sender
         - country
@@ -5179,11 +5204,19 @@ components:
           description: >-
             Timestamp in RFC3339 format (e.g., 2025-08-26T10:30:00Z) when the
             registration was created.
-        child_account_id:
+        account_id:
           type: string
           description: >-
-            Child account ID the sender is registered for. Only present for
-            registrations created under a child account.
+            The account the registration belongs to, either your own account or
+            one of your child accounts.
+          example: '1234'
+        child_account_id:
+          type: string
+          deprecated: true
+          description: >-
+            Deprecated, read `account_id` instead. Child account ID the sender
+            is registered for. Only present for registrations created under a
+            child account.
           x-oapi-codegen-extra-tags:
             json: child_account_id,omitempty
         updated_at:
@@ -5211,6 +5244,7 @@ components:
         - country
         - type
         - status
+        - account_id
         - created_at
         - updated_at
     VerificationMethod:
@@ -6548,6 +6582,8 @@ components:
               country: AU
               type: PERSONAL_MOBILE_NUMBER
               status: PENDING_APPROVAL
+              account_id: '1234'
+              child_account_id: '1234'
               created_at: '2025-08-26T10:30:00Z'
               updated_at: '2025-08-26T10:30:00Z'
     VerificationSuccessResponse:
@@ -6614,6 +6650,7 @@ components:
                   country: AU
                   type: PERSONAL_MOBILE_NUMBER
                   status: VERIFIED
+                  account_id: '201494'
                   created_at: '2025-08-26T10:30:00Z'
                   updated_at: '2025-08-26T10:32:00Z'
                 - registration_id: b2c3d4e5-f6a7-8901-bcde-f12345678901
@@ -6621,6 +6658,7 @@ components:
                   country: AU
                   type: PERSONAL_MOBILE_NUMBER
                   status: PENDING_APPROVAL
+                  account_id: '1234'
                   child_account_id: '1234'
                   created_at: '2025-09-01T14:00:00Z'
                   updated_at: '2025-09-01T14:00:00Z'
@@ -6661,6 +6699,32 @@ components:
                 - name: code
                   message: invalid verification code, you have 4 attempts remaining
               attempts_remaining: 4
+    SenderServiceUnavailableResponse:
+      description: >-
+        Service Unavailable. The API returns one of two bodies: a `status` body
+        when the API gateway can't reach the authentication service, or a
+        problem body when the sender service can't reach a service it depends
+        on. Both are safe to retry.
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/GatewayAuthStatus'
+              - $ref: '#/components/schemas/UpstreamUnavailableErrorResponse'
+          examples:
+            gateway:
+              summary: Authentication service unreachable
+              value:
+                status: Authentication service unavailable
+            upstream:
+              summary: Upstream unavailable
+              value:
+                error:
+                  type: >-
+                    https://developers.kudosity.com/reference/errors#service-unavailable
+                  title: Service Unavailable
+                  detail: Upstream unavailable, retry later
+                  status: 503
     GatewayUnauthorizedResponse:
       description: >-
         Unauthorized. The credential is missing or was rejected by the
