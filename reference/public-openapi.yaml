@@ -60,13 +60,13 @@ tags:
       - SMS_STATUS
 
       - RCS_STATUS
-          
+
 
       For status events, the nested `status` field is an enum with these values:
 
 
       - FAILED: Failed because of an error from the carrier or handset.
-          
+
       - SENT: Submitted to the carrier.
 
       - ACCEPTED: Accepted by the carrier and delivery may have been attempted
@@ -80,7 +80,7 @@ tags:
       - HARD_BOUNCE: Handset was disconnected.
 
       - OTHER: Any other status from the carrier.
-          
+
 
       ## Link Hit
 
@@ -145,7 +145,7 @@ tags:
 
       The source field will be set according to the method a recipient has used
       to opt-out and contain a value of either link or SMS.
-        
+
 
       ###### Example Payloads
 
@@ -161,7 +161,7 @@ tags:
             "message": "Hey, Check this out! http://clckme.info/KYhSsuIH for Opt-out reply STOP or hit opt out link - http://nsub.me/vqHTcCsh",
             "message_ref": "ncc5009d",
             "recipient": "61435790000",
-            "sender": "61481074190"  
+            "sender": "61481074190"
           }
         }
       } ``` ```json Opt out via message {
@@ -231,7 +231,7 @@ tags:
           "sender": "447507222200",
           "last_message": {
             "type":"SMS",
-            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",     
+            "id": "a51ebe4e-a412-440e-a8d9-464e68a521cc",
             "message": "Hey, check this out!",
             "message_ref": "ncc5009d",
             "recipient": "447507222200",
@@ -880,7 +880,7 @@ paths:
       summary: Send MMS
       description: >-
         The Send MMS endpoint allows you to send multimedia messages (MMS) to
-        recipients. 
+        recipients.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -1151,9 +1151,12 @@ paths:
         account.
 
           - If the account does not use parent/child accounts, the API returns registrations for the authenticated account.
-          - If the account is a parent account, the API returns registrations for the parent account and all child accounts.
+          - If the account is a parent account, the API returns the registrations it created, for its own account and for its child accounts. Registrations a child account created itself aren't included.
 
-        Every registration carries `account_id`, the account it belongs to.
+        Every registration carries `account_id`, the account it belongs to. Use
+        the `account_id`
+
+        query parameter to narrow the list to some of those accounts.
       parameters:
         - name: page
           in: query
@@ -1179,16 +1182,86 @@ paths:
         - name: child_account_id
           in: query
           required: false
+          deprecated: true
           description: >-
+            Deprecated: use `account_id`, which accepts more than one account.
             Returns only the registrations of this account: your own account or
             one of your child accounts. The API returns `404 Not Found` for an
             account that isn't visible to you, and `403 Forbidden` for one
             that's visible but you don't manage. Before these responses were
-            added, an account you couldn't use returned an empty list.
+            added, an account you couldn't use returned an empty list. Can't be
+            combined with `account_id`.
           schema:
             type: string
             x-go-type-skip-optional-pointer: true
           example: '1234'
+        - name: account_id
+          in: query
+          required: false
+          description: >
+            Returns only registrations whose `account_id` is one of these
+            accounts. Accepts one or
+
+            more comma-separated account IDs: your own account and any of your
+            child accounts. The
+
+            API returns `404 Not Found` for an account that isn't visible to
+            you, and
+
+            `403 Forbidden` for one that's visible but you don't manage. Up to
+            100 values.
+
+
+            The list holds the registrations you created, for your own account
+            or for a child
+
+            account; registrations a child account created itself aren't
+            included. Can't be combined
+
+            with `account_scope` or `child_account_id`.
+          schema:
+            type: array
+            maxItems: 100
+            items:
+              type: string
+          style: form
+          explode: false
+          example:
+            - '201494'
+            - '201495'
+        - name: account_scope
+          in: query
+          required: false
+          description: >
+            Set to `all` to return the registrations you created, for your own
+            account and for any of
+
+            your child accounts; registrations a child account created itself
+            aren't included. This
+
+            is also what the API returns when you omit it; the parameter is
+            accepted so you can send
+
+            the same one as on `GET /v2/senders`. Combined with
+            `child_account_id`, it returns that
+
+            account's registrations only.
+          schema:
+            type: string
+            enum:
+              - all
+          example: all
+        - name: search
+          in: query
+          required: false
+          description: >-
+            Returns registrations whose `sender`, or the company name of the
+            child account they belong to, contains this text. The match ignores
+            case.
+          schema:
+            type: string
+            x-go-type-skip-optional-pointer: true
+          example: '0412'
         - name: sender
           in: query
           required: false
@@ -1210,6 +1283,53 @@ paths:
             type: string
             x-go-type-skip-optional-pointer: true
           example: VERIFIED
+        - name: registry_status
+          in: query
+          required: false
+          description: >-
+            Returns alphanumeric registrations whose
+            `details.alphanumeric.status` is one of these values. Accepts one or
+            more comma-separated values. Personal mobile number registrations
+            have no registry status, so they're left out when you set it.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/AlphanumericStatus'
+          style: form
+          explode: false
+          example:
+            - PENDING_CUSTOMER
+            - PENDING_APPROVAL
+        - name: registry
+          in: query
+          required: false
+          description: >-
+            Returns alphanumeric registrations submitted to this registry.
+            Personal mobile number registrations are left out when you set it.
+          schema:
+            $ref: '#/components/schemas/Registry'
+          example: ACMA
+        - name: sort
+          in: query
+          required: false
+          description: >-
+            The field to sort by. Default `created_at`. Ties are broken by
+            `registration_id`, so paging through a sorted list doesn't repeat or
+            skip registrations.
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/SenderRegistrationSortField'
+            default: created_at
+        - name: order
+          in: query
+          required: false
+          description: The sort direction. Default `desc`.
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
       responses:
         '200':
           $ref: '#/components/responses/ListSenderRegistrationsSuccessResponse'
@@ -3686,7 +3806,7 @@ components:
             type: string
           description: >
             Specify a list of URLs of the media file(s) that you are trying to
-            send. 
+            send.
 
             Supported file formats include jpg, gif, png, MP3, and video MP4.
             Only one image up to 400 KB can be attached at a time.
@@ -5040,6 +5160,22 @@ components:
         API.
       enum:
         - PERSONAL_MOBILE_NUMBER
+    SenderRegistrationSortField:
+      type: string
+      description: >
+        A field the registrations list can be sorted by. `status` sorts by the
+        registration's
+
+        `status`; `registry_status` sorts by `details.alphanumeric.status`, with
+        registrations that
+
+        have none last.
+      enum:
+        - created_at
+        - updated_at
+        - sender
+        - status
+        - registry_status
     SenderRegistrationStatus:
       type: string
       description: >
