@@ -4344,9 +4344,10 @@ components:
           x-go-type-skip-optional-pointer: true
           description: >-
             Brand of the card charged, when the payment was made by card. The
-            lowercase brand identifier (`visa`, `mastercard`, `amex`), the same
-            value the receipt and payment-method resources carry.
-          example: visa
+            UPPER_SNAKE_CASE brand identifier (`VISA`, `MASTERCARD`, `AMEX`),
+            the same value the receipt and payment-method resources carry. An
+            open set — your integration may receive values beyond today's list.
+          example: VISA
         card_last4:
           type: string
           x-go-type-skip-optional-pointer: true
@@ -6067,19 +6068,12 @@ components:
       properties:
         brand:
           type: string
-          enum:
-            - VISA
-            - MASTERCARD
-            - AMEX
-            - DINERS
-            - DISCOVER
-            - JCB
-            - UNIONPAY
-            - EFTPOS_AU
-            - UNKNOWN
           description: >-
-            Card brand. `UNKNOWN` covers brands this API version does not
-            recognise yet — treat it as "some other brand" rather than an error.
+            Card brand, in UPPER_SNAKE_CASE. This is an open set owned by the
+            card networks — new values appear as new brands become acceptable.
+            Today this is one of `VISA`, `MASTERCARD`, `AMEX`, `DINERS`,
+            `DISCOVER`, `JCB`, `UNIONPAY` or `EFTPOS_AU`. Your integration may
+            receive values beyond this list.
           example: VISA
         last4:
           type: string
