@@ -3974,6 +3974,10 @@ components:
             filter is
               applied to the `recipient` field (the sender address that received the inbound message),
               while `message_ref` and `campaign_id` filters are applied to `last_message` if available.
+            - For sender events (`SENDER_REGISTRATION_STATUS`,
+            `SENDER_COMPLIANCE_STATUS`): the `sender`
+              filter is applied to the event's `sender`. They have no message status, `message_ref` or
+              `campaign_id`, so a webhook that sets any of those filters receives no sender events.
 
             Within each filter array (e.g., sender, status, message_ref), the
             conditions are combined using an OR logic. For example, if multiple
@@ -4073,6 +4077,8 @@ components:
         - RCS_INBOUND
         - PAYMENT_SUCCEEDED
         - PAYMENT_FAILED
+        - SENDER_REGISTRATION_STATUS
+        - SENDER_COMPLIANCE_STATUS
       description: >
         Event type string values:
 
@@ -4108,11 +4114,19 @@ components:
         - PAYMENT_FAILED: A payment charged to the account was declined or
         otherwise failed
 
+        - SENDER_REGISTRATION_STATUS: A sender registration was created, or its
+        `status` changed. Carries only the registration's `registration_id`,
+        `type`, `sender` and new `status`; call `GET /v2/senders/registrations`
+        for the rest
 
-        The payment event types are only delivered to a webhook whose
+        - SENDER_COMPLIANCE_STATUS: A sender's `compliance.status` changed, or
+        the sender got or lost a compliance verdict. Carries only the sender's
+        `sender_id`, `sender`, `registry` and new `status`; call `GET
+        /v2/senders/{id}` for the rest
 
+
+        The payment and sender event types are only delivered to a webhook whose
         `filter.event_type` names them. Leaving the filter out subscribes to
-
         every other event type, but never to these.
     MessageType:
       type: string
@@ -4480,6 +4494,82 @@ components:
         - amount
         - currency
         - payment_type
+    V2SenderRegistrationStatus:
+      type: object
+      description: >-
+        V2 sender registration status notification, sent when a sender
+        registration is created and each time its `status` changes. It carries
+        only what changed; for the registration's details, call `GET
+        /v2/senders/registrations`.
+      required:
+        - registration_id
+        - type
+        - sender
+        - status
+      properties:
+        registration_id:
+          type: string
+          format: uuid
+          description: >-
+            The registration's ID, as `registration_id` on `GET
+            /v2/senders/registrations`.
+          example: 3e8a2c10-6f7b-4d9e-a1c2-58b4d7e9f036
+        type:
+          type: string
+          description: >-
+            The kind of registration: `ALPHANUMERIC` or
+            `PERSONAL_MOBILE_NUMBER`. New values may be added, so handle values
+            you don't recognize.
+          example: ALPHANUMERIC
+        sender:
+          type: string
+          description: The sender ID or phone number being registered.
+          example: MyBrand
+        status:
+          type: string
+          description: >-
+            The registration's new status, with the same values as `status` on
+            `GET /v2/senders/registrations`: `PENDING_APPROVAL`,
+            `SUBMITTED_TO_REGISTRY`, `VERIFIED`, `REJECTED` or `CANCELLED`. New
+            values may be added, so handle values you don't recognize.
+          example: VERIFIED
+    V2SenderComplianceStatus:
+      type: object
+      description: >-
+        V2 sender compliance notification, sent when a sender's `compliance`
+        changes: its `status` changes, or the sender gets or loses a compliance
+        verdict. It carries only what changed; for the sender's details, call
+        `GET /v2/senders/{id}`.
+      required:
+        - sender_id
+        - sender
+      properties:
+        sender_id:
+          type: string
+          format: uuid
+          description: The sender's ID, as `id` on `GET /v2/senders/{id}`.
+          example: 7c1f3b6e-9a4d-4e2b-8f01-2d5c6a9b3e47
+        sender:
+          type: string
+          description: The sender ID's value, such as `MyBrand`.
+          example: MyBrand
+        registry:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            The registry the verdict is from, such as `ACMA`. Omitted, together
+            with `status`, when the sender no longer has a verdict.
+          example: ACMA
+        status:
+          type: string
+          x-go-type-skip-optional-pointer: true
+          description: >-
+            The sender's new compliance status, with the same values as
+            `compliance.status` on `GET /v2/senders/{id}`: `IN_PROGRESS`,
+            `VERIFIED`, `REJECTED` or `REVOKED`. New values may be added, so
+            handle values you don't recognize. Omitted, together with
+            `registry`, when the sender no longer has a verdict.
+          example: VERIFIED
     V2PaymentFailed:
       type: object
       description: >-
