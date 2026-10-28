@@ -5628,10 +5628,9 @@ components:
     SenderOwnership:
       type: string
       description: >
-        How the account in `account_id` holds the sender. New values may be
-        added, so handle values
+        How the account in `account_id` holds the sender.
 
-        you don't recognize.
+        New values may be added, so handle values you don't recognize.
 
         - `OWNED` — that account leases or registered the sender directly.
 
@@ -5740,6 +5739,65 @@ components:
       example:
         registry: ACMA
         status: VERIFIED
+    SenderCompliance:
+      type: object
+      description: The compliance verdict for each country relevant to the sender.
+      required:
+        - countries
+      properties:
+        countries:
+          type: array
+          items:
+            $ref: '#/components/schemas/SenderComplianceCountry'
+    SenderComplianceCountry:
+      type: object
+      description: What happens to a message from the sender into one country.
+      required:
+        - country
+        - behaviour
+      properties:
+        country:
+          type: string
+          pattern: ^[A-Z]{2}$
+          description: ISO 3166-1 alpha-2 code of the country.
+          example: AU
+        behaviour:
+          $ref: '#/components/schemas/SenderComplianceBehaviour'
+        reason:
+          type: string
+          description: >
+            Why a message isn't sent as it is. Always present when `behaviour`
+            isn't `OK`, and omitted when it is.
+
+            New values may be added, so handle values you don't recognize.
+
+            - `ALPHA_UNVERIFIED_ACMA` — the sender ID isn't verified with ACMA,
+            the registry for AU.
+
+            - `ACCOUNT_POLICY` — the sender ID is verified, but a setting on the
+            account overstamps it.
+
+            - `ALPHA_NOT_PERMITTED` — the country doesn't accept this sender ID.
+          example: ALPHA_UNVERIFIED_ACMA
+        compliance:
+          allOf:
+            - $ref: '#/components/schemas/Compliance'
+          description: >-
+            The registration's standing with the country's registry. Omitted
+            when the country requires no registration, or the sender has no
+            registration with it.
+    SenderComplianceBehaviour:
+      type: string
+      description: >
+        What happens to a message from the sender into the country.
+
+        New values may be added, so handle values you don't recognize.
+
+        - `OK` — sent as it is.
+
+        - `OVERSTAMPED` — sent from a different number instead; `reason` says
+        why.
+      example: OVERSTAMPED
     Money:
       type: object
       description: An amount of money.
