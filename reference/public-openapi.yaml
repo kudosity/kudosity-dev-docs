@@ -3,7 +3,6 @@ info:
   title: Transmit Message API
   description: Transmit APIs
   version: '20250101'
-  x-go-package: github.com/oapi-codegen/runtime
 servers:
   - url: https://api.transmitmessage.com
 security:
@@ -364,7 +363,6 @@ paths:
               - all
               - custom_date
             default: all
-            x-go-type-skip-optional-pointer: true
           example: all
         - name: start_date
           in: query
@@ -377,7 +375,6 @@ paths:
             Must be before end_date.
           schema:
             type: string
-            x-go-type-skip-optional-pointer: true
           example: '2025-12-01T00:00:00Z'
         - name: end_date
           in: query
@@ -392,7 +389,6 @@ paths:
             The range between start_date and end_date cannot exceed 90 days.
           schema:
             type: string
-            x-go-type-skip-optional-pointer: true
           example: '2025-12-31T23:59:59Z'
         - name: limit
           in: query
@@ -404,7 +400,6 @@ paths:
             minimum: 1
             maximum: 100
             default: 25
-            x-go-type-skip-optional-pointer: true
           example: 25
         - name: cursor
           in: query
@@ -418,7 +413,6 @@ paths:
             page.
           schema:
             type: string
-            x-go-type-skip-optional-pointer: true
           example: MTIzNDU2
         - name: direction
           in: query
@@ -435,7 +429,6 @@ paths:
               - next
               - prev
             default: next
-            x-go-type-skip-optional-pointer: true
           example: next
         - name: campaign_id
           in: query
@@ -446,8 +439,6 @@ paths:
           schema:
             type: string
             format: uuid
-            x-go-type: string
-            x-go-type-skip-optional-pointer: true
           example: 9b2e4c1a-7f3d-4a8b-9c5e-2d1f6a8b3c4d
       responses:
         '200':
@@ -572,7 +563,6 @@ paths:
               - all
               - custom_date
             default: all
-            x-go-type-skip-optional-pointer: true
           example: all
         - name: start_date
           in: query
@@ -585,7 +575,6 @@ paths:
             Must be before end_date.
           schema:
             type: string
-            x-go-type-skip-optional-pointer: true
           example: '2025-12-01T00:00:00Z'
         - name: end_date
           in: query
@@ -600,7 +589,6 @@ paths:
             The range between start_date and end_date cannot exceed 90 days.
           schema:
             type: string
-            x-go-type-skip-optional-pointer: true
           example: '2025-12-31T23:59:59Z'
         - name: limit
           in: query
@@ -612,7 +600,6 @@ paths:
             minimum: 1
             maximum: 100
             default: 25
-            x-go-type-skip-optional-pointer: true
           example: 25
         - name: cursor
           in: query
@@ -626,7 +613,6 @@ paths:
             page.
           schema:
             type: string
-            x-go-type-skip-optional-pointer: true
           example: MTIzNDU2
         - name: direction
           in: query
@@ -643,7 +629,6 @@ paths:
               - next
               - prev
             default: next
-            x-go-type-skip-optional-pointer: true
           example: next
       responses:
         '200':
@@ -1166,7 +1151,6 @@ paths:
             type: integer
             minimum: 1
             default: 1
-            x-go-type-skip-optional-pointer: true
           example: 1
         - name: limit
           in: query
@@ -1177,7 +1161,6 @@ paths:
             minimum: 1
             maximum: 100
             default: 25
-            x-go-type-skip-optional-pointer: true
           example: 25
         - name: child_account_id
           in: query
@@ -1193,7 +1176,6 @@ paths:
             combined with `account_id`.
           schema:
             type: string
-            x-go-type-skip-optional-pointer: true
           example: '1234'
         - name: account_id
           in: query
@@ -1260,7 +1242,6 @@ paths:
             case.
           schema:
             type: string
-            x-go-type-skip-optional-pointer: true
           example: '0412'
         - name: sender
           in: query
@@ -1270,7 +1251,6 @@ paths:
             61412312312).
           schema:
             type: string
-            x-go-type-skip-optional-pointer: true
           example: '61412312312'
         - name: status
           in: query
@@ -1281,7 +1261,6 @@ paths:
             VERIFIED, REJECTED, CANCELLED.
           schema:
             type: string
-            x-go-type-skip-optional-pointer: true
           example: VERIFIED
         - name: registry_status
           in: query
@@ -1561,8 +1540,6 @@ components:
         - `contact_list` — an audience sourced from a saved contact list
       enum:
         - contact_list
-      x-enum-varnames:
-        - ContactList
     CampaignContactListSource:
       type: object
       description: An audience source backed by a saved contact list.
@@ -1573,8 +1550,6 @@ components:
           type: string
           description: The unique identifier of the contact list.
           example: '123456'
-          x-oapi-codegen-extra-tags:
-            valid: required
     CampaignAudienceSource:
       type: object
       description: A single source contributing contacts to the campaign audience.
@@ -1627,8 +1602,6 @@ components:
             The template must be registered and approved in your account before
             sending.
           example: june_sale_2026
-          x-oapi-codegen-extra-tags:
-            valid: required
         variable_mappings:
           type: array
           description: >
@@ -1673,9 +1646,6 @@ components:
           enum:
             - body
             - header
-          x-enum-varnames:
-            - Body
-            - Header
           example: body
         parameter:
           type: string
@@ -1702,8 +1672,6 @@ components:
           description: Only `"contact_list"` is supported currently.
           enum:
             - contact_list
-          x-enum-varnames:
-            - ContactListSource
           example: contact_list
         value:
           type: string
@@ -1730,8 +1698,6 @@ components:
           example: >-
             Hi {{first_name}}, our June sale starts today. Reply STOP to opt
             out.
-          x-oapi-codegen-extra-tags:
-            valid: required
     CampaignWhatsAppChannelType:
       type: string
       description: The WhatsApp messaging channel identifier.
@@ -1773,8 +1739,6 @@ components:
         sender:
           type: string
           description: The sender ID or phone number registered on the channel.
-          x-oapi-codegen-extra-tags:
-            valid: required
         content_type:
           type: string
           description: >-
@@ -2005,15 +1969,12 @@ components:
         name:
           type: string
           description: The name of the param or field that failed validation.
-          x-go-type-skip-optional-pointer: true
         code:
           type: integer
           description: The internal api specific error code.
-          x-go-type-skip-optional-pointer: true
         message:
           description: The error message
           type: string
-          x-go-type-skip-optional-pointer: true
     InputValidationProblem:
       description: >
         This problem occurs when the request is deemed unprocessable.
@@ -2031,7 +1992,6 @@ components:
             issues:
               description: An array of issues detected during input validation.
               type: array
-              x-go-type-skip-optional-pointer: true
               items:
                 $ref: '#/components/schemas/InputValidationIssue'
       example:
@@ -2142,7 +2102,6 @@ components:
             type: string
         locale:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >-
             Optional locale for the template (e.g., en_US), if not provided, the
             default locale is `en`.
@@ -2183,7 +2142,6 @@ components:
             The sender number to use for SMS fallback, which can be in
             [E.164](http://en.wikipedia.org/wiki/E.164) international format or
             an alphanumeric sender ID.
-          x-go-type-skip-optional-pointer: true
         message:
           type: string
           description: The message to send via SMS.
@@ -2194,7 +2152,6 @@ components:
       properties:
         sender:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >
             Registered WhatsApp sender number.
 
@@ -2286,7 +2243,6 @@ components:
           $ref: '#/components/schemas/SMSFallback'
         message_ref:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >
             A unique reference ID supplied by your system to track messages.
 
@@ -2322,7 +2278,6 @@ components:
           description: Unique identifier for the message.
         message_ref:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Optional reference ID set by the user for the message.
         sender:
           type: string
@@ -2416,11 +2371,9 @@ components:
           description: Account identifier that sent the message.
         message_ref:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Optional reference ID set by the user for the message.
         campaign_id:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: |
             UUID of the campaign that produced this message.
             Omitted when the message is not associated with a campaign.
@@ -2452,9 +2405,6 @@ components:
           $ref: '#/components/schemas/WhatsappMessageStatus'
         events:
           type: array
-          x-go-type-skip-optional-pointer: true
-          x-oapi-codegen-extra-tags:
-            json: events,omitempty
           description: Array of events showing the message history.
           items:
             $ref: '#/components/schemas/WhatsappMessageEvent'
@@ -2548,11 +2498,9 @@ components:
           description: Unique identifier for the message.
         message_ref:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Optional reference ID set by the user for the message.
         campaign_id:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: |
             UUID of the campaign that produced this message.
             Omitted when the message is not associated with a campaign.
@@ -2638,8 +2586,6 @@ components:
           enum:
             - cursor
           example: cursor
-          x-oapi-codegen-extra-tags:
-            valid: required
         next_cursor:
           type: string
           description: >-
@@ -2647,8 +2593,6 @@ components:
             more results.
           nullable: true
           example: MTIzNDU2
-          x-oapi-codegen-extra-tags:
-            json: next_cursor,omitempty
         prev_cursor:
           type: string
           description: >-
@@ -2656,24 +2600,18 @@ components:
             first page.
           nullable: true
           example: MTIzNDkw
-          x-oapi-codegen-extra-tags:
-            json: prev_cursor,omitempty
         has_next:
           type: boolean
           description: >-
             Indicates whether there are more results available after the current
             page.
           example: true
-          x-oapi-codegen-extra-tags:
-            valid: required
         has_prev:
           type: boolean
           description: >-
             Indicates whether there are results available before the current
             page.
           example: false
-          x-oapi-codegen-extra-tags:
-            valid: required
     NotFoundProblem:
       description: >
         This problem occurs when the requested resource could not be found.
@@ -2813,7 +2751,6 @@ components:
             The sender number to use for SMS fallback, which can be in
             [E.164](http://en.wikipedia.org/wiki/E.164) international format or
             an alphanumeric sender ID.
-          x-go-type-skip-optional-pointer: true
         message:
           type: string
           description: >-
@@ -2914,7 +2851,6 @@ components:
           $ref: '#/components/schemas/RCSSMSFallback'
         message_ref:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >
             A reference supplied by your system. Maximum length of 500
             characters.
@@ -2950,7 +2886,6 @@ components:
           description: Unique identifier for the message.
         message_ref:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Optional reference ID set by the user for the message.
         sender:
           type: string
@@ -3015,7 +2950,6 @@ components:
           description: Account identifier that sent the message.
         message_ref:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Optional reference ID set by the user for the message.
         sender:
           type: string
@@ -3059,9 +2993,6 @@ components:
           $ref: '#/components/schemas/RcsMessageStatus'
         events:
           type: array
-          x-go-type-skip-optional-pointer: true
-          x-oapi-codegen-extra-tags:
-            json: events,omitempty
           description: Array of lifecycle events for the message.
           items:
             $ref: '#/components/schemas/RCSMessageEvent'
@@ -3105,7 +3036,6 @@ components:
           description: Unique identifier for the message.
         message_ref:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Optional reference ID set by the user for the message.
         sender:
           type: string
@@ -3335,33 +3265,26 @@ components:
         limit:
           type: string
           description: Limit the number of SMS. Defaults to 100 for JSON.
-          x-go-type-skip-optional-pointer: true
         page:
           type: string
           description: Page number in combination with limit. Defaults to 1 for JSON.
-          x-go-type-skip-optional-pointer: true
         start_date:
           type: string
           format: string
           description: Start date for SMS created, in RFC3339 format.
-          x-go-type-skip-optional-pointer: true
         end_date:
           type: string
           format: string
           description: End date for SMS created date, in RFC3339 format.
-          x-go-type-skip-optional-pointer: true
         recipient:
           type: string
           description: Recipient filter.
-          x-go-type-skip-optional-pointer: true
         sender:
           type: string
           description: Sender filter.
-          x-go-type-skip-optional-pointer: true
         message_ref:
           type: string
           description: Message reference filter.
-          x-go-type-skip-optional-pointer: true
         status:
           $ref: '#/components/schemas/Status'
         format:
@@ -3477,8 +3400,6 @@ components:
 
             If opt-out is required, insert parameter [opt-out-link] into the
             message and a link will be generated.
-          x-oapi-codegen-extra-tags:
-            valid: required
         message_ref:
           type: string
           maxLength: 500
@@ -3487,9 +3408,6 @@ components:
             back in webhooks so that you can relate events to messages you sent.
             For example, being able to relate a Link Hit event to a specific
             sent message.
-          x-go-type-skip-optional-pointer: true
-          x-oapi-codegen-extra-tags:
-            valid: length(0|500)
         sender:
           type: string
           description: >
@@ -3511,8 +3429,6 @@ components:
             11 characters. Only letters, numbers, underscore, hyphen or space
             are allowed and they are included in the total character count.
             (Consecutive underscore, hyphen, space is not allowed.)
-          x-oapi-codegen-extra-tags:
-            valid: required
         recipient:
           type: string
           description: >
@@ -3529,15 +3445,12 @@ components:
               Australia 0438 333 061 => 61438333061
               New Zealand 0212172782 => 64212172782
               USA (281) 869-1226 => 12818691226
-          x-oapi-codegen-extra-tags:
-            valid: required
         track_links:
           type: boolean
           description: >
             Enable the link tracking feature which replaces links in outbound
             messages with shortened links. This allows us to track when
             recipients view links.
-          x-go-type-skip-optional-pointer: true
       required:
         - message
         - sender
@@ -3570,7 +3483,6 @@ components:
           type: string
           description: Reference supplied by your system.
           example: ncc1701d
-          x-go-type-skip-optional-pointer: true
         message:
           type: string
           description: Body text of the SMS message.
@@ -3680,22 +3592,18 @@ components:
           type: string
           description: Country code.
           example: AU
-          x-go-type-skip-optional-pointer: true
         subject:
           type: string
           description: Subject of the message.
           example: USS Enterprise
-          x-go-type-skip-optional-pointer: true
         message:
           type: string
           description: Body text of the message.
           example: Check out this amazing specimen.
-          x-go-type-skip-optional-pointer: true
         message_ref:
           type: string
           description: Reference supplied by your system.
           example: ncc1701d
-          x-go-type-skip-optional-pointer: true
         content_urls:
           type: array
           description: List of media file URLs.
@@ -3716,7 +3624,6 @@ components:
           type: boolean
           deprecated: true
           description: Deprecated. Will be removed in a future version.
-          x-go-type-skip-optional-pointer: true
         created_at:
           type: string
           format: date-time
@@ -3750,16 +3657,12 @@ components:
           pattern: ^[\x00-\x7F]*$
           example: USS Enterprise
           maxLength: 20
-          x-oapi-codegen-extra-tags:
-            valid: ascii
-          x-go-type-skip-optional-pointer: true
         message:
           type: string
           description: |
             Body text of the message. Maximum length of 1,000 characters.
             If opt-out is required, insert parameter [opt-out-link]
             into the message and a link will be generated.
-          x-go-type-skip-optional-pointer: true
         message_ref:
           type: string
           description: >
@@ -3774,14 +3677,9 @@ components:
 
             sent message.
           maxLength: 500
-          x-oapi-codegen-extra-tags:
-            valid: length(0|500)
-          x-go-type-skip-optional-pointer: true
         sender:
           type: string
           description: The sender is the number that shows recipients who sent the message.
-          x-oapi-codegen-extra-tags:
-            valid: required
         recipient:
           type: string
           description: >
@@ -3798,8 +3696,6 @@ components:
             Examples of conversions to E.164 format:
 
             Australia 0438 333 061 => 61438333061
-          x-oapi-codegen-extra-tags:
-            valid: required
         content_urls:
           type: array
           items:
@@ -3814,8 +3710,6 @@ components:
             URLs must be absolute paths to the media file, they cannot be
             relative paths. For example,
             https://outbound-mms.smsbump.com/2024/fashion.gif.
-          x-oapi-codegen-extra-tags:
-            valid: required
         track_links:
           type: boolean
           description: >
@@ -3825,12 +3719,10 @@ components:
             with shortened links.
 
             This allows us to track when recipients view links.
-          x-go-type-skip-optional-pointer: true
         is_sandbox:
           type: boolean
           deprecated: true
           description: Deprecated. Will be removed in a future version.
-          x-go-type-skip-optional-pointer: true
       required:
         - sender
         - recipient
@@ -4037,28 +3929,20 @@ components:
           minLength: 2
           maxLength: 100
           example: My Webhook
-          x-oapi-codegen-extra-tags:
-            valid: length(2|100)
         url:
           type: string
           description: URL (https) that accepts JSON encoded POST requests
           format: uri
           example: https://example.com/webhook
-          x-oapi-codegen-extra-tags:
-            valid: required,webhook_url
         rate_limit:
           type: integer
           description: >-
             Rate limit for your URL in requests per second. Max 10,000/sec. If
             set to 0 or not specified, the default system limit will be applied.
-          x-go-type-skip-optional-pointer: true
-          x-oapi-codegen-extra-tags:
-            valid: range(0|10000)
         is_sandbox:
           type: boolean
           deprecated: true
           description: Deprecated. Will be removed in a future version.
-          x-go-type-skip-optional-pointer: true
       required:
         - name
         - url
@@ -4272,29 +4156,24 @@ components:
           description: Recipient number
         routed_via:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >-
             Number in sender's country that this MO is routed through due to
             global routing
         message:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Message text
         subject:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Message subject (for MMS)
         media:
           type: array
           items:
             $ref: '#/components/schemas/Medium'
-          x-go-type-skip-optional-pointer: true
           description: Base64-encoded MMS media
         last_message:
           $ref: '#/components/schemas/V2Message'
         content_type:
           type: string
-          x-go-type-skip-optional-pointer: true
           enum:
             - INVALID
             - TEXT
@@ -4448,7 +4327,6 @@ components:
           example: pi_3PabcdEfGhIjKlMn0oPqRsTu
         receipt_number:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >-
             Receipt and tax invoice number for the payment, the same number the
             receipt carries. Stable for the life of the payment.
@@ -4475,7 +4353,6 @@ components:
             absent object means no tax applied, not zero tax.
         card_brand:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >-
             Brand of the card charged, when the payment was made by card. The
             UPPER_SNAKE_CASE brand identifier (`VISA`, `MASTERCARD`, `AMEX`),
@@ -4484,7 +4361,6 @@ components:
           example: VISA
         card_last4:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >-
             Last four digits of the card charged, when the payment was made by
             card.
@@ -4555,14 +4431,12 @@ components:
           example: MyBrand
         registry:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >-
             The registry the verdict is from, such as `ACMA`. Omitted, together
             with `status`, when the sender no longer has a verdict.
           example: ACMA
         status:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >-
             The sender's new compliance status, with the same values as
             `compliance.status` on `GET /v2/senders/{id}`: `IN_PROGRESS`,
@@ -4589,7 +4463,6 @@ components:
         amount:
           type: integer
           format: int64
-          x-go-type-skip-optional-pointer: true
           description: >-
             Amount the payment tried to charge, in micro-dollars of `currency` —
             1,000,000 micro-dollars is one dollar. Omitted, together with
@@ -4598,7 +4471,6 @@ components:
         currency:
           type: string
           pattern: ^[A-Z]{3}$
-          x-go-type-skip-optional-pointer: true
           description: >-
             Three-letter ISO currency code of the attempted charge, in
             uppercase. Omitted together with `amount`.
@@ -4608,14 +4480,12 @@ components:
         failure_code:
           allOf:
             - $ref: '#/components/schemas/PaymentFailureCode'
-          x-go-type-skip-optional-pointer: true
           description: >-
             Why the payment failed, as a value to branch on. Omitted when the
             card network gave no code, for example a failure before the card was
             reached.
         failure_reason:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >-
             Human-readable explanation of the failure, as the card issuer gave
             it. Meant to be shown or logged rather than branched on — the
@@ -4644,14 +4514,12 @@ components:
           description: Message Type
         message_ref:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Custom reference set by the customer
         sender:
           type: string
           description: Sender address
         routed_via:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >-
             Number in recipient's country that this message is routed through
             due to global routing
@@ -4663,15 +4531,12 @@ components:
           description: DLR status fom the provider
         description:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Description of the status
         campaign_id:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Campaign ID
         reason_code:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >-
             Machine-readable delivery reason, suitable for branching on. Set for
             both successful and failed deliveries, and omitted for read receipts
@@ -4714,14 +4579,12 @@ components:
             as unclassified.
         reason:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >-
             Human-readable explanation of the delivery outcome, more specific
             than reason_code where available. Omitted when no explanation was
             reported.
         permanent:
           type: boolean
-          x-go-type-skip-optional-pointer: true
           description: >-
             Whether retrying is likely to fail. Only present when true, so its
             absence does not mean the failure is transient.
@@ -4746,7 +4609,6 @@ components:
           description: Sender address
         routed_via:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >-
             Number in recipient's country that this message is routed through
             due to global routing
@@ -4758,21 +4620,17 @@ components:
           description: Message text
         message_ref:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Custom reference set by the customer
         subject:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Subject
         content_urls:
           type: array
           items:
             type: string
-          x-go-type-skip-optional-pointer: true
           description: Content URLs
         campaign_id:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Campaign ID
       required:
         - id
@@ -4829,11 +4687,9 @@ components:
           description: Longitude
         name:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Location name
         address:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Location address
       required:
         - lat
@@ -4847,7 +4703,6 @@ components:
           description: File URL
         name:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: File name
       required:
         - url
@@ -4860,7 +4715,6 @@ components:
           description: Video URL
         name:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Video name
       required:
         - url
@@ -4873,7 +4727,6 @@ components:
           description: Audio URL
         name:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Audio name
       required:
         - url
@@ -4886,11 +4739,9 @@ components:
           description: Image URL
         name:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Image name
         caption:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Image caption
       required:
         - url
@@ -4903,11 +4754,9 @@ components:
           description: Reply ID
         title:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Reply title
         description:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Reply description
       required:
         - id
@@ -4920,7 +4769,6 @@ components:
           description: Sticker URL
         name:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Sticker name
       required:
         - url
@@ -4946,7 +4794,6 @@ components:
           description: Reaction action
         emoji:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Reaction emoji
       required:
         - action
@@ -4979,7 +4826,6 @@ components:
           description: Email address
         type:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Type of email (e.g., "work", "home")
       required:
         - email
@@ -4989,15 +4835,12 @@ components:
       properties:
         formatted_name:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Full name
         first_name:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: First name
         last_name:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Last name
     RichContentContactPhone:
       type: object
@@ -5008,7 +4851,6 @@ components:
           description: Phone number in international format (E.164 standard)
         type:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Type of phone (e.g., "mobile", "home")
       required:
         - phone
@@ -5199,7 +5041,6 @@ components:
         issues:
           type: array
           description: An array of issues detected during input validation.
-          x-go-type-skip-optional-pointer: true
           items:
             $ref: '#/components/schemas/InputValidationIssue'
         attempts_remaining:
@@ -5444,8 +5285,6 @@ components:
             Deprecated, read `account_id` instead. Child account ID the sender
             is registered for. Only present for registrations created under a
             child account.
-          x-oapi-codegen-extra-tags:
-            json: child_account_id,omitempty
         updated_at:
           type: string
           format: date-time
@@ -5463,8 +5302,6 @@ components:
             `details.alphanumeric`
 
             is populated. Omitted for `PERSONAL_MOBILE_NUMBER`.
-          x-oapi-codegen-extra-tags:
-            json: details,omitempty
       required:
         - registration_id
         - sender
@@ -6163,26 +6000,18 @@ components:
           enum:
             - page
           example: page
-          x-oapi-codegen-extra-tags:
-            valid: required
         page:
           type: integer
           description: The current page number (1-based).
           example: 1
-          x-oapi-codegen-extra-tags:
-            valid: required
         limit:
           type: integer
           description: The maximum number of results per page.
           example: 25
-          x-oapi-codegen-extra-tags:
-            valid: required
         total_count:
           type: integer
           description: The total number of results across all pages.
           example: 123
-          x-oapi-codegen-extra-tags:
-            valid: required
     GatewayAuthStatus:
       type: object
       description: >-
@@ -6292,10 +6121,6 @@ components:
         - SUCCEEDED
         - PROCESSING
         - REQUIRES_ACTION
-      x-enum-varnames:
-        - AddCreditStatusSucceeded
-        - AddCreditStatusProcessing
-        - AddCreditStatusRequiresAction
       description: >
         Outcome of the charge.
 
@@ -6386,7 +6211,6 @@ components:
           example: CREDIT
         name:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Cardholder name, when available.
           example: John Smith
       required:
@@ -6434,7 +6258,6 @@ components:
           example: AUD
         description:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: Human-readable description of what the payment was for.
           example: Credit Top Up - $50.00
         receipt_number:
@@ -6500,7 +6323,6 @@ components:
       properties:
         id:
           type: string
-          x-go-type-skip-optional-pointer: true
           description: >-
             Identifier of the payment method. Pass it as `payment_method_id` on
             `POST /v2/payment/add-credits`, or as `{id}` on the payment-methods
