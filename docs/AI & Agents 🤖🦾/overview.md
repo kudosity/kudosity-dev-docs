@@ -59,6 +59,15 @@ Building an agent in code rather than a chat tool? [LangChain tools](/docs/langc
 
 ***
 
+## AI app builders
+
+Building in an AI app builder rather than an IDE? Kudosity is listed where those tools look for messaging:
+
+* [Vercel Connect & v0](/docs/vercel-connect) — create a Kudosity connector once in your Vercel team; linked apps and v0 projects fetch the key at runtime and never carry it in code
+* [Bolt](/docs/bolt) — connect Kudosity through One, Bolt's integration layer (all V2 actions, verified), or have Bolt generate code against the API
+
+***
+
 ## Workflow automation
 
 For CI/CD pipelines that need to send an SMS as part of a workflow (deploy notifications, failure alerts, scheduled reminders), use the [Kudosity SMS GitHub Action](/docs/sms-action). It drops into any GitHub Actions workflow as a single step and posts directly to the V2 SMS API.
