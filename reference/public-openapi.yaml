@@ -453,9 +453,20 @@ paths:
       tags:
         - WhatsApp
       summary: Send WhatsApp message
-      description: >-
+      description: >
         Sends a single templated message to a single recipient. Templates need
         to be registered and pre-approved by WhatsApp.
+
+
+        **Choosing the content type for a template:**
+
+        - `template` fills the template's placeholders in order from a plain
+        list of strings. Use it for
+          templates with numbered placeholders such as `{{1}}` in the body.
+        - `custom` takes the full Meta Cloud API template payload. Use it for
+        templates with named
+          placeholders such as `{{first_name}}`, and for templates with media headers or button variables.
+          Text values for named placeholders take a `parameter_name`; numbered placeholders and media don't.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -2085,7 +2096,7 @@ components:
         parameters:
           type: array
           description: >
-            The **dynamic values** to populate placeholdes in the template
+            The **dynamic values** to populate placeholders in the template
             message.
 
 
@@ -2094,6 +2105,12 @@ components:
             - Supports **text only** (strings). Other types (e.g., images,
             documents) are not allowed.
 
+            - Values fill the placeholders **in order**, with no names. Use this
+            only for templates with
+              numbered placeholders such as `{{1}}` in the body. For a template with named placeholders,
+              a media header or button variables, send `content_type: custom` instead. Only text values for
+              named placeholders such as `{{first_name}}` take a `parameter_name`; numbered placeholders and
+              media don't.
             - **Example Usage:**
               - Template: `"Hello, {1}! Your order {2} has been shipped."`
               - Parameters: `["Tony", "#12345"]`
@@ -2569,6 +2586,140 @@ components:
           $ref: '#/components/schemas/PaginationMeta'
       required:
         - pagination
+    WhatsappTemplate:
+      type: object
+      description: A WhatsApp message template registered on your account.
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the template.
+          example: 550e8400-e29b-41d4-a716-446655440000
+        name:
+          type: string
+          description: >
+            Template name as registered with WhatsApp. Use this value as the
+            template name when you send a message.
+          example: spring_sale
+        language:
+          type: string
+          description: Template language code, such as `en` or `en_US`.
+          example: en_US
+        status:
+          type: string
+          description: >
+            Current review status of the template, as reported by WhatsApp.
+
+
+            Only `APPROVED` templates can be sent. WhatsApp adds new values from
+            time to time, so treat
+
+            any value not listed here as not sendable.
+
+            - `PENDING` — submitted and waiting for WhatsApp to review it
+
+            - `APPROVED` — approved and ready to send
+
+            - `REJECTED` — rejected by WhatsApp
+
+            - `PAUSED` — paused by WhatsApp because of quality issues; it may be
+            reinstated
+
+            - `DISABLED` — permanently disabled by WhatsApp after repeated
+            pauses; create a new template instead
+
+            - `FLAGGED` — flagged by WhatsApp for low quality; it may be paused
+            if quality doesn't improve
+
+            - `LOCKED` — locked by WhatsApp and can't be edited
+
+            - `ARCHIVED` — archived in WhatsApp Manager; unarchiving restores
+            its previous status
+
+            - `IN_APPEAL` — a rejection is being appealed
+
+            - `LIMIT_EXCEEDED` — your WhatsApp Business Account has reached
+            WhatsApp's template limit
+          example: APPROVED
+        category:
+          type: string
+          enum:
+            - MARKETING
+            - UTILITY
+            - AUTHENTICATION
+          description: >
+            Template category.
+
+            - `MARKETING` — promotional content
+
+            - `UTILITY` — transactional updates, such as order or appointment
+            notices
+
+            - `AUTHENTICATION` — one-time passcodes
+          example: MARKETING
+        parameter_format:
+          type: string
+          enum:
+            - POSITIONAL
+            - NAMED
+          description: >
+            How the template's placeholders are written, which decides how you
+            supply values when you send it.
+
+            - `POSITIONAL` — numbered placeholders such as `{{1}}`. Text values
+            in the body can be sent with
+              `content_type: template` as an ordered list.
+            - `NAMED` — named placeholders such as `{{first_name}}`. Send with
+            `content_type: custom` and give
+              each text value for a named placeholder its `parameter_name`.
+          example: POSITIONAL
+        components:
+          type: array
+          description: >
+            The template's content, in WhatsApp's component format. Each item
+            has a `type`:
+
+            - `HEADER` — optional title. `format` is `TEXT`, `IMAGE`, `VIDEO` or
+            `DOCUMENT`. For media headers,
+              `example.header_handle[0]` is the URL of the template's media.
+            - `BODY` — the message text, with any placeholders.
+
+            - `FOOTER` — optional short text below the body.
+
+            - `BUTTONS` — optional quick-reply, URL, phone number or copy-code
+            buttons.
+
+            - `CAROUSEL` — a set of `cards`, each with its own `components`.
+          items:
+            type: object
+            additionalProperties: true
+      required:
+        - id
+        - name
+        - language
+        - status
+        - category
+        - parameter_format
+        - components
+    ListWhatsappTemplatesData:
+      type: object
+      description: Container for the list of WhatsApp templates.
+      properties:
+        templates:
+          type: array
+          description: Array of WhatsApp templates.
+          items:
+            $ref: '#/components/schemas/WhatsappTemplate'
+      required:
+        - templates
+    ListWhatsappTemplatesMeta:
+      type: object
+      description: Metadata for the list templates response including pagination details.
+      properties:
+        pagination:
+          $ref: '#/components/schemas/PagePaginationMeta'
+      required:
+        - pagination
     PaginationMeta:
       title: Pagination Metadata
       description: |
@@ -2643,6 +2794,38 @@ components:
         title: Too Many Requests
         detail: Rate limit exceeded
         status: 429
+    PagePaginationMeta:
+      title: Page Pagination Metadata
+      description: >
+        Pagination metadata for page-based pagination.
+
+        Reusable across all paginated API endpoints that use page/limit
+        pagination.
+      type: object
+      required:
+        - type
+        - page
+        - limit
+        - total_count
+      properties:
+        type:
+          type: string
+          description: The pagination strategy being used.
+          enum:
+            - page
+          example: page
+        page:
+          type: integer
+          description: The current page number (1-based).
+          example: 1
+        limit:
+          type: integer
+          description: The maximum number of results per page.
+          example: 25
+        total_count:
+          type: integer
+          description: The total number of results across all pages.
+          example: 123
     RcsContentType:
       type: string
       description: >
@@ -5980,38 +6163,6 @@ components:
       enum:
         - VIRTUAL_NUMBER
       example: VIRTUAL_NUMBER
-    PagePaginationMeta:
-      title: Page Pagination Metadata
-      description: >
-        Pagination metadata for page-based pagination.
-
-        Reusable across all paginated API endpoints that use page/limit
-        pagination.
-      type: object
-      required:
-        - type
-        - page
-        - limit
-        - total_count
-      properties:
-        type:
-          type: string
-          description: The pagination strategy being used.
-          enum:
-            - page
-          example: page
-        page:
-          type: integer
-          description: The current page number (1-based).
-          example: 1
-        limit:
-          type: integer
-          description: The maximum number of results per page.
-          example: 25
-        total_count:
-          type: integer
-          description: The total number of results across all pages.
-          example: 123
     GatewayAuthStatus:
       type: object
       description: >-
