@@ -523,24 +523,8 @@ paths:
         - WhatsApp
       summary: List WhatsApp templates
       description: >
-        Retrieves the WhatsApp templates on your account, with their full
-        content. Use it to choose a template
-
-        to
-        [send](https://developers.kudosity.com/reference/post_v2-whatsapp-messages)
-        and to show its content
-
-        in your own tools.
-
-
-        The list contains the templates you create in the WhatsApp template
-        manager (**WhatsApp** > **Templates**).
-
-        It includes templates in every status, but you can send only `APPROVED`
-        templates. Deleted templates
-
-        aren't included. If your account doesn't have WhatsApp set up, the list
-        is empty.
+        Retrieve your account's WhatsApp templates, including their content,
+        approval status, category and language.
 
 
         Templates are returned in reverse chronological order (newest first).
