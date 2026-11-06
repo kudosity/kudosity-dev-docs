@@ -38,7 +38,7 @@ Some error types add fields, such as `issues` for input validation.
 
 <a name="input-validation" />
 
-The request failed validation. The `issues` array lists every problem with the request, so you can fix them all before you retry. Each issue gives the `name` of the parameter or field and a `message`. Some endpoints also return a `code`.
+The request failed validation. The `issues` array lists the problems found with the request. Some endpoints stop at the first problem, so fix it and retry to find any others. Each issue has a `message`, and usually the `name` of the parameter or field. Some endpoints also return a `code`.
 
 * **Type:** `https://developers.kudosity.com/reference/errors#input-validation`
 * **Title:** Invalid Request
@@ -263,7 +263,7 @@ You sent too many requests in a short time. Wait, then retry. For limits, see [R
 
 <a name="server-error" />
 
-The API encountered an unexpected error. This error isn't caused by your request. Retry later, and contact support if the error continues.
+The API encountered an unexpected error. This error isn't caused by your request. You can retry a `GET` request later. Before you retry a `POST`, `PATCH` or `DELETE` request, check the resource's current state, because the request may already have been applied. Contact support if the error continues.
 
 * **Type:** `https://developers.kudosity.com/reference/errors#server-error`
 * **Title:** Internal Server Error
