@@ -521,33 +521,47 @@ paths:
       operationId: ListWhatsappTemplates
       tags:
         - WhatsApp
-      summary: List WhatsApp templates (Beta)
+      summary: List WhatsApp templates
       description: >
-        Beta — this endpoint may change before general availability.
+        Retrieves the WhatsApp templates on your account, with their full
+        content. Use it to choose a template
+
+        to
+        [send](https://developers.kudosity.com/reference/post_v2-whatsapp-messages)
+        and to show its content
+
+        in your own tools.
 
 
-        Retrieves the WhatsApp templates registered on your account, with their
-        full content, so you can choose
+        The list contains the templates you create in the WhatsApp template
+        manager (**WhatsApp** > **Templates**).
 
-        a template to send and show its content in your own tools.
+        It includes templates in every status, but you can send only `APPROVED`
+        templates. Deleted templates
+
+        aren't included. If your account doesn't have WhatsApp set up, the list
+        is empty.
 
 
-        Templates are returned newest first. Templates in every status are
-        returned; only `APPROVED` templates
-
-        can be sent.
+        Templates are returned in reverse chronological order (newest first).
 
 
         **Filtering:**
 
-        - All filters are exact matches, and they combine: a template must match
-        every filter you supply.
+        - All filters are exact matches and case-sensitive. For example,
+        `language=en` doesn't return `en_US` templates
+
+        - Filters combine: a template must match every filter you supply
 
 
         **Pagination:**
 
-        - Page-based. Use `page` and `limit`, and `meta.pagination.total_count`
-        to work out the number of pages.
+        - Page-based pagination, using `page` (default 1)
+
+        - Control page size with `limit` (1–100 templates per page, default 25)
+
+        - `meta.pagination.total_count` is the number of matching templates
+        across all pages
       parameters:
         - name: page
           in: query
@@ -565,8 +579,8 @@ paths:
           in: query
           required: false
           description: >-
-            Maximum number of templates to return per page. Default 25. Values
-            over 100 are treated as 100.
+            Maximum number of templates to return per page (1–100, default 25).
+            Values over 100 are treated as 100.
           schema:
             type: integer
             format: int32
@@ -624,7 +638,7 @@ paths:
         '200':
           $ref: '#/components/responses/ListWhatsappTemplatesSuccessResponse'
         '400':
-          $ref: '#/components/responses/InputValidationResponse'
+          $ref: '#/components/responses/ListWhatsappTemplatesInputValidationResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedErrorResponse'
         '500':
@@ -6857,6 +6871,44 @@ components:
                 page: 1
                 limit: 25
                 total_count: 2
+    ListWhatsappTemplatesInputValidationResponse:
+      description: >
+        A query parameter is invalid. This happens when:
+
+        - `status` or `category` isn't one of the listed values. Values are
+        case-sensitive
+
+        - `page` or `limit` is less than 1, or isn't a whole number
+
+        - A parameter appears more than once
+
+
+        The `issues` array names each invalid parameter. See
+
+        [Input
+        validation](https://developers.kudosity.com/reference/errors#input-validation).
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/InputValidationProblem'
+          example:
+            error:
+              type: >-
+                https://developers.kudosity.com/reference/errors#input-validation
+              title: Invalid Request
+              status: 400
+              detail: Request validation failed
+              issues:
+                - name: status
+                  message: >-
+                    status must be one of: PENDING, APPROVED, REJECTED, PAUSED,
+                    DISABLED, FLAGGED, LOCKED, ARCHIVED, IN_APPEAL,
+                    LIMIT_EXCEEDED
     NotFoundErrorResponse:
       description: Not Found
       content:
