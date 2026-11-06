@@ -5,139 +5,323 @@ hidden: false
 metadata:
   robots: index
 ---
-## NotFoundProblem
+When a request fails, the API returns a [Problem Details](https://www.rfc-editor.org/rfc/rfc9457) object in the `error` field of the response body. The object's `type` links to the entry for that error on this page.
 
-<a name="not-found" />
+Every Problem Details object has these fields:
 
-This problem occurs when the requested resource could not be found.
+* `type`: a link to the error's entry on this page.
+* `title`: a short summary of the error type.
+* `detail`: an explanation of this occurrence of the error.
+* `status`: the HTTP status code.
 
-Your client application tried to access a resource that does not exist (or could not be found). Please review how your users initiated such a request.
+Some error types add fields, such as `issues` for input validation.
 
-* **Type:** [https://developers.kudosity.com/reference/errors#not-found](https://developers.kudosity.com/reference/errors#not-found)
-* **Title:** Not Found
-* **Detail:** The requested resource was not found
-* **Status:** 404
+| Status | Error | Anchor |
+| --- | --- | --- |
+| 400 | Input validation | `#input-validation` |
+| 401 | Unauthorized | `#unauthorized` |
+| 402 | Payment required | `#payment-required` |
+| 403 | Forbidden | `#forbidden` |
+| 404 | Not found | `#not-found` |
+| 409 | Conflict | `#conflict` |
+| 413 | Request entity too large | `#request-entity-too-large` |
+| 422 | Unprocessable entity | `#unprocessable-entity` |
+| 422 | Idempotency key reused | `#idempotency-key-reused` |
+| 429 | Too many requests | `#too-many-requests` |
+| 500 | Server error | `#server-error` |
+| 501 | Not implemented | `#not-implemented` |
+| 503 | Service unavailable | `#service-unavailable` |
+
+***
+
+## Input validation (400)
+
+<a name="input-validation" />
+
+The request failed validation. The `issues` array lists every problem with the request, so you can fix them all before you retry. Each issue gives the `name` of the parameter or field and a `message`. Some endpoints also return a `code`.
+
+* **Type:** `https://developers.kudosity.com/reference/errors#input-validation`
+* **Title:** Invalid Request
+* **Status:** 400
 
 **Example:**
 
 ```json
 {
-  "detail": "The requested resource was not found",
-  "status": 404,
-  "title": "Not Found",
-  "type": "https://developers.kudosity.com/reference/errors#not-found"
+  "type": "https://developers.kudosity.com/reference/errors#input-validation",
+  "title": "Invalid Request",
+  "status": 400,
+  "detail": "Request validation failed",
+  "issues": [
+    {
+      "name": "status",
+      "message": "status must be one of: PENDING, APPROVED, REJECTED, PAUSED, DISABLED, FLAGGED, LOCKED, ARCHIVED, IN_APPEAL, LIMIT_EXCEEDED"
+    }
+  ]
 }
 ```
 
 ***
 
-## InternalServerErrorProblem
-
-<a name="server-error" />
-
-This problem occurs when the server encounters an unexpected condition that prevents it from fulfilling the request.
-
-Your client application did everything correct. Unfortunately our API encountered a condition that resulted in this problem.
-
-* **Type:** [https://developers.kudosity.com/reference/errors#server-error](https://developers.kudosity.com/reference/errors#server-error)
-* **Title:** Server Error
-* **Detail:** The server encountered an unexpected error
-* **Status:** 500
-
-**Example:**
-
-```json
-{
-  "detail": "The server encountered an unexpected error",
-  "status": 500,
-  "title": "Server Error",
-  "type": "https://developers.kudosity.com/reference/errors#server-error"
-}
-```
-
-***
-
-## UnauthorizedProblem
+## Unauthorized (401)
 
 <a name="unauthorized" />
 
-HTTP 401 Unauthorized - API authentication failed.
+The API key is missing, invalid or expired, or it doesn't have permission for this resource. Check the `Authorization` header and your API key.
 
-The request was rejected because the API key is missing, invalid, expired, or lacks sufficient permissions for this resource. Check your Authorization header and API key configuration.
-
-* **Type:** [https://developers.kudosity.com/reference/errors#unauthorized](https://developers.kudosity.com/reference/errors#unauthorized)
+* **Type:** `https://developers.kudosity.com/reference/errors#unauthorized`
 * **Title:** API Authentication Failed
-* **Detail:** Missing or invalid API key in Authorization header. Verify your API key is correct and has the required permissions
 * **Status:** 401
 
 **Example:**
 
 ```json
 {
-  "detail": "Missing or invalid API key in Authorization header. Verify your API key is correct and has the required permissions",
-  "status": 401,
+  "type": "https://developers.kudosity.com/reference/errors#unauthorized",
   "title": "API Authentication Failed",
-  "type": "https://developers.kudosity.com/reference/errors#unauthorized"
+  "status": 401,
+  "detail": "Missing or invalid API key in Authorization header. Verify your API key is correct and has the required permissions"
 }
 ```
 
 ***
 
-## InputValidationProblem
+## Payment required (402)
 
-<a name="input-validation" />
+<a name="payment-required" />
 
-This problem occurs when the request is deemed unprocessable.
+Your account balance isn't enough to complete the request. Top up your balance, then retry.
 
-Your client issued a request that failed validation. Certain validation libraries return multi-errors and cannot be easily parsed into discreet types. This problem type, afforded the provider with the ability to surface all validation errors and negate the need for a trial and error workflow on your side.
+* **Type:** `https://developers.kudosity.com/reference/errors#payment-required`
+* **Title:** Payment Required
+* **Status:** 402
 
-* **Type:** [https://developers.kudosity.com/reference/errors#input-validation](https://developers.kudosity.com/reference/errors#input-validation)
+**Example:**
 
-* **Title:** Invalid Input Parameters
+```json
+{
+  "type": "https://developers.kudosity.com/reference/errors#payment-required",
+  "title": "Payment Required",
+  "status": 402,
+  "detail": "Your account balance is insufficient to complete this request"
+}
+```
 
-* **Detail:** The request contained invalid, or malformed parameters.
+***
 
+## Forbidden (403)
+
+<a name="forbidden" />
+
+Your request is authenticated, but your account doesn't have permission to access this resource.
+
+* **Type:** `https://developers.kudosity.com/reference/errors#forbidden`
+* **Title:** Forbidden
+* **Status:** 403
+
+**Example:**
+
+```json
+{
+  "type": "https://developers.kudosity.com/reference/errors#forbidden",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "Access to this resource is forbidden"
+}
+```
+
+***
+
+## Not found (404)
+
+<a name="not-found" />
+
+The resource doesn't exist, or your account can't access it. Check the ID in the request path.
+
+* **Type:** `https://developers.kudosity.com/reference/errors#not-found`
+* **Title:** Not Found
+* **Status:** 404
+
+**Example:**
+
+```json
+{
+  "type": "https://developers.kudosity.com/reference/errors#not-found",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "The requested resource was not found"
+}
+```
+
+***
+
+## Conflict (409)
+
+<a name="conflict" />
+
+The request conflicts with the current state of the resource, or with an operation already in progress. Check the resource's current state before you retry.
+
+* **Type:** `https://developers.kudosity.com/reference/errors#conflict`
+* **Title:** Conflict
+* **Status:** 409
+
+**Example:**
+
+```json
+{
+  "type": "https://developers.kudosity.com/reference/errors#conflict",
+  "title": "Conflict",
+  "status": 409,
+  "detail": "The request conflicts with the current state of the resource"
+}
+```
+
+***
+
+## Request entity too large (413)
+
+<a name="request-entity-too-large" />
+
+The request body is larger than the maximum size the endpoint accepts.
+
+* **Type:** `https://developers.kudosity.com/reference/errors#request-entity-too-large`
+* **Title:** Request Entity Too Large
+* **Status:** 413
+
+**Example:**
+
+```json
+{
+  "type": "https://developers.kudosity.com/reference/errors#request-entity-too-large",
+  "title": "Request Entity Too Large",
+  "status": 413,
+  "detail": "The request payload exceeds the maximum allowed size"
+}
+```
+
+***
+
+## Unprocessable entity (422)
+
+<a name="unprocessable-entity" />
+
+The request is well formed, but the operation isn't available for this resource. For example, you can't renew a personal mobile number, because it has no lease. Don't retry the request.
+
+* **Type:** `https://developers.kudosity.com/reference/errors#unprocessable-entity`
+* **Title:** Unprocessable Entity
 * **Status:** 422
 
-* **Fields:**
-  * **issues**
+***
+
+## Idempotency key reused (422)
+
+<a name="idempotency-key-reused" />
+
+The `Idempotency-Key` was already used for a different request. Resend the original request with that key, or send this request with a new key.
+
+* **Type:** `https://developers.kudosity.com/reference/errors#idempotency-key-reused`
+* **Title:** Unprocessable Entity
+* **Status:** 422
 
 **Example:**
 
 ```json
 {
-  "detail": "The request contained invalid, or malformed parameters.",
-  "issues": [
-    {
-      "code": 2200,
-      "field": "account_id",
-      "message": "The account_id supplied was invalid."
-    }
-  ],
+  "type": "https://developers.kudosity.com/reference/errors#idempotency-key-reused",
+  "title": "Unprocessable Entity",
   "status": 422,
-  "title": "Invalid Input Parameters",
-  "type": "https://developers.kudosity.com/reference/errors#input-validation"
+  "detail": "This Idempotency-Key was used for a different request"
 }
 ```
 
 ***
+
+## Too many requests (429)
+
+<a name="too-many-requests" />
+
+You sent too many requests in a short time. Wait, then retry. For limits, see [Rate limiting](https://developers.kudosity.com/reference/rate-limiting).
+
+* **Type:** `https://developers.kudosity.com/reference/errors#too-many-requests`
+* **Title:** Too Many Requests
+* **Status:** 429
 
 **Example:**
 
 ```json
 {
-  "detail": "The request contained invalid, or malformed parameters.",
-  "issues": [
-    {
-      "code": 2200,
-      "field": "account_id",
-      "message": "The account_id supplied was invalid."
-    }
-  ],
-  "status": 422,
-  "title": "Invalid Input Parameters",
-  "type": "https://developers.kudosity.com/errors#input-validation"
+  "type": "https://developers.kudosity.com/reference/errors#too-many-requests",
+  "title": "Too Many Requests",
+  "status": 429,
+  "detail": "Rate limit exceeded"
 }
 ```
 
 ***
+
+## Server error (500)
+
+<a name="server-error" />
+
+The API encountered an unexpected error. This error isn't caused by your request. Retry later, and contact support if the error continues.
+
+* **Type:** `https://developers.kudosity.com/reference/errors#server-error`
+* **Title:** Internal Server Error
+* **Status:** 500
+
+**Example:**
+
+```json
+{
+  "type": "https://developers.kudosity.com/reference/errors#server-error",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "The server encountered an unexpected error"
+}
+```
+
+***
+
+## Not implemented (501)
+
+<a name="not-implemented" />
+
+The API understood the request, but this operation isn't supported for this resource. Retrying won't help.
+
+* **Type:** `https://developers.kudosity.com/reference/errors#not-implemented`
+* **Title:** Not Implemented
+* **Status:** 501
+
+**Example:**
+
+```json
+{
+  "type": "https://developers.kudosity.com/reference/errors#not-implemented",
+  "title": "Not Implemented",
+  "status": 501,
+  "detail": "This operation is not supported for this resource"
+}
+```
+
+***
+
+## Service unavailable (503)
+
+<a name="service-unavailable" />
+
+A service the API depends on is temporarily unavailable. You can safely retry a `GET` request later. Before you retry a `POST`, `PATCH` or `DELETE` request, check the resource's current state, because the original request may already have been applied.
+
+* **Type:** `https://developers.kudosity.com/reference/errors#service-unavailable`
+* **Title:** Service Unavailable
+* **Status:** 503
+
+**Example:**
+
+```json
+{
+  "type": "https://developers.kudosity.com/reference/errors#service-unavailable",
+  "title": "Service Unavailable",
+  "status": 503,
+  "detail": "A service this request depends on is temporarily unavailable"
+}
+```
