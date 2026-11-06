@@ -2115,14 +2115,13 @@ components:
           type: string
     InputValidationProblem:
       description: >
-        This problem occurs when the request is deemed unprocessable.
+        HTTP 400 Bad Request - The request failed validation.
 
 
-        Your client issued a request that failed validation. Certain validation
-        libraries return multi-errors and cannot be easily parsed into discreet
-        types. This problem type, afforded the provider with the ability to
-        surface all validation errors and negate the need for a trial and error
-        workflow on your side.
+        The `issues` array lists the problems found with the request. Some
+        endpoints stop at the first problem, so fix it and retry to find any
+        others. Each issue has a `message`, and usually the `name` of the
+        parameter or field.
       type: object
       allOf:
         - $ref: '#/components/schemas/ProblemDetails'
@@ -2177,18 +2176,20 @@ components:
         status: 409
     InternalServerErrorProblem:
       description: >
-        This problem occurs when the server encounters an unexpected condition
-        that prevents it from fulfilling the request.
+        HTTP 500 Internal Server Error - The API encountered an unexpected
+        error.
 
 
-        Your client application did everything correct. Unfortunately our API
-        encountered a condition that resulted in this problem.
+        This error isn't caused by your request. You can retry a GET request
+        later. Before you retry a POST, PATCH or DELETE request, check the
+        resource's current state, because the request may already have been
+        applied. Contact support if the error continues.
       type: object
       allOf:
         - $ref: '#/components/schemas/ProblemDetails'
       example:
         type: https://developers.kudosity.com/reference/errors#server-error
-        title: Server Error
+        title: Internal Server Error
         detail: The server encountered an unexpected error
         status: 500
     WhatsappContentType:
@@ -2892,12 +2893,11 @@ components:
           example: false
     NotFoundProblem:
       description: >
-        This problem occurs when the requested resource could not be found.
+        HTTP 404 Not Found - The requested resource doesn't exist.
 
 
-        Your client application tried to access a resource that does not exist
-        (or could not be found). Please review how your users initiated such a
-        request.
+        Your client application requested a resource that doesn't exist or that
+        your account can't access. Check the ID in the request path.
       type: object
       allOf:
         - $ref: '#/components/schemas/ProblemDetails'
