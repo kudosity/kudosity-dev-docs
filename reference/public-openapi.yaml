@@ -1095,15 +1095,73 @@ paths:
 
         Send the request body with a `Content-Type` of `application/json`.
         Parameters such as `charset=utf-8` are accepted.
+
+        Repeating a create with the same `url` and `filter` returns the existing
+        webhook with `200 OK` instead of creating a duplicate, even when `name`
+        or `rate_limit` differ. The `url` must match exactly (no trailing-slash
+        or letter-case normalisation). Filters match regardless of key order or
+        value order, and `sender`, `status`, `message_ref` and `campaign_id`
+        values also match regardless of letter case; `event_type` values must
+        still be the upper-case names listed below. To change an existing
+        webhook, use `PUT /v2/webhook/{id}`.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/WebhookRequest'
+            example:
+              name: Hook registered on start
+              url: https://webhook.site/uuid
+              rate_limit: 50
+              filter:
+                event_type:
+                  - SMS_STATUS
+                status:
+                  - DELIVERED
       responses:
+        '200':
+          description: >-
+            A webhook with the same `url` and `filter` already exists on the
+            account. It is returned unchanged, so its `name` and `rate_limit`
+            can differ from the request. To change them, call `PUT
+            /v2/webhook/{id}`. The `Location` header is the URL of that existing
+            webhook.
+          headers:
+            Location:
+              description: >-
+                The URL of the existing webhook, such as
+                `/v2/webhook/67e3e4af-62e8-4515-8b67-6f20d0c51ffb`.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+              example:
+                id: 67e3e4af-62e8-4515-8b67-6f20d0c51ffb
+                name: Hook
+                url: https://webhook.site/uuid
+                rate_limit: 10
+                is_sandbox: false
+                filter:
+                  event_type:
+                    - SMS_STATUS
+                  status:
+                    - DELIVERED
+                created_at: '2025-01-15T10:30:00Z'
+                updated_at: '2025-01-15T10:30:00Z'
         '201':
-          description: Webhook created successfully
+          description: >-
+            Webhook created successfully. The `Location` header is the URL of
+            the new webhook.
+          headers:
+            Location:
+              description: >-
+                The URL of the new webhook, such as
+                `/v2/webhook/67e3e4af-62e8-4515-8b67-6f20d0c51ffb`.
+              schema:
+                type: string
           content:
             application/json:
               schema:
