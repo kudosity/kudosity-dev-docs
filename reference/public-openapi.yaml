@@ -3245,6 +3245,13 @@ components:
         recipient:
           type: string
           description: Recipient phone number in international format.
+        recipient_country:
+          type: string
+          nullable: true
+          description: >-
+            Country of the recipient, as a two-letter code such as `AU`. Null if
+            the country is unknown.
+          example: AU
         content_type:
           type: string
           description: >
@@ -3283,6 +3290,7 @@ components:
         message_ref: order-12345
         sender: DemoSender
         recipient: '447903749662'
+        recipient_country: GB
         content_type: text
         content:
           text:
@@ -3309,6 +3317,13 @@ components:
         recipient:
           type: string
           description: Recipient phone number in international format.
+        recipient_country:
+          type: string
+          nullable: true
+          description: >-
+            Country of the recipient, as a two-letter code such as `AU`. Null if
+            the country is unknown.
+          example: AU
         content_type:
           type: string
           description: >
@@ -3363,6 +3378,7 @@ components:
         message_ref: order-12345
         sender: DemoSender
         recipient: '447903749662'
+        recipient_country: GB
         content_type: text
         content:
           text:
@@ -3396,6 +3412,13 @@ components:
           type: string
           format: phone
           description: RCS recipient phone number in international format.
+        recipient_country:
+          type: string
+          nullable: true
+          description: >-
+            Country of the recipient, as a two-letter code such as `AU`. Null if
+            the country is unknown.
+          example: AU
         content_type:
           $ref: '#/components/schemas/RcsContentType'
         content:
@@ -3428,6 +3451,7 @@ components:
         message_ref: optional-ref-123
         sender: DemoSender
         recipient: '61411122211'
+        recipient_country: AU
         content_type: text
         content:
           text:
