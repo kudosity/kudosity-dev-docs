@@ -1104,6 +1104,12 @@ paths:
         values also match regardless of letter case; `event_type` values must
         still be the upper-case names listed below. To change an existing
         webhook, use `PUT /v2/webhook/{id}`.
+
+        An account can have at most 25 webhooks. When the account already has
+        25, creating a new one returns `409 Conflict`; delete a webhook with
+        `DELETE /v2/webhook/{id}` before creating another. Repeating a create
+        that matches an existing webhook still returns `200 OK` at the limit,
+        because no new webhook is created.
       requestBody:
         required: true
         content:
@@ -1178,6 +1184,20 @@ paths:
                     example: >-
                       Validation Error: rate_limit: greater than the maximum
                       value of 10000
+        '409':
+          description: >-
+            The account already has the maximum of 25 webhooks. Delete a webhook
+            before creating a new one.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: >-
+                      Webhook limit reached: an account can have at most 25
+                      webhooks. Delete a webhook before creating a new one.
     get:
       tags:
         - Webhook
