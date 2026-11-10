@@ -4,6 +4,11 @@ deprecated: false
 hidden: false
 metadata:
   robots: index
+next:
+  pages:
+    - slug: connect-salesforce-to-your-kudosity-account
+      title: Connect Salesforce to Your Kudosity Account
+      type: basic
 ---
 The package installs three permission sets. Assign one to every person who needs the app — by default, only the administrator who installed the package has access.
 
