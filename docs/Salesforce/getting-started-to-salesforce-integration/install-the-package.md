@@ -6,8 +6,8 @@ metadata:
   robots: index
 next:
   pages:
-    - slug: connect-salesforce-to-your-kudosity-account
-      title: Connect Salesforce to Your Kudosity Account
+    - slug: assign-user-permissions
+      title: Assign User Permissions
       type: basic
 ---
 <Cards>
