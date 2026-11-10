@@ -771,19 +771,22 @@ paths:
         Sends an RCS message to a single recipient.
 
 
-        The message can be text (`content_type: text`) or a single image or
-        video (`content_type: media`).
+        The message can be text (`content_type: text`), a single image or video
+        (`content_type: media`),
 
-        For media, we fetch the start of the file when you send the request,
-        which can add up to 10 seconds.
+        or a standalone card or carousel (`content_type: rich_card`). Any
+        message can carry `suggestions`:
 
-        The request fails with `400` if the file isn't publicly reachable over
-        `https`, redirects, doesn't
+        reply chips, links and dial buttons shown under it.
 
-        respond in time, or has an unsupported, mismatched or oversized file
-        type. Each problem is reported
 
-        against `content.media.file_url`.
+        For media, including card media, we check each file when you send the
+        request. The request fails
+
+        with `400` if a file isn't publicly reachable over `https`, redirects,
+        doesn't respond in time, or
+
+        has an unsupported, mismatched or oversized file type.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -820,6 +823,126 @@ paths:
                       Our spring sale is on!
                       https://cdn.example.com/promo/spring-sale.jpg
                   message_ref: order-12346
+              text_with_suggestions:
+                summary: Text message with reply chips
+                value:
+                  sender: DemoSender
+                  recipient: '61438333061'
+                  content_type: text
+                  content:
+                    text:
+                      message: Can you confirm your appointment on Thursday at 10am?
+                    suggestions:
+                      - reply:
+                          text: 'Yes'
+                          postback_data: appt-789-yes
+                      - reply:
+                          text: 'No'
+                          postback_data: appt-789-no
+                  sms_fallback:
+                    message: >-
+                      Can you confirm your appointment on Thursday at 10am?
+                      Reply YES or NO.
+                  message_ref: appt-789
+              text_with_suggestion_types:
+                summary: Text message with a reply chip, link and dial button
+                value:
+                  sender: DemoSender
+                  recipient: '61438333061'
+                  content_type: text
+                  content:
+                    text:
+                      message: 'Our summer sale starts today: 20% off everything.'
+                    suggestions:
+                      - reply:
+                          text: Yes, I'm in
+                      - action:
+                          text: Shop now
+                          open_url_action:
+                            url: https://example.com/sale
+                      - action:
+                          text: Call us
+                          dial_action:
+                            phone_number: '+61290000000'
+                  message_ref: sale-2026
+              media_with_suggestions:
+                summary: Image message with a link
+                value:
+                  sender: DemoSender
+                  recipient: '61438333061'
+                  content_type: media
+                  content:
+                    media:
+                      file_url: https://cdn.example.com/promo/summer-sale.jpg
+                    suggestions:
+                      - action:
+                          text: Shop now
+                          open_url_action:
+                            url: https://example.com/sale
+                  message_ref: sale-2027
+              standalone_card:
+                summary: Standalone rich card
+                value:
+                  sender: DemoSender
+                  recipient: '61438333061'
+                  content_type: rich_card
+                  content:
+                    rich_card:
+                      standalone:
+                        card_content:
+                          title: Your order has shipped
+                          description: >-
+                            Order #12345 is on its way and should arrive
+                            Thursday.
+                          media:
+                            file_url: https://cdn.example.com/orders/parcel.jpg
+                          suggestions:
+                            - action:
+                                text: Track parcel
+                                open_url_action:
+                                  url: https://example.com/track/12345
+                  message_ref: order-12345
+              carousel:
+                summary: Carousel of rich cards
+                value:
+                  sender: DemoSender
+                  recipient: '61438333061'
+                  content_type: rich_card
+                  content:
+                    rich_card:
+                      carousel:
+                        card_contents:
+                          - title: Classic tee
+                            description: $29
+                            media:
+                              file_url: https://cdn.example.com/shop/tee.jpg
+                            suggestions:
+                              - action:
+                                  text: Buy tee
+                                  open_url_action:
+                                    url: https://example.com/shop/tee
+                              - reply:
+                                  text: More colours
+                          - title: Hoodie
+                            description: $59
+                            media:
+                              file_url: https://cdn.example.com/shop/hoodie.jpg
+                            suggestions:
+                              - action:
+                                  text: Buy hoodie
+                                  open_url_action:
+                                    url: https://example.com/shop/hoodie
+                              - reply:
+                                  text: Size guide
+                    suggestions:
+                      - action:
+                          text: Call us
+                          dial_action:
+                            phone_number: '+61290000000'
+                  sms_fallback:
+                    message: >-
+                      New arrivals: the classic tee ($29) and hoodie ($59). Shop
+                      at example.com
       responses:
         '200':
           $ref: '#/components/responses/RCSSuccessResponse'
@@ -3024,9 +3147,8 @@ components:
 
         - `media` — a single image or video
 
-        - `rich_card` — a rich card (standalone or carousel) sent as a test
-        message from an RCS agent. Its content isn't returned, so `content` is
-        `null`.
+        - `rich_card` — a standalone card or a carousel. Its content isn't
+        returned, so `content` is `null`.
       enum:
         - text
         - media
@@ -3065,6 +3187,8 @@ components:
       properties:
         text:
           $ref: '#/components/schemas/RCSText'
+        suggestions:
+          $ref: '#/components/schemas/RcsMessageSuggestions'
       required:
         - text
     RcsMedia:
@@ -3108,14 +3232,186 @@ components:
       properties:
         media:
           $ref: '#/components/schemas/RcsMedia'
+        suggestions:
+          $ref: '#/components/schemas/RcsMessageSuggestions'
       required:
         - media
+    RcsRichCardContent:
+      type: object
+      properties:
+        rich_card:
+          $ref: '#/components/schemas/RcsRichCard'
+        suggestions:
+          $ref: '#/components/schemas/RcsMessageSuggestions'
+      required:
+        - rich_card
+    RcsRichCard:
+      type: object
+      description: |
+        A rich card. Set exactly one of `standalone` or `carousel`.
+      properties:
+        standalone:
+          $ref: '#/components/schemas/RcsStandaloneCard'
+        carousel:
+          $ref: '#/components/schemas/RcsCarouselCard'
+    RcsStandaloneCard:
+      type: object
+      description: |
+        A single card, shown vertically with the media above the text. Media
+        is shown at medium height.
+      properties:
+        card_content:
+          $ref: '#/components/schemas/RcsCardContent'
+      required:
+        - card_content
+    RcsCarouselCard:
+      type: object
+      description: |
+        2–10 cards the recipient scrolls through horizontally. Cards are
+        medium width, and their media is shown at medium height.
+      properties:
+        card_contents:
+          type: array
+          items:
+            $ref: '#/components/schemas/RcsCardContent'
+      required:
+        - card_contents
+    RcsCardContent:
+      type: object
+      description: |
+        The content of one card. At least one of `title`, `description` or
+        `media` is required.
+      properties:
+        title:
+          type: string
+          description: The card's heading, up to 200 characters.
+          example: Summer Sale
+        description:
+          type: string
+          description: The card's body text, shown under the title, up to 2,000 characters.
+          example: Up to 50% off selected items this week.
+        media:
+          $ref: '#/components/schemas/RcsCardMedia'
+        suggestions:
+          type: array
+          description: |
+            Up to 4 optional buttons shown on the card. They stay on the card
+            after the recipient replies.
+          items:
+            $ref: '#/components/schemas/RcsSuggestion'
+    RcsCardMedia:
+      type: object
+      properties:
+        file_url:
+          type: string
+          description: |
+            Public URL of the card's image or video. It follows the same rules
+            as `content.media.file_url`.
+          example: https://cdn.example.com/promo/summer-sale.png
+      required:
+        - file_url
+    RcsSuggestion:
+      type: object
+      description: |
+        A suggestion chip, on a card or under a message. Set exactly one of
+        `reply` or `action`.
+      properties:
+        reply:
+          $ref: '#/components/schemas/RcsSuggestedReply'
+        action:
+          $ref: '#/components/schemas/RcsSuggestedAction'
+    RcsSuggestedReply:
+      type: object
+      description: Sends `text` back to the agent when tapped.
+      properties:
+        text:
+          type: string
+          description: >-
+            The chip's label, which is also the reply sent back. 1 to 25
+            characters.
+          example: Tell me more
+        postback_data:
+          type: string
+          description: |
+            Your own value for this suggestion, up to 2,048 characters,
+            such as an order, a booking or a step in your conversation.
+            When omitted or empty, we set one for you.
+          example: order-12345-track
+      required:
+        - text
+    RcsSuggestedAction:
+      type: object
+      description: |
+        Opens a URL or dials a number when tapped. Set exactly one of
+        `open_url_action` or `dial_action`.
+      properties:
+        text:
+          type: string
+          description: The button's label, 1 to 25 characters.
+          example: Shop now
+        open_url_action:
+          $ref: '#/components/schemas/RcsOpenUrlAction'
+        dial_action:
+          $ref: '#/components/schemas/RcsDialAction'
+        postback_data:
+          type: string
+          description: |
+            Your own value for this suggestion, up to 2,048 characters,
+            such as an order, a booking or a step in your conversation.
+            When omitted or empty, we set one for you.
+          example: order-12345-track
+      required:
+        - text
+    RcsOpenUrlAction:
+      type: object
+      properties:
+        url:
+          type: string
+          description: The link to open. An absolute `https` URL of up to 2,048 characters.
+          example: https://example.com/sale
+      required:
+        - url
+    RcsDialAction:
+      type: object
+      properties:
+        phone_number:
+          type: string
+          description: |
+            The number to dial, in E.164 international format. The leading `+`
+            may be omitted; local format, such as `02 9000 0000`, is rejected.
+          example: '+61290000000'
+      required:
+        - phone_number
+    RcsMessageSuggestions:
+      type: array
+      description: |
+        Up to 11 optional suggestion chips shown under the message, beside its
+        `text`, `media` or `rich_card`. They disappear once the recipient
+        replies or another message arrives. A rich card can also carry its own
+        suggestions on each card, which stay on the card. An empty array is
+        the same as leaving it out.
+      items:
+        $ref: '#/components/schemas/RcsSuggestion'
+      example:
+        - reply:
+            text: Yes, I'm in
+        - action:
+            text: Shop now
+            open_url_action:
+              url: https://example.com/sale
+        - action:
+            text: Call us
+            dial_action:
+              phone_number: '+61290000000'
     RCSSMSFallback:
       type: object
       description: >
         Provides intelligent fallback for non-RCS capable devices and carrier
         delivery issues. If the RCS message fails, the SMS will send the
         configured message to the recipient instead.
+
+
+        Without it, a failed RCS message is not sent by SMS.
       properties:
         sender:
           type: string
@@ -3199,13 +3495,19 @@ components:
             - UK: 07123 456 789 → 447123456789
         content_type:
           type: string
-          description: |
+          description: >
             Type of the message content. Must match the key used in `content`.
+
             - `text` — a text message, sent in `content.text`
+
             - `media` — a single image or video, sent in `content.media`
+
+            - `rich_card` — a standalone card or a carousel, sent in
+            `content.rich_card`
           enum:
             - text
             - media
+            - rich_card
         content:
           type: object
           description: >
@@ -3216,9 +3518,17 @@ components:
             Simple RCS messages (3072 characters), with UTF-8 and emoji support.
 
             - `media`: one image or video by public URL, without a caption.
+
+            - `rich_card`: one card, or a carousel of 2–10 cards, each with a
+            title, description, image or video, and up to 4 buttons.
+
+
+            Every content type can carry up to 11 `suggestions` shown under the
+            message.
           oneOf:
             - $ref: '#/components/schemas/RCSTextContent'
             - $ref: '#/components/schemas/RcsMediaContent'
+            - $ref: '#/components/schemas/RcsRichCardContent'
         sms_fallback:
           $ref: '#/components/schemas/RCSSMSFallback'
         message_ref:
@@ -3281,15 +3591,19 @@ components:
             - `text` — a text message
 
             - `media` — a single image or video
+
+            - `rich_card` — a standalone card or a carousel
           enum:
             - text
             - media
+            - rich_card
         content:
           type: object
-          description: Content of the message.
+          description: Content of the message, as sent.
           oneOf:
             - $ref: '#/components/schemas/RCSTextContent'
             - $ref: '#/components/schemas/RcsMediaContent'
+            - $ref: '#/components/schemas/RcsRichCardContent'
         sms_fallback:
           $ref: '#/components/schemas/RCSSMSFallback'
         created_at:
@@ -3354,9 +3668,8 @@ components:
 
             - `media` — a single image or video
 
-            - `rich_card` — a rich card (standalone or carousel) sent as a test
-            message from an RCS agent. Its content isn't returned, so `content`
-            is `null`.
+            - `rich_card` — a standalone card or a carousel. Its content isn't
+            returned, so `content` is `null`.
           enum:
             - text
             - media
@@ -7028,22 +7341,91 @@ components:
                 properties:
                   data:
                     $ref: '#/components/schemas/RcsResponse'
-          example:
-            data:
-              id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
-              message_ref: order-12345
-              sender: DemoSender
-              recipient: '447903749662'
-              content_type: text
-              content:
-                text:
-                  message: |-
-                    Hi Michael,
-                    Just a quick reminder. You are amazing!!
-                    Reply STOP to opt out.
-              created_at: '2021-01-01T00:00:00Z'
-            request: {}
-            meta: {}
+          examples:
+            text:
+              summary: Text message
+              value:
+                data:
+                  id: 6fdae71c-dad7-4c36-9734-a69693ecf3b4
+                  message_ref: order-12345
+                  sender: DemoSender
+                  recipient: '447903749662'
+                  content_type: text
+                  content:
+                    text:
+                      message: |-
+                        Hi Michael,
+                        Just a quick reminder. You are amazing!!
+                        Reply STOP to opt out.
+                  created_at: '2021-01-01T00:00:00Z'
+            text_with_suggestion_types:
+              summary: Text message with a reply chip, link and dial button
+              value:
+                data:
+                  id: 0b8f3c2e-6d4a-4f1e-9a7b-2c5d8e1f4a63
+                  message_ref: sale-2026
+                  sender: DemoSender
+                  recipient: '61438333061'
+                  content_type: text
+                  content:
+                    text:
+                      message: 'Our summer sale starts today: 20% off everything.'
+                    suggestions:
+                      - reply:
+                          text: Yes, I'm in
+                      - action:
+                          text: Shop now
+                          open_url_action:
+                            url: https://example.com/sale
+                      - action:
+                          text: Call us
+                          dial_action:
+                            phone_number: '+61290000000'
+                  created_at: '2026-01-15T10:30:00Z'
+            carousel:
+              summary: Carousel of rich cards
+              value:
+                data:
+                  id: 9e2a7d41-3b6c-4c8f-a15e-7f0b2d9c6e84
+                  sender: DemoSender
+                  recipient: '61438333061'
+                  content_type: rich_card
+                  content:
+                    rich_card:
+                      carousel:
+                        card_contents:
+                          - title: Classic tee
+                            description: $29
+                            media:
+                              file_url: https://cdn.example.com/shop/tee.jpg
+                            suggestions:
+                              - action:
+                                  text: Buy tee
+                                  open_url_action:
+                                    url: https://example.com/shop/tee
+                              - reply:
+                                  text: More colours
+                          - title: Hoodie
+                            description: $59
+                            media:
+                              file_url: https://cdn.example.com/shop/hoodie.jpg
+                            suggestions:
+                              - action:
+                                  text: Buy hoodie
+                                  open_url_action:
+                                    url: https://example.com/shop/hoodie
+                              - reply:
+                                  text: Size guide
+                    suggestions:
+                      - action:
+                          text: Call us
+                          dial_action:
+                            phone_number: '+61290000000'
+                  sms_fallback:
+                    message: >-
+                      New arrivals: the classic tee ($29) and hoodie ($59). Shop
+                      at example.com
+                  created_at: '2026-01-15T10:30:00Z'
     GetSuccessResponse:
       description: OK
       content:
