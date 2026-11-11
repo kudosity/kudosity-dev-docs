@@ -4895,6 +4895,7 @@ components:
             - BUTTON
             - REACTION
             - CONTACT
+            - SUGGESTION
           description: |
             Rich content type values (only present for WhatsApp/RCS messages):
             - INVALID: Invalid content type
@@ -4909,6 +4910,7 @@ components:
             - BUTTON: Button message
             - REACTION: Reaction to another message
             - CONTACT: Contact card
+            - SUGGESTION: A tapped RCS suggestion (reply chip or action)
         content:
           $ref: '#/components/schemas/RichContent'
       required:
@@ -5372,6 +5374,8 @@ components:
           $ref: '#/components/schemas/RichContentReaction'
         contact:
           $ref: '#/components/schemas/RichContentContact'
+        suggestion:
+          $ref: '#/components/schemas/RichContentSuggestion'
     RichContentText:
       type: object
       description: Rich content text data
@@ -5493,6 +5497,25 @@ components:
       required:
         - text
         - payload
+    RichContentSuggestion:
+      type: object
+      description: A suggestion the recipient tapped on an RCS message you sent.
+      properties:
+        text:
+          type: string
+          description: The label of the tapped suggestion, as the recipient saw it.
+          example: Confirm booking
+        postback_data:
+          type: string
+          description: >-
+            The `postback_data` you set on the suggestion when you sent the
+            message. Use it to tell which suggestion was tapped, even when two
+            share a label. When you didn't set one, this is the value we set for
+            you.
+          example: booking-789-confirm
+      required:
+        - text
+        - postback_data
     RichContentReaction:
       type: object
       description: Rich content reaction data
