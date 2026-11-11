@@ -3140,15 +3140,11 @@ components:
           example: 123
     RcsContentType:
       type: string
-      description: >
+      description: |
         Type of the message content.
-
         - `text` — a text message
-
         - `media` — a single image or video
-
-        - `rich_card` — a standalone card or a carousel. Its content isn't
-        returned, so `content` is `null`.
+        - `rich_card` — a standalone card or a carousel
       enum:
         - text
         - media
@@ -3668,8 +3664,7 @@ components:
 
             - `media` — a single image or video
 
-            - `rich_card` — a standalone card or a carousel. Its content isn't
-            returned, so `content` is `null`.
+            - `rich_card` — a standalone card or a carousel
           enum:
             - text
             - media
@@ -3677,10 +3672,13 @@ components:
         content:
           type: object
           nullable: true
-          description: Content of the message. Null when `content_type` is `rich_card`.
+          description: >-
+            Content of the message, as sent. Null if the stored content can't be
+            returned.
           oneOf:
             - $ref: '#/components/schemas/RCSTextContent'
             - $ref: '#/components/schemas/RcsMediaContent'
+            - $ref: '#/components/schemas/RcsRichCardContent'
         sms_fallback:
           $ref: '#/components/schemas/RCSSMSFallback'
         created_at:
@@ -3758,11 +3756,12 @@ components:
           type: object
           nullable: true
           description: >-
-            Content details for the message. Null when `content_type` is
-            `rich_card`.
+            Content of the message, as sent. Null if the stored content can't be
+            returned.
           oneOf:
             - $ref: '#/components/schemas/RCSTextContent'
             - $ref: '#/components/schemas/RcsMediaContent'
+            - $ref: '#/components/schemas/RcsRichCardContent'
         status:
           $ref: '#/components/schemas/RcsMessageStatus'
         created_at:
@@ -7487,6 +7486,27 @@ components:
                     text:
                       message: Hi Michael, just a quick reminder. You are amazing!
                   status: DELIVERED
+                  created_at: '2021-01-01T00:00:00Z'
+                - id: 3c7e9a12-5f4b-4d2a-8e61-0a9b7c3d5f28
+                  sender: DemoSender
+                  recipient: '61411122211'
+                  content_type: rich_card
+                  content:
+                    rich_card:
+                      standalone:
+                        card_content:
+                          title: Your order has shipped
+                          description: Order 12345 is on its way.
+                          suggestions:
+                            - action:
+                                text: Track order
+                                open_url_action:
+                                  url: https://example.com/track/12345
+                    suggestions:
+                      - reply:
+                          text: Contact support
+                          postback_data: support_order_12345
+                  status: SENT
                   created_at: '2021-01-01T00:00:00Z'
             request: {}
             meta:
