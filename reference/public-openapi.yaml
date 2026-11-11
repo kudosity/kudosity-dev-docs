@@ -3332,6 +3332,8 @@ components:
             Your own value for this suggestion, up to 2,048 characters,
             such as an order, a booking or a step in your conversation.
             When omitted or empty, we set one for you.
+            When the recipient taps the suggestion, the `RCS_INBOUND` webhook
+            returns this value in `content.suggestion.postback_data`.
           example: order-12345-track
       required:
         - text
@@ -3355,6 +3357,8 @@ components:
             Your own value for this suggestion, up to 2,048 characters,
             such as an order, a booking or a step in your conversation.
             When omitted or empty, we set one for you.
+            When the recipient taps the suggestion, the `RCS_INBOUND` webhook
+            returns this value in `content.suggestion.postback_data`.
           example: order-12345-track
       required:
         - text
