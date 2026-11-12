@@ -176,6 +176,8 @@ A successful request returns `200` with the message as it was accepted. Keep the
 }
 ```
 
+A `200` response confirms that the message was accepted, not that it was delivered. To track delivery, subscribe to the `RCS_STATUS` webhook event. See [RCS Status Events](https://developers.kudosity.com/reference/about-webhooks#rcs-status-events).
+
 When the recipient taps a reply chip, the chip's label is sent back to your agent as their reply. The `postback_data` value isn't shown to the recipient. Your application uses it to tell which chip was tapped. See [Handle a tap in your application](#handle-a-tap-in-your-application).
 
 To send plain text, leave out `content.suggestions`.
@@ -509,7 +511,7 @@ An RCS message can fail, for example when the recipient's device doesn't support
 These rules apply to `content.media.file_url` and to the `media.file_url` of every card. Kudosity checks each file when you send the request, and the request fails with a `400` error if a file doesn't meet them.
 
 * Use an absolute `https` URL of up to 2,048 characters, on the default port, without credentials. Percent-encode spaces and non-ASCII characters.
-* The URL must be publicly reachable and return the file directly within 10 seconds. Redirects aren't followed.
+* The URL must be publicly reachable and return the file directly, without redirects. Your server must respond within 10 seconds.
 * Your server must return a `Content-Type` header for a supported type, and the file content must match it:
   * Images: `image/jpeg`, `image/png`, `image/gif`
   * Videos: `video/mp4`, `video/mpeg`, `video/mpeg4`, `video/m4v`, `video/webm`, `video/h263`
