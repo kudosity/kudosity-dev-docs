@@ -241,13 +241,15 @@ To send a video, use the same request and point `file_url` at a video file. Ther
 
 A standalone card combines an image or video, a title, a description and up to 4 buttons in one message. This order update puts a **Track parcel** button on the card.
 
-| # | What the recipient sees | JSON field                                                                           |
-| :- | :---------------------- | :----------------------------------------------------------------------------------- |
-| 1 | Image                   | `content.rich_card.standalone.card_content.media.file_url`                           |
-| 2 | Title                   | `content.rich_card.standalone.card_content.title`                                    |
-| 3 | Description             | `content.rich_card.standalone.card_content.description`                              |
-| 4 | **Track parcel** label  | `content.rich_card.standalone.card_content.suggestions[0].action.text`               |
-|   | Page the button opens   | `content.rich_card.standalone.card_content.suggestions[0].action.open_url_action.url` |
+The fields in this table sit inside `content.rich_card.standalone.card_content`.
+
+| # | What the recipient sees | JSON field                                  |
+| :- | :---------------------- | :------------------------------------------ |
+| 1 | Image                   | `media.file_url`                            |
+| 2 | Title                   | `title`                                     |
+| 3 | Description             | `description`                               |
+| 4 | **Track parcel** label  | `suggestions[0].action.text`                |
+|   | Page the button opens   | `suggestions[0].action.open_url_action.url` |
 
 <Columns layout="auto">
   <Column>
