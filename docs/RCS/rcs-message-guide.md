@@ -32,27 +32,40 @@ Every format can also carry `suggestions`: reply chips, links and dial buttons s
 
 <HTMLBlock>{`
 <style>
-.rcsg-phone{width:300px;max-width:100%;border:1px solid #dedbe4;border-radius:24px;background:#fff;color:#242235;overflow:hidden;box-shadow:0 12px 35px rgba(48,32,80,.06);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
-.rcsg-bar{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid #eee9f4;font-weight:600}
-.rcsg-avatar{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#683bb5;color:#fff}
-.rcsg-screen{background:#fbfafc;padding:20px 14px 28px;min-height:260px}
-.rcsg-bubble{background:#eeedf3;padding:14px;border-radius:4px 18px 18px 18px}
-.rcsg-card{background:#fff;border:1px solid #e0dce8;border-radius:14px;overflow:hidden}
-.rcsg-title{font-weight:600;font-size:16px;margin:12px 14px 4px}
-.rcsg-desc{font-size:14px;margin:0 14px 14px}
-.rcsg-art{position:relative;display:flex;align-items:center;justify-content:center;height:140px;background:#ede6f7;font-size:64px;line-height:1}
-.rcsg-sale{flex-direction:column;gap:8px;border-radius:14px;background:#7447ae;color:#fff;font-size:15px;letter-spacing:1px}
-.rcsg-sale b{font-size:28px;letter-spacing:0}
-.rcsg-button{padding:10px 8px;border-top:1px solid #e9e5ef;color:#5932a1;text-align:center;font-size:14px}
-.rcsg-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
-.rcsg-chip{border:1px solid #cfc3e0;border-radius:22px;padding:6px 10px;background:#fff;color:#5932a1;font-size:13px}
-.rcsg-badge{display:inline-block;width:22px;height:22px;margin-right:5px;border-radius:50%;background:#6f42b9;color:#fff;font:700 11px/22px Arial,sans-serif;letter-spacing:0;text-align:center;vertical-align:middle}
-.rcsg-art .rcsg-badge{position:absolute;left:10px;top:10px}
-.rcsg-carousel{display:flex;gap:10px;overflow:hidden}
-.rcsg-carousel .rcsg-card{flex:0 0 205px}
-.rcsg-carousel .rcsg-art{height:120px}
-.rcsg-hint{margin-top:10px;font-size:12px;color:#787183}
-.rcsg-caption{width:300px;max-width:100%;margin-top:10px;font-size:12px;line-height:1.5;color:#787183}
+.rcsg-wrap{width:300px;max-width:100%}
+.rcsg-phone{height:450px;padding:6px 6px 0;border-radius:36px 36px 0 0;background:#0f0f12;overflow:hidden;-webkit-mask-image:linear-gradient(#000 80%,transparent);mask-image:linear-gradient(#000 80%,transparent);font-family:"Google Sans",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.35;text-align:left;-webkit-font-smoothing:antialiased}
+.rcsg-screen{position:relative;height:100%;border-radius:30px 30px 0 0;background:#fff;color:#1f1f1f;overflow:hidden}
+.rcsg-status{position:relative;display:flex;align-items:center;justify-content:space-between;height:28px;padding:0 20px;font-size:11px;font-weight:600}
+.rcsg-hole{position:absolute;left:50%;top:9px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:#0f0f12}
+.rcsg-status svg{width:11px;height:11px;margin-left:4px;fill:#1f1f1f;vertical-align:middle}
+.rcsg-hdr{display:flex;align-items:center;gap:9px;padding:6px 12px 9px;border-bottom:1px solid #eceef3}
+.rcsg-hdr svg{width:16px;height:16px;fill:#444746;flex:none}
+.rcsg-av{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#4c23cc;color:#fff;font-size:14px;font-weight:700;flex:none}
+.rcsg-name{display:flex;align-items:center;gap:5px;flex:1;font-size:13.5px;font-weight:500}
+.rcsg-name svg{width:13px;height:13px}
+.rcsg-thread{display:flex;flex-direction:column;align-items:flex-start;gap:7px;padding:16px 12px 0 16px}
+.rcsg-bub{position:relative;max-width:226px;padding:9px 12px;border-radius:14px;border-top-left-radius:5px;background:#eef1f8;font-size:13px}
+.rcsg-img{position:relative;width:226px}
+.rcsg-img svg{display:block;width:100%;height:auto;border-radius:14px;border-top-left-radius:5px}
+.rcsg-time{padding-left:4px;font-size:9.5px;color:#5f6368}
+.rcsg-chips{display:flex;gap:12px;padding:3px 0 0 1px}
+.rcsg-chip{position:relative;display:inline-flex;align-items:center;gap:5px;height:27px;padding:0 11px;border:1px solid #c4c7c5;border-radius:999px;background:#fff;color:#0b57d0;font-size:11.5px;font-weight:500;white-space:nowrap}
+.rcsg-chip svg{width:12px;height:12px;fill:#0b57d0}
+.rcsg-card{position:relative;width:226px;border:1px solid #dfe3ea;border-radius:14px;border-top-left-radius:5px;background:#fff}
+.rcsg-media{position:relative}
+.rcsg-media svg{display:block;width:100%;height:auto;border-radius:13px 13px 0 0;border-top-left-radius:4px}
+.rcsg-body{padding:9px 12px 3px}
+.rcsg-t{position:relative;margin-bottom:3px;font-size:13.5px;font-weight:600}
+.rcsg-d{position:relative;font-size:12px;color:#444746}
+.rcsg-btns{margin-top:8px;border-top:1px solid #eceef3}
+.rcsg-btn{position:relative;display:flex;align-items:center;gap:7px;height:31px;padding:0 12px;border-bottom:1px solid #eceef3;color:#0b57d0;font-size:12px;font-weight:500}
+.rcsg-btn:last-child{border-bottom:0}
+.rcsg-btn svg{width:13px;height:13px;fill:#0b57d0}
+.rcsg-carousel{display:flex;gap:7px}
+.rcsg-carousel .rcsg-card{width:168px;flex:none}
+.rcsg-n{position:absolute;left:-9px;top:-9px;z-index:1;width:18px;height:18px;border-radius:50%;background:#6f42b9;box-shadow:0 0 0 2px #fff,0 1px 4px rgba(0,0,0,.3);color:#fff;font:700 10px/18px Arial,sans-serif;text-align:center}
+.rcsg-t .rcsg-n,.rcsg-d .rcsg-n{left:-22px;top:0}
+.rcsg-btn .rcsg-n{top:50%;margin-top:-9px}
 </style>
 `}</HTMLBlock>
 
@@ -73,14 +86,15 @@ Send the request with your API key in the `x-api-key` header:
 <Columns layout="auto">
   <Column>
     <HTMLBlock>{`
-<div class="rcsg-phone">
-  <div class="rcsg-bar"><span>‹</span><span class="rcsg-avatar">D</span>Demo store</div>
-  <div class="rcsg-screen">
-    <div class="rcsg-bubble"><span class="rcsg-badge">1</span>Can you confirm your appointment on Thursday at 10am?</div>
-    <div class="rcsg-chips"><span class="rcsg-chip"><span class="rcsg-badge">2</span>Yes</span><span class="rcsg-chip"><span class="rcsg-badge">3</span>No</span></div>
-  </div>
+<div class="rcsg-wrap"><div class="rcsg-phone"><div class="rcsg-screen">
+<div class="rcsg-status"><span>9:30</span><span class="rcsg-hole"></span><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 22h20V2z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.5 1.5 9.5a16 16 0 0 1 21 0z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7.5" y="4" width="9" height="18" rx="1.6"/><rect x="10" y="2" width="4" height="2.5" rx=".6"/></svg></span></div>
+<div class="rcsg-hdr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg><span class="rcsg-av">D</span><span class="rcsg-name">Demo store <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#1a73e8"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .6 3.6 1 1 0 0 1-.25 1z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></div>
+<div class="rcsg-thread">
+<div class="rcsg-bub"><span class="rcsg-n">1</span>Can you confirm your appointment on Thursday at 10am?</div>
+<div class="rcsg-time">9:41 AM</div>
+<div class="rcsg-chips"><span class="rcsg-chip"><span class="rcsg-n">2</span>Yes</span><span class="rcsg-chip"><span class="rcsg-n">3</span>No</span></div>
 </div>
-<div class="rcsg-caption">Illustration only. The layout varies between messaging apps.</div>
+</div></div></div>
 `}</HTMLBlock>
   </Column>
 
@@ -183,14 +197,15 @@ Media messages don't support a caption. When the image needs accompanying text, 
 <Columns layout="auto">
   <Column>
     <HTMLBlock>{`
-<div class="rcsg-phone">
-  <div class="rcsg-bar"><span>‹</span><span class="rcsg-avatar">D</span>Demo store</div>
-  <div class="rcsg-screen">
-    <div class="rcsg-art rcsg-sale"><span class="rcsg-badge">1</span><span>SUMMER SALE</span><b>20% OFF</b></div>
-    <div class="rcsg-chips"><span class="rcsg-chip"><span class="rcsg-badge">2</span>Shop now</span></div>
-  </div>
+<div class="rcsg-wrap"><div class="rcsg-phone"><div class="rcsg-screen">
+<div class="rcsg-status"><span>9:30</span><span class="rcsg-hole"></span><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 22h20V2z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.5 1.5 9.5a16 16 0 0 1 21 0z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7.5" y="4" width="9" height="18" rx="1.6"/><rect x="10" y="2" width="4" height="2.5" rx=".6"/></svg></span></div>
+<div class="rcsg-hdr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg><span class="rcsg-av">D</span><span class="rcsg-name">Demo store <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#1a73e8"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .6 3.6 1 1 0 0 1-.25 1z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></div>
+<div class="rcsg-thread">
+<div class="rcsg-img"><span class="rcsg-n">1</span><svg viewBox="0 0 452 300" role="img" aria-label="Summer sale banner"><defs><linearGradient id="rcsg-g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb347"/><stop offset=".55" stop-color="#ff7a59"/><stop offset="1" stop-color="#ff4d8d"/></linearGradient></defs><rect width="452" height="300" fill="url(#rcsg-g1)"/><circle cx="376" cy="72" r="74" fill="#fff3c4" opacity=".28"/><circle cx="376" cy="72" r="46" fill="#fff3c4" opacity=".92"/><path d="M0 236Q56 208 113 236T226 236T339 236T452 236V300H0Z" fill="#fff" opacity=".22"/><path d="M0 262Q56 236 113 262T226 262T339 262T452 262V300H0Z" fill="#fff" opacity=".32"/><text x="34" y="116" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="25" font-weight="700" letter-spacing="5">SUMMER SALE</text><text x="31" y="192" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="78" font-weight="800">20% OFF</text></svg></div>
+<div class="rcsg-time">9:41 AM</div>
+<div class="rcsg-chips"><span class="rcsg-chip"><span class="rcsg-n">2</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm6.9 6h-3a15.7 15.7 0 0 0-1.4-3.6A8 8 0 0 1 18.9 8zM12 4a14 14 0 0 1 1.9 4h-3.8A14 14 0 0 1 12 4zM4.3 14a8 8 0 0 1 0-4h3.4a16 16 0 0 0 0 4zm.8 2h3a15.7 15.7 0 0 0 1.4 3.6A8 8 0 0 1 5.1 16zm3-8h-3a8 8 0 0 1 4.4-3.6A15.7 15.7 0 0 0 8.1 8zM12 20a14 14 0 0 1-1.9-4h3.8A14 14 0 0 1 12 20zm2.3-6H9.7a14 14 0 0 1 0-4h4.6a14 14 0 0 1 0 4zm.3 5.6a15.7 15.7 0 0 0 1.4-3.6h3a8 8 0 0 1-4.4 3.6zm1.7-5.6a16 16 0 0 0 0-4h3.4a8 8 0 0 1 0 4z"/></svg>Shop now</span></div>
 </div>
-<div class="rcsg-caption">Illustration only. The layout varies between messaging apps.</div>
+</div></div></div>
 `}</HTMLBlock>
   </Column>
 
@@ -242,18 +257,16 @@ The fields in this table sit inside `content.rich_card.standalone.card_content`.
 <Columns layout="auto">
   <Column>
     <HTMLBlock>{`
-<div class="rcsg-phone">
-  <div class="rcsg-bar"><span>‹</span><span class="rcsg-avatar">D</span>Demo store</div>
-  <div class="rcsg-screen">
-    <div class="rcsg-card">
-      <div class="rcsg-art"><span class="rcsg-badge">1</span>📦</div>
-      <div class="rcsg-title"><span class="rcsg-badge">2</span>Your order has shipped</div>
-      <div class="rcsg-desc"><span class="rcsg-badge">3</span>Order #12345 is on its way and should arrive Thursday.</div>
-      <div class="rcsg-button"><span class="rcsg-badge">4</span>Track parcel</div>
-    </div>
-  </div>
+<div class="rcsg-wrap"><div class="rcsg-phone"><div class="rcsg-screen">
+<div class="rcsg-status"><span>9:30</span><span class="rcsg-hole"></span><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 22h20V2z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.5 1.5 9.5a16 16 0 0 1 21 0z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7.5" y="4" width="9" height="18" rx="1.6"/><rect x="10" y="2" width="4" height="2.5" rx=".6"/></svg></span></div>
+<div class="rcsg-hdr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg><span class="rcsg-av">D</span><span class="rcsg-name">Demo store <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#1a73e8"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .6 3.6 1 1 0 0 1-.25 1z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></div>
+<div class="rcsg-thread">
+<div class="rcsg-card"><div class="rcsg-media"><span class="rcsg-n">1</span><svg viewBox="0 0 452 220" role="img" aria-label="Parcel"><defs><linearGradient id="rcsg-g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8f0fe"/><stop offset="1" stop-color="#cfdcf7"/></linearGradient></defs><rect width="452" height="220" fill="url(#rcsg-g2)"/><ellipse cx="226" cy="186" rx="118" ry="15" fill="#3c4a6b" opacity=".16"/><path d="M136 80L226 118V188L136 150Z" fill="#d9a66c"/><path d="M316 80L226 118V188L316 150Z" fill="#c48f55"/><path d="M226 42L316 80L226 118L136 80Z" fill="#ecc797"/><path d="M172 65L190 57L280 95L262 103Z" fill="#f7e3c3"/><path d="M262 103L280 95V123L262 131Z" fill="#e3c296"/><path d="M152 106L196 125V147L152 128Z" fill="#fff" opacity=".9"/><path d="M159 116L189 129M159 124L180 133" stroke="#b9c0cc" stroke-width="3" stroke-linecap="round"/></svg></div>
+<div class="rcsg-body"><div class="rcsg-t"><span class="rcsg-n">2</span>Your order has shipped</div><div class="rcsg-d"><span class="rcsg-n">3</span>Order #12345 is on its way and should arrive Thursday.</div></div>
+<div class="rcsg-btns"><div class="rcsg-btn"><span class="rcsg-n">4</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm6.9 6h-3a15.7 15.7 0 0 0-1.4-3.6A8 8 0 0 1 18.9 8zM12 4a14 14 0 0 1 1.9 4h-3.8A14 14 0 0 1 12 4zM4.3 14a8 8 0 0 1 0-4h3.4a16 16 0 0 0 0 4zm.8 2h3a15.7 15.7 0 0 0 1.4 3.6A8 8 0 0 1 5.1 16zm3-8h-3a8 8 0 0 1 4.4-3.6A15.7 15.7 0 0 0 8.1 8zM12 20a14 14 0 0 1-1.9-4h3.8A14 14 0 0 1 12 20zm2.3-6H9.7a14 14 0 0 1 0-4h4.6a14 14 0 0 1 0 4zm.3 5.6a15.7 15.7 0 0 0 1.4-3.6h3a8 8 0 0 1-4.4 3.6zm1.7-5.6a16 16 0 0 0 0-4h3.4a8 8 0 0 1 0 4z"/></svg>Track parcel</div></div></div>
+<div class="rcsg-time">9:41 AM</div>
 </div>
-<div class="rcsg-caption">Illustration only. The layout varies between messaging apps.</div>
+</div></div></div>
 `}</HTMLBlock>
   </Column>
 
@@ -310,30 +323,22 @@ Use a carousel to present several products or options in one message. Each entry
 <Columns layout="auto">
   <Column>
     <HTMLBlock>{`
-<div class="rcsg-phone">
-  <div class="rcsg-bar"><span>‹</span><span class="rcsg-avatar">D</span>Demo store</div>
-  <div class="rcsg-screen">
-    <div class="rcsg-carousel">
-      <div class="rcsg-card">
-        <div class="rcsg-art"><span class="rcsg-badge">1</span>👕</div>
-        <div class="rcsg-title">Classic tee</div>
-        <div class="rcsg-desc">$29</div>
-        <div class="rcsg-button"><span class="rcsg-badge">3</span>Buy tee</div>
-        <div class="rcsg-button">More colours</div>
-      </div>
-      <div class="rcsg-card">
-        <div class="rcsg-art"><span class="rcsg-badge">2</span>🧥</div>
-        <div class="rcsg-title">Hoodie</div>
-        <div class="rcsg-desc">$59</div>
-        <div class="rcsg-button">Buy hoodie</div>
-        <div class="rcsg-button">Size guide</div>
-      </div>
-    </div>
-    <div class="rcsg-hint">Swipe to see the next card</div>
-    <div class="rcsg-chips"><span class="rcsg-chip"><span class="rcsg-badge">4</span>Call us</span></div>
-  </div>
+<div class="rcsg-wrap"><div class="rcsg-phone"><div class="rcsg-screen">
+<div class="rcsg-status"><span>9:30</span><span class="rcsg-hole"></span><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 22h20V2z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.5 1.5 9.5a16 16 0 0 1 21 0z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7.5" y="4" width="9" height="18" rx="1.6"/><rect x="10" y="2" width="4" height="2.5" rx=".6"/></svg></span></div>
+<div class="rcsg-hdr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg><span class="rcsg-av">D</span><span class="rcsg-name">Demo store <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#1a73e8"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .6 3.6 1 1 0 0 1-.25 1z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></div>
+<div class="rcsg-thread">
+<div class="rcsg-carousel">
+<div class="rcsg-card"><div class="rcsg-media"><span class="rcsg-n">1</span><svg viewBox="0 0 336 194" role="img" aria-label="Classic tee"><defs><linearGradient id="rcsg-g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaf2ff"/><stop offset="1" stop-color="#d3e3fd"/></linearGradient></defs><rect width="336" height="194" fill="url(#rcsg-g3)"/><ellipse cx="168" cy="178" rx="74" ry="7" fill="#3c4a6b" opacity=".14"/><path d="M143 30Q168 52 193 30L236 46L262 86L234 100L216 82V170H120V82L102 100L74 86L100 46Z" fill="#2f6fed" stroke="#2f6fed" stroke-width="6" stroke-linejoin="round"/><path d="M120 82L108 54M216 82L228 54" stroke="#1f57c3" stroke-width="2.5" stroke-linecap="round" opacity=".7"/><path d="M143 30Q168 52 193 30" fill="none" stroke="#1f57c3" stroke-width="7" stroke-linecap="round"/><path d="M120 150H216V170H120Z" fill="#1f57c3" opacity=".18"/></svg></div>
+<div class="rcsg-body"><div class="rcsg-t">Classic tee</div><div class="rcsg-d">$29</div></div>
+<div class="rcsg-btns"><div class="rcsg-btn"><span class="rcsg-n">3</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm6.9 6h-3a15.7 15.7 0 0 0-1.4-3.6A8 8 0 0 1 18.9 8zM12 4a14 14 0 0 1 1.9 4h-3.8A14 14 0 0 1 12 4zM4.3 14a8 8 0 0 1 0-4h3.4a16 16 0 0 0 0 4zm.8 2h3a15.7 15.7 0 0 0 1.4 3.6A8 8 0 0 1 5.1 16zm3-8h-3a8 8 0 0 1 4.4-3.6A15.7 15.7 0 0 0 8.1 8zM12 20a14 14 0 0 1-1.9-4h3.8A14 14 0 0 1 12 20zm2.3-6H9.7a14 14 0 0 1 0-4h4.6a14 14 0 0 1 0 4zm.3 5.6a15.7 15.7 0 0 0 1.4-3.6h3a8 8 0 0 1-4.4 3.6zm1.7-5.6a16 16 0 0 0 0-4h3.4a8 8 0 0 1 0 4z"/></svg>Buy tee</div><div class="rcsg-btn">More colours</div></div></div>
+<div class="rcsg-card"><div class="rcsg-media"><span class="rcsg-n">2</span><svg viewBox="0 0 336 194" role="img" aria-label="Hoodie"><defs><linearGradient id="rcsg-g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff4e0"/><stop offset="1" stop-color="#ffe2b8"/></linearGradient></defs><rect width="336" height="194" fill="url(#rcsg-g4)"/><ellipse cx="168" cy="181" rx="78" ry="7" fill="#5b4520" opacity=".16"/><path d="M134 44Q168 -6 202 44Q168 66 134 44Z" fill="#2b2e33" stroke="#2b2e33" stroke-width="6" stroke-linejoin="round"/><path d="M134 44L102 56L72 152L98 160L118 104V172H218V104L238 160L264 152L234 56L202 44Q168 68 134 44Z" fill="#3f444b" stroke="#3f444b" stroke-width="6" stroke-linejoin="round"/><path d="M146 42Q168 14 190 42Q168 56 146 42Z" fill="#1c1e22"/><path d="M138 128H198L210 160H126Z" fill="#565c65"/><path d="M158 56L156 92M178 56L180 92" stroke="#e8eaed" stroke-width="3.5" stroke-linecap="round"/><path d="M118 160H218V172H118Z" fill="#2b2e33" opacity=".55"/></svg></div>
+<div class="rcsg-body"><div class="rcsg-t">Hoodie</div><div class="rcsg-d">$59</div></div>
+<div class="rcsg-btns"><div class="rcsg-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm6.9 6h-3a15.7 15.7 0 0 0-1.4-3.6A8 8 0 0 1 18.9 8zM12 4a14 14 0 0 1 1.9 4h-3.8A14 14 0 0 1 12 4zM4.3 14a8 8 0 0 1 0-4h3.4a16 16 0 0 0 0 4zm.8 2h3a15.7 15.7 0 0 0 1.4 3.6A8 8 0 0 1 5.1 16zm3-8h-3a8 8 0 0 1 4.4-3.6A15.7 15.7 0 0 0 8.1 8zM12 20a14 14 0 0 1-1.9-4h3.8A14 14 0 0 1 12 20zm2.3-6H9.7a14 14 0 0 1 0-4h4.6a14 14 0 0 1 0 4zm.3 5.6a15.7 15.7 0 0 0 1.4-3.6h3a8 8 0 0 1-4.4 3.6zm1.7-5.6a16 16 0 0 0 0-4h3.4a8 8 0 0 1 0 4z"/></svg>Buy hoodie</div><div class="rcsg-btn">Size guide</div></div></div>
 </div>
-<div class="rcsg-caption">Illustration only. The layout varies between messaging apps.</div>
+<div class="rcsg-time">9:41 AM</div>
+<div class="rcsg-chips"><span class="rcsg-chip"><span class="rcsg-n">4</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .6 3.6 1 1 0 0 1-.25 1z"/></svg>Call us</span></div>
+</div>
+</div></div></div>
 `}</HTMLBlock>
   </Column>
 
