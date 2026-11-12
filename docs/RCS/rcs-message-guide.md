@@ -15,14 +15,6 @@ next:
 ---
 This guide shows you how to build each RCS message format with the [Send RCS message](https://developers.kudosity.com/reference/post_v2-rcs-messages) endpoint. Each example shows a preview of the message, the JSON field behind each numbered part, and the full request body.
 
-## Before you begin
-
-You need:
-
-* A Kudosity account and your API key.
-* A registered RCS agent. Until your agent is launched, it can only message its approved test numbers. See [RCS Agent Registration Process](https://developers.kudosity.com/docs/rcs-onboarding).
-* A recipient whose device supports RCS. To check a number first, use [Check RCS capability](https://developers.kudosity.com/reference/post_v2-rcs-capabilities).
-
 The examples use placeholder values. Replace `DemoSender` with your RCS agent ID, and replace the recipient, links and media URLs with your own. The `cdn.example.com` media URLs don't exist, so a request that uses them fails with a `400` error.
 
 ## Choose a message format
