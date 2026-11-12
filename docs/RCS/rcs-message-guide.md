@@ -528,9 +528,3 @@ These rules apply to `content.media.file_url` and to the `media.file_url` of eve
 | `message_ref`                       | 500 characters        |
 
 How a message looks varies between messaging apps and devices. Before you send to customers, test your button placement, media cropping and SMS fallback with your agent's test numbers.
-
-## Next steps
-
-* [Send RCS message](https://developers.kudosity.com/reference/post_v2-rcs-messages): the full request, response and validation reference.
-* [Get RCS message](https://developers.kudosity.com/reference/get_v2-rcs-messages-id): check the status and events of a message you sent.
-* [About Webhooks](https://developers.kudosity.com/reference/about-webhooks): receive delivery status and inbound events.
