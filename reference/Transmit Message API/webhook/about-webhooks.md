@@ -409,9 +409,9 @@ Example Payloads
 
 ## RCS Inbound
 
-The `RCS_INBOUND` event is posted to you when a recipient replies in an RCS conversation. This includes free-text replies, which are not opt-out keywords, as well as rich replies such as images and shared locations. The reply is delivered as a mobile-originated (`mo`) message.
+The `RCS_INBOUND` event is posted to you when a recipient replies in an RCS conversation. This includes free-text replies, which are not opt-out keywords, taps on a suggested reply or action, and rich replies such as images and shared locations. The reply is delivered as a mobile-originated (`mo`) message.
 
-The `mo.sender` field is the recipient who sent the reply, and the `mo.recipient` field is the RCS agent that received it. The `mo.content_type` field identifies the type of reply, and the matching content is nested under `mo.content`. Supported RCS content types are `TEXT`, `IMAGE`, `VIDEO`, `AUDIO`, `FILE`, `LOCATION`, and `CONTACT`.
+The `mo.sender` field is the recipient who sent the reply, and the `mo.recipient` field is the RCS agent that received it. The `mo.content_type` field identifies the type of reply, and the matching content is nested under `mo.content`. Supported RCS content types are `TEXT`, `SUGGESTION`, `IMAGE`, `VIDEO`, `AUDIO`, `FILE`, `LOCATION`, and `CONTACT`.
 
 Example Payloads
 
@@ -430,6 +430,30 @@ Example Payloads
     "content": {
       "text": {
         "message": "Yes, that time works for me."
+      }
+    }
+  }
+}
+```
+
+A `SUGGESTION` event is sent when the recipient taps a suggested reply or action on a message you sent. The label of the suggestion is in `mo.content.suggestion.text`, and the `postback_data` value for the suggestion is in `mo.content.suggestion.postback_data`. See [Handle a tap in your application](https://developers.kudosity.com/docs/rcs-message-guide#handle-a-tap-in-your-application).
+
+```json
+{
+  "event_type": "RCS_INBOUND",
+  "timestamp": "2025-07-01T09:35:20.246802Z",
+  "webhook_id": "fd0e6485-b905-44c1-bd55-fee1d0d6d864",
+  "webhook_name": "RCS Inbound Webhook",
+  "mo": {
+    "type": "RCS",
+    "id": "5d1c7a90-3f6e-4b0a-8f27-91c4e2a6b7d3",
+    "sender": "61400000000",
+    "recipient": "DemoAgent",
+    "content_type": "SUGGESTION",
+    "content": {
+      "suggestion": {
+        "text": "Yes",
+        "postback_data": "appt-789-yes"
       }
     }
   }
