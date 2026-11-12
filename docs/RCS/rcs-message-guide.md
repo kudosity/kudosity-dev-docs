@@ -15,10 +15,6 @@ next:
 ---
 This guide shows you how to build each RCS message format with the [Send RCS message](https://developers.kudosity.com/reference/post_v2-rcs-messages) endpoint. Each example shows a preview of the message, the JSON field behind each numbered part, and the full request body.
 
-> 🚧 The Send RCS message endpoint is in beta
->
-> Fields and behaviour may change. The [API reference](https://developers.kudosity.com/reference/post_v2-rcs-messages) is the source of truth for field limits and validation.
-
 ## Before you begin
 
 You need:
