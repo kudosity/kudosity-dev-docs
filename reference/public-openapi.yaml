@@ -766,27 +766,32 @@ paths:
         - RCS
       summary: Send RCS message
       description: >
-        This endpoint is in beta and may change in future versions.
+        Send rich, interactive messages to a recipient through your branded RCS
+        agent. Share updates with text, images or video, showcase products in
+        rich cards and swipeable carousels, and help customers take the next
+        step with suggested replies, website links and call buttons.
 
-        Sends an RCS message to a single recipient.
+
+        Include an SMS fallback to keep essential information reaching customers
+        when RCS delivery fails.
 
 
-        The message can be text (`content_type: text`), a single image or video
-        (`content_type: media`),
-
-        or a standalone card or carousel (`content_type: rich_card`). Any
-        message can carry `suggestions`:
-
-        reply chips, links and dial buttons shown under it.
+        See the [RCS Message
+        Guide](https://developers.kudosity.com/docs/rcs-message-guide) for
+        visual examples and complete JSON requests.
 
 
         For media, including card media, we check each file when you send the
-        request. The request fails
+        request. The request fails with `400` if a file isn't publicly reachable
+        over `https`, redirects, doesn't respond in time, or has an unsupported,
+        mismatched or oversized file type.
 
-        with `400` if a file isn't publicly reachable over `https`, redirects,
-        doesn't respond in time, or
 
-        has an unsupported, mismatched or oversized file type.
+        A `200` response confirms that the message was accepted, not that it was
+        delivered. To track delivery, subscribe to the `RCS_STATUS` webhook
+        event or call [Get RCS
+        message](https://developers.kudosity.com/reference/get_v2-rcs-messages-id).
+        Sending the same request again sends a second message.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -947,9 +952,11 @@ paths:
         '200':
           $ref: '#/components/responses/RCSSuccessResponse'
         '400':
-          $ref: '#/components/responses/InputValidationResponse'
+          $ref: '#/components/responses/SendInputValidationResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '404':
+          $ref: '#/components/responses/SendFallbackSenderNotFoundResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
   /v2/rcs/capabilities:
@@ -1110,7 +1117,7 @@ paths:
       summary: Send MMS
       description: >-
         The Send MMS endpoint allows you to send multimedia messages (MMS) to
-        recipients.
+        recipients. 
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -3252,9 +3259,9 @@ components:
           $ref: '#/components/schemas/RcsCarouselCard'
     RcsStandaloneCard:
       type: object
-      description: |
-        A single card, shown vertically with the media above the text. Media
-        is shown at medium height.
+      description: >
+        A single card, shown vertically with the media above the text. Media is
+        shown at medium height.
       properties:
         card_content:
           $ref: '#/components/schemas/RcsCardContent'
@@ -3262,9 +3269,9 @@ components:
         - card_content
     RcsCarouselCard:
       type: object
-      description: |
-        2–10 cards the recipient scrolls through horizontally. Cards are
-        medium width, and their media is shown at medium height.
+      description: >
+        2–10 cards the recipient scrolls through horizontally. Cards are medium
+        width, and their media is shown at medium height.
       properties:
         card_contents:
           type: array
@@ -3274,7 +3281,7 @@ components:
         - card_contents
     RcsCardContent:
       type: object
-      description: |
+      description: >
         The content of one card. At least one of `title`, `description` or
         `media` is required.
       properties:
@@ -3290,7 +3297,7 @@ components:
           $ref: '#/components/schemas/RcsCardMedia'
         suggestions:
           type: array
-          description: |
+          description: >
             Up to 4 optional buttons shown on the card. They stay on the card
             after the recipient replies.
           items:
@@ -3300,7 +3307,7 @@ components:
       properties:
         file_url:
           type: string
-          description: |
+          description: >
             Public URL of the card's image or video. It follows the same rules
             as `content.media.file_url`.
           example: https://cdn.example.com/promo/summer-sale.png
@@ -3308,7 +3315,7 @@ components:
         - file_url
     RcsSuggestion:
       type: object
-      description: |
+      description: >
         A suggestion chip, on a card or under a message. Set exactly one of
         `reply` or `action`.
       properties:
@@ -3328,10 +3335,12 @@ components:
           example: Tell me more
         postback_data:
           type: string
-          description: |
-            Your own value for this suggestion, up to 2,048 characters,
-            such as an order, a booking or a step in your conversation.
-            When omitted or empty, we set one for you.
+          description: >
+            Your own value for this suggestion, up to 2,048 characters, such as
+            an order, a booking or a step in your conversation. When omitted or
+            empty, we set one for you.
+
+
             When the recipient taps the suggestion, the `RCS_INBOUND` webhook
             returns this value in `content.suggestion.postback_data`.
           example: order-12345-track
@@ -3339,7 +3348,7 @@ components:
         - text
     RcsSuggestedAction:
       type: object
-      description: |
+      description: >
         Opens a URL or dials a number when tapped. Set exactly one of
         `open_url_action` or `dial_action`.
       properties:
@@ -3353,10 +3362,12 @@ components:
           $ref: '#/components/schemas/RcsDialAction'
         postback_data:
           type: string
-          description: |
-            Your own value for this suggestion, up to 2,048 characters,
-            such as an order, a booking or a step in your conversation.
-            When omitted or empty, we set one for you.
+          description: >
+            Your own value for this suggestion, up to 2,048 characters, such as
+            an order, a booking or a step in your conversation. When omitted or
+            empty, we set one for you.
+
+
             When the recipient taps the suggestion, the `RCS_INBOUND` webhook
             returns this value in `content.suggestion.postback_data`.
           example: order-12345-track
@@ -3376,7 +3387,7 @@ components:
       properties:
         phone_number:
           type: string
-          description: |
+          description: >
             The number to dial, in E.164 international format. The leading `+`
             may be omitted; local format, such as `02 9000 0000`, is rejected.
           example: '+61290000000'
@@ -3384,12 +3395,12 @@ components:
         - phone_number
     RcsMessageSuggestions:
       type: array
-      description: |
+      description: >
         Up to 11 optional suggestion chips shown under the message, beside its
         `text`, `media` or `rich_card`. They disappear once the recipient
         replies or another message arrives. A rich card can also carry its own
-        suggestions on each card, which stay on the card. An empty array is
-        the same as leaving it out.
+        suggestions on each card, which stay on the card. An empty array is the
+        same as leaving it out.
       items:
         $ref: '#/components/schemas/RcsSuggestion'
       example:
@@ -3411,14 +3422,22 @@ components:
         configured message to the recipient instead.
 
 
+        The SMS is sent when the RCS message is rejected, can't be delivered, or
+        expires.
+
+
         Without it, a failed RCS message is not sent by SMS.
       properties:
         sender:
           type: string
-          description: >-
+          description: >
             The sender number to use for SMS fallback, which can be in
             [E.164](http://en.wikipedia.org/wiki/E.164) international format or
             an alphanumeric sender ID.
+
+
+            It must be a number or sender ID that your account can send SMS
+            from. Otherwise, the request fails with `404`.
         message:
           type: string
           description: >-
@@ -3462,30 +3481,37 @@ components:
         sender:
           type: string
           description: >
-            The RCS agent ID assigned to your registered agent.
+            The Agent ID of your RCS agent, such as `DemoSender`.
 
 
-            Unlike SMS, WhatsApp, and MMS, RCS messages do not come from a phone
-            number.
-
-            They are always sent through an agent.
+            Unlike SMS and MMS, an RCS message doesn't come from a phone number.
+            It's always sent through an agent.
 
 
-            - Must be a registered RCS agent identifier.
+            - Must be an RCS agent on your account.
 
-            - Example: `DemoSender`
+            - To find the Agent ID in the Kudosity app, select **RCS** > **RCS
+            Agents**, open your agent, and look under **Agent details** on the
+            **Details** tab.
 
-            - Can be alphanumeric or numeric.
+            - If we set up your agent for you and gave you a different sender
+            value, keep using that value.
+
+            - Until your agent is live, it can message its accepted test devices
+            only.
+
+
+            See the [RCS Agent Setup
+            Guide](https://developers.kudosity.com/docs/rcs-onboarding) to
+            create, test and launch an agent.
         recipient:
           type: string
           format: phone
           description: >
-            The destination number for delivery.
-
-            Can be either in local format or in international format.
-
-            For international format, it should follow the [E.164
-            standard](http://en.wikipedia.org/wiki/E.164).
+            The destination number for delivery, in
+            [E.164](http://en.wikipedia.org/wiki/E.164) international format.
+            The leading `+` may be omitted; local format, such as `0438 333
+            061`, is rejected.
 
 
             Examples of conversions to E.164 format:
@@ -3534,16 +3560,17 @@ components:
         message_ref:
           type: string
           description: >
-            A reference supplied by your system. Maximum length of 500
-            characters.
+            A reference supplied by your system, such as an order or appointment
+            ID. Maximum length of 500 characters.
 
 
-            This reference is included in webhook events so you can relate
-            events with the original message.
+            This reference is included in `RCS_STATUS` webhook events and
+            returned when you get the message, so you can match delivery updates
+            to your own records.
 
 
-            For example, being able to relate a Link Hit event to a specific
-            sent message.
+            To find out which suggestion a recipient tapped, use `postback_data`
+            instead.
       required:
         - sender
         - recipient
@@ -4414,7 +4441,7 @@ components:
             type: string
           description: >
             Specify a list of URLs of the media file(s) that you are trying to
-            send.
+            send. 
 
             Supported file formats include jpg, gif, png, MP3, and video MP4.
             Only one image up to 400 KB can be attached at a time.
@@ -7452,6 +7479,62 @@ components:
                       New arrivals: the classic tee ($29) and hoodie ($59). Shop
                       at example.com
                   created_at: '2026-01-15T10:30:00Z'
+    SendInputValidationResponse:
+      description: >
+        The request is invalid. The `issues` array lists the problems found.
+        Validation can stop at the first problem, so fix it and retry to find
+        any others. Each issue has a `message`, and usually the `name` of the
+        field. A request is invalid when:
+
+
+        - `sender` isn't an RCS agent on your account.
+
+        - A required field is missing, or `content` doesn't match
+        `content_type`.
+
+        - Text, a card or a suggestion exceeds a limit.
+
+        - A media file fails its check.
+
+        - `sms_fallback.message` is too long for an SMS.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/InputValidationProblem'
+          example:
+            error:
+              type: >-
+                https://developers.kudosity.com/reference/errors#input-validation
+              title: Invalid Request
+              detail: Request validation failed
+              status: 400
+              issues:
+                - name: sender
+                  message: invalid sender
+    SendFallbackSenderNotFoundResponse:
+      description: >-
+        The `sms_fallback.sender` isn't a number or sender ID that your account
+        can send SMS from.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CommonErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/NotFoundProblem'
+          example:
+            error:
+              type: https://developers.kudosity.com/reference/errors#not-found
+              title: Not Found
+              detail: 'invalid request: sms_fallback sender not found'
+              status: 404
     GetSuccessResponse:
       description: OK
       content:
