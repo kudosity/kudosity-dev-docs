@@ -1142,8 +1142,7 @@ paths:
                 message: Check out this amazing specimen.
                 message_ref: ncc1701d
                 content_urls:
-                  - >-
-                    http://res.cloudinary.com/burstsms/image/upload/v1590111670/enterprise-d_ghf9t8.jpg
+                  - http://res.cloudinary.com/burstsms/image/upload/v1590111670/enterprise-d_ghf9t8.jpg
                 status: pending
                 track_links: true
                 created_at: '2022-03-29T04:42:01.631708761Z'
@@ -1183,8 +1182,7 @@ paths:
                 message: Check out this amazing specimen.
                 message_ref: ncc1701d
                 content_urls:
-                  - >-
-                    http://res.cloudinary.com/burstsms/image/upload/v1590111670/enterprise-d_ghf9t8.jpg
+                  - http://res.cloudinary.com/burstsms/image/upload/v1590111670/enterprise-d_ghf9t8.jpg
                 status: sent
                 track_links: true
                 created_at: '2022-03-29T04:42:01.631708Z'
@@ -1847,8 +1845,7 @@ paths:
         '200':
           $ref: '#/components/responses/VerificationConfirmationSuccessResponse'
         '400':
-          $ref: >-
-            #/components/responses/VerificationConfirmationInputValidationResponse
+          $ref: '#/components/responses/VerificationConfirmationInputValidationResponse'
         '401':
           $ref: '#/components/responses/GatewayUnauthorizedResponse'
         '404':
@@ -4349,8 +4346,7 @@ components:
           items:
             type: string
           example:
-            - >-
-              http://res.cloudinary.com/burstsms/image/upload/v1590111670/enterprise-d_ghf9t8.jpg
+            - http://res.cloudinary.com/burstsms/image/upload/v1590111670/enterprise-d_ghf9t8.jpg
         status:
           type: string
           description: Status of the message.
@@ -4421,19 +4417,13 @@ components:
           description: The sender is the number that shows recipients who sent the message.
         recipient:
           type: string
-          description: >
+          description: |
             The destination number for delivery.
-
             Can be either in local format or in international format.
-
             For international format, it should follow E.164 standard.
-
             [http://en.wikipedia.org/wiki/E.164](http://en.wikipedia.org/wiki/E.164)
-
             Can only send to Australia currently.
-
             Examples of conversions to E.164 format:
-
             Australia 0438 333 061 => 61438333061
         content_urls:
           type: array
@@ -6681,8 +6671,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/ProblemDetails'
       example:
-        type: >-
-          https://developers.kudosity.com/reference/errors#idempotency-key-reused
+        type: https://developers.kudosity.com/reference/errors#idempotency-key-reused
         title: Unprocessable Entity
         detail: This Idempotency-Key was used for a different request
         status: 422
@@ -6782,8 +6771,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/ProblemDetails'
       example:
-        type: >-
-          https://developers.kudosity.com/reference/errors#request-entity-too-large
+        type: https://developers.kudosity.com/reference/errors#request-entity-too-large
         title: Request Entity Too Large
         detail: The request payload exceeds the maximum allowed size
         status: 413
@@ -7274,8 +7262,7 @@ components:
                       format: IMAGE
                       example:
                         header_handle:
-                          - >-
-                            https://res.cloudinary.com/acme/image/upload/v1700000000/templates/banner.png
+                          - https://res.cloudinary.com/acme/image/upload/v1700000000/templates/banner.png
                     - type: BODY
                       text: Hi {{1}}, our spring sale ends {{2}}.
                       example:
@@ -7309,8 +7296,7 @@ components:
                               format: IMAGE
                               example:
                                 header_handle:
-                                  - >-
-                                    https://scontent.whatsapp.net/v/t61.29466-34/sample.jpg
+                                  - https://scontent.whatsapp.net/v/t61.29466-34/sample.jpg
                             - type: BODY
                               text: Linen shirt
                             - type: BUTTONS
@@ -7350,8 +7336,7 @@ components:
                     $ref: '#/components/schemas/InputValidationProblem'
           example:
             error:
-              type: >-
-                https://developers.kudosity.com/reference/errors#input-validation
+              type: https://developers.kudosity.com/reference/errors#input-validation
               title: Invalid Request
               status: 400
               detail: Request validation failed
@@ -7508,8 +7493,7 @@ components:
                     $ref: '#/components/schemas/InputValidationProblem'
           example:
             error:
-              type: >-
-                https://developers.kudosity.com/reference/errors#input-validation
+              type: https://developers.kudosity.com/reference/errors#input-validation
               title: Invalid Request
               detail: Request validation failed
               status: 400
@@ -7779,12 +7763,10 @@ components:
             type: object
             properties:
               error:
-                $ref: >-
-                  #/components/schemas/VerificationConfirmationInputValidationProblem
+                $ref: '#/components/schemas/VerificationConfirmationInputValidationProblem'
           example:
             error:
-              type: >-
-                https://developers.kudosity.com/reference/errors#input-validation
+              type: https://developers.kudosity.com/reference/errors#input-validation
               title: Invalid Request
               detail: Request validation failed
               status: 400
@@ -7813,8 +7795,7 @@ components:
               summary: Upstream unavailable
               value:
                 error:
-                  type: >-
-                    https://developers.kudosity.com/reference/errors#service-unavailable
+                  type: https://developers.kudosity.com/reference/errors#service-unavailable
                   title: Service Unavailable
                   detail: Upstream unavailable, retry later
                   status: 503
