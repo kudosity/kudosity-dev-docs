@@ -3178,7 +3178,7 @@ components:
 
             - **Basic RCS Messages**: Up to 160 characters (SMS format in RCS)
 
-            - **Simple RCS Messages**: Up to 3072 characters with emoji and
+            - **Single RCS Messages**: Up to 3072 characters with emoji and
             UTF-8 support
       required:
         - message
@@ -3538,7 +3538,7 @@ components:
 
 
             - `text`: supports both Basic RCS messages (160 characters) and
-            Simple RCS messages (3072 characters), with UTF-8 and emoji support.
+            Single RCS messages (3072 characters), with UTF-8 and emoji support.
 
             - `media`: one image or video by public URL, without a caption.
 
