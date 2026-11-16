@@ -4660,7 +4660,11 @@ components:
           example: My Webhook
         url:
           type: string
-          description: URL (https) that accepts JSON encoded POST requests
+          description: >
+            Absolute https URL that accepts JSON encoded POST requests.
+
+            Any other scheme (http, ftp, wss) or a URL without a scheme is
+            rejected with 400.
           format: uri
           example: https://example.com/webhook
         rate_limit:
