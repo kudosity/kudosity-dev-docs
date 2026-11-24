@@ -506,6 +506,8 @@ An RCS message can fail, for example when the recipient's device doesn't support
 * `sms_fallback.sender` is optional. Use it to set the number or alphanumeric sender ID that the SMS comes from.
 * Without `sms_fallback`, a failed RCS message isn't sent by SMS.
 
+To follow a message across both channels and tell whether it arrived as RCS or as SMS, see [Track an RCS message that falls back to SMS](https://developers.kudosity.com/docs/rcs-sms-fallback).
+
 ## Media file requirements
 
 These rules apply to `content.media.file_url` and to the `media.file_url` of every card. Kudosity checks each file when you send the request, and the request fails with a `400` error if a file doesn't meet them.

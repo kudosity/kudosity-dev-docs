@@ -89,6 +89,8 @@ The RCS_STATUS event is triggered when the status of an RCS message changes. The
 > 📘 Polling vs. webhooks
 > The `GET /v2/rcs/messages` and `GET /v2/rcs/messages/{id}` endpoints collapse `REJECTED`, `UNDELIVERABLE`, and expiry into `FAILED`. A message that reads `FAILED` when polled may have reported the more specific `REJECTED` or `UNDELIVERABLE` over the webhook.
 
+If you send RCS messages with an SMS fallback, see [Track an RCS message that falls back to SMS](https://developers.kudosity.com/docs/rcs-sms-fallback) to follow a message across both channels.
+
 ### WhatsApp Status Events
 
 The `WHATSAPP_STATUS` event is triggered when the status of a WhatsApp message changes.
