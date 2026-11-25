@@ -148,3 +148,4 @@ consented channel.
 - Clone the working examples: [github.com/kudosity/ai-agent-examples](https://github.com/kudosity/ai-agent-examples)
 - Explore the full [API reference](https://developers.kudosity.com/)
 - Connect the [MCP server](https://developers.kudosity.com/mcp)
+- Building in an AI app builder? See [Vercel Connect & v0](/docs/vercel-connect) and [Bolt](/docs/bolt)

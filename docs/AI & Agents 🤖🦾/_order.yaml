@@ -3,6 +3,8 @@
 - agent-skills
 - langchain
 - ai-sdk
+- vercel-connect
+- bolt
 - claude-plugin
 - copilot-extension
 - gemini-extension
