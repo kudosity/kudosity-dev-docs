@@ -129,7 +129,7 @@ You receive `RCS_STATUS` events only: `SENT`, `DELIVERED`, and `READ` if the rec
 ```json
 {
   "event_type": "RCS_STATUS",
-  "timestamp": "2026-11-17T01:05:04.512000Z",
+  "timestamp": "2026-11-17T01:05:04Z",
   "webhook_id": "67e3e4af-62e8-4515-8b67-6f20d0c51ffb",
   "webhook_name": "RCS and SMS status",
   "status": {
@@ -146,12 +146,12 @@ You receive `RCS_STATUS` events only: `SENT`, `DELIVERED`, and `READ` if the rec
 
 ### The message falls back to SMS
 
-An `RCS_STATUS` event reports that the RCS message failed. The status is `REJECTED`, `UNDELIVERABLE` or `FAILED`. When the event includes a `reason_code`, it tells you why the message failed, for example `NOT_RCS_CAPABLE` or `EXPIRED`.
+An `RCS_STATUS` event reports that the RCS message failed. The status is `REJECTED`, `UNDELIVERABLE` or `FAILED`. The event can include a `reason_code`, such as `NOT_RCS_CAPABLE` or `EXPIRED`, or a `description` that says why the message failed. The `description` is text for people to read, so don't match on it.
 
 ```json
 {
   "event_type": "RCS_STATUS",
-  "timestamp": "2026-11-17T01:05:02.118000Z",
+  "timestamp": "2026-11-17T01:05:02Z",
   "webhook_id": "67e3e4af-62e8-4515-8b67-6f20d0c51ffb",
   "webhook_name": "RCS and SMS status",
   "status": {
@@ -160,8 +160,8 @@ An `RCS_STATUS` event reports that the RCS message failed. The status is `REJECT
     "message_ref": "order-12345",
     "sender": "DemoSender",
     "recipient": "61438333061",
-    "status": "REJECTED",
-    "reason_code": "NOT_RCS_CAPABLE"
+    "status": "FAILED",
+    "description": "Requested entity was not found. : sms fallback requested"
   }
 }
 ```
@@ -171,7 +171,7 @@ An `RCS_STATUS` event reports that the RCS message failed. The status is `REJECT
 ```json
 {
   "event_type": "SMS_STATUS",
-  "timestamp": "2026-11-17T01:05:06.930000Z",
+  "timestamp": "2026-11-17T01:05:06Z",
   "webhook_id": "67e3e4af-62e8-4515-8b67-6f20d0c51ffb",
   "webhook_name": "RCS and SMS status",
   "status": {
