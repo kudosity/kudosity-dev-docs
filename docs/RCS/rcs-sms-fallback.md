@@ -212,6 +212,7 @@ An upgraded SMS keeps its `id` and `message_ref` on the RCS side, but the table 
 ## Things to watch
 
 * **No `sms_fallback`, no SMS.** A failed RCS message without one isn't sent on any other channel.
+* **Fallback needs a sender.** If you include `sms_fallback`, set `sms_fallback.sender`. Without a sender, the fallback SMS isn't sent, and you receive the failed `RCS_STATUS` event and no `SMS_STATUS` events.
 * **The fallback sender must be yours.** If `sms_fallback.sender` isn't a number or sender ID that your account can send SMS from, the request fails with `404`.
 * **The fallback SMS follows the same rules as any SMS you send.** It isn't sent if the recipient has opted out of your SMS, or if your account can't send it, for example because it has run out of credit. You then receive the failed `RCS_STATUS` event and no `SMS_STATUS` events.
 * **Links in the fallback SMS aren't shortened or tracked.**
