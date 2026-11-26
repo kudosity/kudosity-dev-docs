@@ -15,7 +15,7 @@ next:
 ---
 This guide shows you how to build each RCS message format with the [Send RCS message](https://developers.kudosity.com/reference/post_v2-rcs-messages) endpoint. Each example shows a preview of the message, the JSON field behind each numbered part, and the full request body.
 
-The examples use placeholder values. Replace `DemoSender` with your RCS agent ID, and replace the recipient, links and media URLs with your own. The `cdn.example.com` media URLs don't exist, so a request that uses them fails with a `400` error.
+The examples use placeholder values. Replace `DemoSender` with your RCS agent ID, and replace the recipient, fallback sender, links and media URLs with your own. The `cdn.example.com` media URLs don't exist, so a request that uses them fails with a `400` error.
 
 ## Choose a message format
 
@@ -129,7 +129,8 @@ curl --request POST \
       ]
     },
     "sms_fallback": {
-      "message": "Can you confirm your appointment on Thursday at 10am? Reply YES or NO."
+      "message": "Can you confirm your appointment on Thursday at 10am? Reply YES or NO.",
+      "sender": "61481074185"
     },
     "message_ref": "appt-789"
   }'
@@ -169,7 +170,8 @@ A successful request returns `200` with the message as it was accepted. Keep the
       ]
     },
     "sms_fallback": {
-      "message": "Can you confirm your appointment on Thursday at 10am? Reply YES or NO."
+      "message": "Can you confirm your appointment on Thursday at 10am? Reply YES or NO.",
+      "sender": "61481074185"
     },
     "created_at": "2026-11-12T01:30:00Z"
   }
@@ -414,7 +416,8 @@ Use a carousel to present several products or options in one message. Each entry
     ]
   },
   "sms_fallback": {
-    "message": "New arrivals: the classic tee ($29) and hoodie ($59). Shop at example.com"
+    "message": "New arrivals: the classic tee ($29) and hoodie ($59). Shop at example.com",
+    "sender": "61481074185"
   }
 }
 ```
@@ -484,7 +487,7 @@ For the appointment example, route `appt-789-yes` to your confirmation workflow 
 
 ## Add an SMS fallback
 
-An RCS message can fail, for example when the recipient's device doesn't support RCS. To reach the recipient anyway, add a top-level `sms_fallback` object with the text to send by SMS.
+An RCS message can fail, for example when the recipient's device doesn't support RCS. To reach the recipient anyway, add a top-level `sms_fallback` object with the text to send by SMS and the sender to send it from.
 
 ```json
 {
@@ -497,13 +500,15 @@ An RCS message can fail, for example when the recipient's device doesn't support
     }
   },
   "sms_fallback": {
-    "message": "Can you confirm your appointment on Thursday at 10am? Reply YES or NO."
+    "message": "Can you confirm your appointment on Thursday at 10am? Reply YES or NO.",
+    "sender": "61481074185"
   }
 }
 ```
 
 * `sms_fallback.message` is required when you include the object. Write it as a standalone SMS. Images, cards and buttons aren't carried over, so include any link or reply instruction in the text.
-* `sms_fallback.sender` is optional. Use it to set the number or alphanumeric sender ID that the SMS comes from.
+* `sms_fallback.sender` is the number or alphanumeric sender ID that the SMS comes from. Set it every time. Without a sender, the request is accepted but the fallback SMS isn't sent.
+* The sender must be one that your account can send SMS from. If it isn't, the request fails with a `404` error.
 * Without `sms_fallback`, a failed RCS message isn't sent by SMS.
 
 To follow a message across both channels and tell whether it arrived as RCS or as SMS, see [Track an RCS message that falls back to SMS](https://developers.kudosity.com/docs/rcs-sms-fallback).

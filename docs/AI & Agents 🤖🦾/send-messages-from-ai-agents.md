@@ -100,10 +100,15 @@ Register and get your templates approved before sending. The template `name` mus
 
 ## Send an RCS message with SMS fallback
 
-RCS gives you a richer, branded experience. Two things make it different:
+RCS gives you a richer, branded experience: text, images and video, rich cards and carousels, with
+buttons the recipient can tap. Three things make it different:
 
-- **`sender` is a registered RCS agent ID, not a phone number.**
-- Set **`sms_fallback`** so recipients on non-RCS devices still get the message.
+- **`sender` is your RCS agent ID, not a phone number.** You create, test and launch the agent in
+  the Kudosity app. See [RCS onboarding](/docs/rcs-onboarding).
+- Set **`sms_fallback`** with a `message` and a `sender`, so recipients on non-RCS devices still get
+  the message. Without `sms_fallback.sender`, the fallback SMS isn't sent.
+- A `200` response means the message was accepted, not delivered. Delivery and read receipts arrive
+  in `RCS_STATUS` [webhook events](https://developers.kudosity.com/reference/about-webhooks).
 
 ```js
 await fetch("https://api.transmitmessage.com/v2/rcs/messages", {
@@ -119,6 +124,53 @@ await fetch("https://api.transmitmessage.com/v2/rcs/messages", {
   }),
 });
 ```
+
+### Send a rich card with buttons
+
+A rich card combines an image, a title, text and up to four buttons. Suggestions under the card give
+the recipient one-tap replies.
+
+```js
+await fetch("https://api.transmitmessage.com/v2/rcs/messages", {
+  method: "POST",
+  headers: { "Content-Type": "application/json", "x-api-key": process.env.KUDOSITY_API_KEY },
+  body: JSON.stringify({
+    sender: process.env.KUDOSITY_RCS_AGENT_ID,   // RCS agent ID
+    recipient: "61438333061",
+    content_type: "rich_card",
+    content: {
+      rich_card: {
+        standalone: {
+          card_content: {
+            title: "Your order is out for delivery",
+            description: "Order #12345 arrives today between 2pm and 4pm.",
+            media: { file_url: "https://example.com/images/van.jpg" },
+            suggestions: [
+              { action: { text: "Track order", open_url_action: { url: "https://example.com/track/12345" } } },
+            ],
+          },
+        },
+      },
+      suggestions: [
+        { reply: { text: "Reschedule", postback_data: "order-12345:reschedule" } },
+      ],
+    },
+    sms_fallback: {
+      sender: process.env.KUDOSITY_SENDER,
+      message: "Your order #12345 arrives today 2-4pm. Track: https://example.com/track/12345",
+    },
+    message_ref: "order-12345",
+  }),
+});
+```
+
+When the recipient taps **Reschedule**, your webhook receives an `RCS_INBOUND` event with
+`mo.content_type` set to `SUGGESTION` and your `postback_data`. Route on `postback_data`, not on the
+label.
+
+The image URL is a placeholder. A media URL must be a public `https` URL that doesn't redirect, and
+the request fails if Kudosity can't fetch the file. See the
+[RCS Message Guide](/docs/rcs-message-guide) for carousels and every other format.
 
 ## No-code: use Kudosity as an MCP tool
 
