@@ -5,14 +5,14 @@ hidden: false
 metadata:
   robots: index
 ---
-The Kudosity Model Context Protocol (MCP) server gives AI assistants and agents native tools for messaging — send SMS, MMS, and WhatsApp, manage contacts and webhooks, and check your balance — plus live discovery of the Kudosity API specs.
+The Kudosity Model Context Protocol (MCP) server gives AI assistants and agents native tools for messaging — send SMS, MMS, and WhatsApp, manage contacts and webhooks, and check your balance — plus live discovery of the Kudosity API specs. RCS has no send tool of its own; see [Send RCS](#send-rcs) for how an agent sends it.
 
 There are two ways to use it:
 
 |  | Best for | Install |
 | --- | --- | --- |
 | **Installable server** (`kudosity-mcp` on npm) | Day-to-day use: 19 native tools your agent calls directly, with your API key | `npx -y kudosity-mcp` |
-| **Hosted server** (`developers.kudosity.com/mcp`) | Zero-install API exploration: search specs, generate code snippets, run ad-hoc requests | Point your client at the URL |
+| **Hosted server** (`developers.kudosity.com/mcp`) | Zero-install API exploration: search the specs and guides, look up any endpoint, run ad-hoc requests | Point your client at the URL |
 
 ## What is MCP?
 
@@ -32,7 +32,7 @@ The open-source [`kudosity-mcp`](https://github.com/kudosity/mcp) package is pub
 | Account (1) | `get_balance` |
 | API discovery (4) | `list_specs`, `list_endpoints`, `search_endpoints`, `get_endpoint` |
 
-The discovery tools read the live Kudosity OpenAPI specs at runtime, so the tools never drift from the documentation.
+The discovery tools read the live Kudosity OpenAPI specs at runtime, so the tools never drift from the documentation. That includes the RCS endpoints: `get_endpoint` returns the current request schema for text, media, rich cards, carousels and suggested replies.
 
 ### Setup
 
@@ -68,9 +68,8 @@ claude mcp add kudosity -e KUDOSITY_API_KEY=your-api-key -- npx -y kudosity-mcp
 
 Kudosity also hosts a remote MCP server at `https://developers.kudosity.com/mcp` for zero-install API exploration:
 
-* **API discovery** — `list-specs`, `list-endpoints`, `get-endpoint`, `search-specs`
-* **Schema & documentation** — `get-request-body`, `get-response-schema`, `list-security-schemes`, `search-documentation`
-* **Code generation** — `get-code-snippet` in curl, JavaScript, Python, and more
+* **API discovery** — `list-specs`, `list-endpoints`, `search-endpoints`, `get-endpoint`
+* **Documentation** — `search` finds guides and reference pages, and `fetch` returns a page's content
 * **Live execution** — `execute-request` runs real API calls
 
 ### Authentication for live execution
@@ -156,11 +155,34 @@ Kudosity also hosts a remote MCP server at `https://developers.kudosity.com/mcp`
 
 **Important**: Restart your AI tool after saving the configuration file.
 
+## Send RCS
+
+Neither server has a dedicated RCS send tool. Both read the live API spec, so your agent can look up the RCS endpoints and get the current request schema for text, images and video, rich cards, carousels and suggested replies.
+
+| Step | Installable server | Hosted server |
+| --- | --- | --- |
+| Find the RCS endpoints | `search_endpoints` with the query `rcs` | `search-endpoints` with the pattern `rcs` |
+| Get the request schema | `get_endpoint` for `POST /v2/rcs/messages` | `get-endpoint` for `POST /v2/rcs/messages` |
+| Send the message | No tool. A coding agent, such as Claude Code or Cursor, can make the request itself | `execute-request`, with your API key in the `x-api-key` header |
+| Get delivery events and replies | `create_webhook` with `RCS_STATUS` and `RCS_INBOUND` | `execute-request` on `POST /v2/webhook` |
+
+If your client can't make HTTP requests itself, as with Claude Desktop, add the hosted server to send RCS.
+
+RCS has rules that the other channels don't. Give your agent these, or install the `kudosity-rcs` [Agent Skill](https://developers.kudosity.com/docs/agent-skills), which covers them:
+
+* **The sender is your RCS agent ID, not a phone number.** Until your agent is launched, it can message its test devices only. See [RCS onboarding](https://developers.kudosity.com/docs/rcs-onboarding).
+* **The recipient must be in international format**, such as `61438333061`. Local formats, such as `0438 333 061`, are rejected.
+* **An SMS fallback needs a message and a sender.** Without `sms_fallback.sender`, the fallback SMS isn't sent.
+* **A `200` response means the message was accepted, not delivered.** Subscribe to `RCS_STATUS`, and to `SMS_STATUS` if you set a fallback.
+* **A tapped suggestion arrives as an `RCS_INBOUND` event** with `mo.content_type` set to `SUGGESTION`.
+
+The [RCS Message Guide](https://developers.kudosity.com/docs/rcs-message-guide) has an example of every message format. [Track an RCS message that falls back to SMS](https://developers.kudosity.com/docs/rcs-sms-fallback) shows how to tell which channel delivered a message.
+
 ## Test your setup
 
 1. **Restart your AI tool** (Claude Desktop, Cursor, etc.)
 2. **Start a new chat** with the AI assistant
-3. **Try it** — for the installable server: "Check my Kudosity balance" or "Send a test SMS to my number". For the hosted server: "What APIs does Kudosity offer?" or "Create a curl command to send my first SMS through Kudosity"
+3. **Try it** — for the installable server: "Check my Kudosity balance" or "Send a test SMS to my number". For the hosted server: "What APIs does Kudosity offer?", "Create a curl command to send my first SMS through Kudosity" or "Show me the request to send an RCS rich card with an SMS fallback"
 
 ## Next steps
 
