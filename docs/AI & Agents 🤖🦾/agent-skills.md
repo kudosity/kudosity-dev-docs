@@ -47,9 +47,9 @@ Use `~/.claude/skills/` for Claude Code, `.cursor/skills/` for Cursor, or `.agen
 | `kudosity-mms` | Send images, GIFs, video, and audio |
 | `kudosity-whatsapp` | Send templates and free-form text, handle the 24-hour service window, set SMS fallback |
 | `kudosity-whatsapp-templates` | Template names, positional parameters, locales, and media headers |
-| `kudosity-rcs` | Send RCS through an agent ID, set SMS fallback, check device capability |
+| `kudosity-rcs` | Send text, media, rich cards and carousels through an agent ID, add suggested replies and buttons, set SMS fallback, check device capability |
 | `kudosity-contacts-lists` | Create lists, add and remove members, handle opt-outs |
-| `kudosity-webhooks` | Receive delivery status, inbound replies, link hits, and opt-outs |
+| `kudosity-webhooks` | Receive delivery status, inbound replies, tapped RCS suggestions, link hits, and opt-outs |
 
 Each skill works on its own. Install one, and the task it describes works from end to end.
 
