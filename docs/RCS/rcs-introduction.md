@@ -6,7 +6,7 @@ hidden: false
 metadata:
   title: ''
   description: >-
-    RCS Business Messaging (RBM) is an advanced evolution of SMS, offering
+    RCS Business Messaging is an advanced evolution of SMS, offering
     interactive, branded communication through default messaging apps on Android
     and select iPhones, with features like verified business profiles, smart SMS
     fallback, and a spam-resistant channel, all accessible via a
@@ -15,7 +15,7 @@ metadata:
 next:
   description: ''
 ---
-[RCS Business Messaging ](https://developers.google.com/business-communications/rcs-business-messaging/guides/get-started/how-it-works)(RBM) is the modern evolution of SMS — a richer, interactive channel built into the default messaging apps on Android, and now increasingly available on iPhones in select markets.
+[RCS Business Messaging](https://developers.google.com/business-communications/rcs-business-messaging/guides/get-started/how-it-works) is the modern evolution of SMS — a richer, interactive channel built into the default messaging apps on Android, and now increasingly available on iPhones in select markets.
 
 With support for branded, app-like experiences and full conversational interactivity, RCS empowers businesses to connect with customers in a far more engaging way — no app installs, no redirects, no clunky mobile web.
 
