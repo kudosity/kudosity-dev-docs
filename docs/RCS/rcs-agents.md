@@ -1,10 +1,10 @@
 ---
-title: RBM/RCS Agents
+title: RCS Agents
 excerpt: ''
 deprecated: false
 hidden: false
 metadata:
-  title: RCS/RBM Agents
+  title: RCS Agents
   description: >-
     In RCS Business Messaging, an agent is the branded, verified identity that
     customers see when they receive messages, while the sender or number is the

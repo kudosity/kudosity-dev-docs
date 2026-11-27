@@ -24,7 +24,7 @@ You create, test and launch your RCS agent yourself in the Kudosity app. The pro
 | 2. Test your agent   | Add test devices, then send messages to them from the app or the API.                               | The last step of the wizard, or the agent's **Test message** tab |
 | 3. Request launch    | Confirm that testing is complete. Kudosity then works with you to verify your business for launch.  | The agent's page                                                 |
 
-For what an agent is and how it appears to your customers, see [RBM/RCS Agents](https://developers.kudosity.com/docs/rbm-agents).
+For what an agent is and how it appears to your customers, see [RCS Agents](https://developers.kudosity.com/docs/rcs-agents).
 
 > 📘 Can't see RCS in the menu?
 >
